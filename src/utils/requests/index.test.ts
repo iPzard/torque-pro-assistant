@@ -36,7 +36,7 @@ describe('utils/requests', () => {
     fetchMock.mockResolvedValue({ json: () => Promise.resolve({ ok: true }) });
     get('ping', jest.fn());
     get('ping', jest.fn());
-    await new Promise<void>((r) => { setTimeout(r, 0); });
+    await new Promise<void>((resolve) => { setTimeout(resolve, 0); });
     expect(getPort).toHaveBeenCalledTimes(1);
   });
 
@@ -45,7 +45,7 @@ describe('utils/requests', () => {
     const cb = jest.fn();
 
     get('ping', cb);
-    await new Promise<void>((r) => { setTimeout(r, 0); });
+    await new Promise<void>((resolve) => { setTimeout(resolve, 0); });
 
     expect(fetchMock).toHaveBeenCalledWith('http://127.0.0.1:3042/ping');
     expect(cb).toHaveBeenCalledWith({ ok: true });
@@ -58,7 +58,7 @@ describe('utils/requests', () => {
     const errCb = jest.fn();
 
     get('ping', cb, errCb);
-    await new Promise<void>((r) => { setTimeout(r, 0); });
+    await new Promise<void>((resolve) => { setTimeout(resolve, 0); });
 
     expect(cb).not.toHaveBeenCalled();
     expect(errCb).toHaveBeenCalledWith(err);
@@ -70,7 +70,7 @@ describe('utils/requests', () => {
     const body = JSON.stringify({ a: 1 });
 
     post(body, 'submit', cb);
-    await new Promise<void>((r) => { setTimeout(r, 0); });
+    await new Promise<void>((resolve) => { setTimeout(resolve, 0); });
 
     expect(fetchMock).toHaveBeenCalledWith(
       'http://127.0.0.1:3042/submit',

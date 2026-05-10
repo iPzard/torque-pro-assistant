@@ -32,14 +32,18 @@ Desktop log viewer for [Torque Pro](https://torque-bhp.com/) OBD-II driving sess
 
 ## File layout rules
 
-These are hard rules — apply to all new code; fix existing code that violates them when you touch the surrounding folder.
+Hard rules — apply to all new code; fix existing code that violates them when you touch the surrounding folder.
 
-1. **Kebab-case for every file we control.** Folders too. No PascalCase / camelCase in `src/`. Exceptions are framework-mandated names (`setupTests.ts`, `tsconfig*.json`, `package.json`) and Python (snake_case).
-2. **Folder-per-thing with `index.{tsx,ts}`.** Every component, page, hook, slice, or util lives in its own kebab-cased folder. The implementation is `index.tsx` (React) or `index.ts` (logic). Optional `index.module.scss` next to it when CSS modules are needed. Imports stay clean: `import Library from './pages/library'`.
-3. **Tests colocated as `index.test.{tsx,ts}`.** Each component / page / util / hook / slice gets a unit test using **React Testing Library**. Aim for behaviour-level assertions; no snapshots.
-4. **Barrel exports — `src/utils/` only.** `src/utils/index.ts` (and any `<thing>/utils/index.ts` sub-tree) re-exports siblings so consumers can write `import { someUtil } from '<path>/utils'`. **Do NOT barrel-export components, pages, hooks, types, slices, or anything else.** Import those by direct path.
-5. **CSS modules only for bespoke styling.** Mantine carries 95% via its CSS variables / component props. When you need custom CSS (drag regions, design-only flourishes), use a sibling `index.module.scss` imported as `import styles from './index.module.scss'`. No global selectors inside module files.
-6. **Page-specific utils live under the page.** Helpers used by exactly one page go in `<page>/utils/<util-name>/index.tsx` (+ test) with a barrel at `<page>/utils/index.tsx`. Cross-page helpers go in `src/utils/<util>/`.
+1. **Kebab-case for every file / folder we control.** Folder name is the kebab form of the thing's camelCase identifier — `someUtil` lives in `some-util/index.ts`, exported as `someUtil`. Exceptions: framework-mandated names (`setupTests.ts`, `tsconfig*.json`, `package.json`) and Python (snake_case).
+2. **Folder-per-thing with `index.{tsx,ts}`.** Every component, page, hook, slice, or util lives in its own kebab-cased folder. Implementation is `index.tsx` (React) or `index.ts` (logic). Optional sibling `index.module.scss` when CSS modules are needed. Imports stay clean: `import Library from './pages/library'`.
+3. **Tests colocated as `index.test.{tsx,ts}`.** Each component / page / util / hook / slice gets a unit test using **React Testing Library**. Behaviour-level assertions; no snapshots.
+4. **Barrels at `<thing>/utils/index.{tsx,ts}` only.** A `utils/` folder gets a barrel re-exporting siblings so consumers write `import { someUtil, otherUtil } from '<path>/utils'`. Shared utils → `src/utils/index.ts`. Page- or component-local utils → `<thing>/utils/index.tsx`. **Do NOT barrel-export components, pages, hooks, types, slices, or anything else** — import those by direct path.
+5. **CSS modules only for bespoke styling.** Mantine carries 95% via CSS variables / component props. For custom CSS, use a sibling `index.module.scss` imported as `import styles from './index.module.scss'`. No global selectors inside module files.
+6. **Sub-components nest under their parent.** A sub-component used only by `componentA` lives at `component-a/sub-component/index.tsx` — not hoisted to the shared component pool. Sub-components carry their own `utils/` and barrel. Things sit only as high in the tree as they need to to feed the current directory + descendants.
+7. **No utils inside component / page files.** Any named function defined inside a component (event handlers, predicates, fetchers) gets extracted to a util folder with its own test. Anonymous one-line lambdas inline in JSX (`onClick={() => navigate(...)}`) are fine.
+8. **Tests don't reach across.** A component's test asserts only that component's behaviour. To verify routing or composition, mock the children — don't assert the rendered output of B inside A's test.
+9. **Descriptive variable names.** No single-letter identifiers. `state` not `s`, `error` not `e`. The reader should never need to inspect surrounding code to know what a variable holds.
+10. **Every component / util / hook / slice gets a TSDoc block.** A `/** ... */` JSDoc comment above each default export (and each named export of utils) describing what the thing does, its parameters, and its return. Feeds `yarn build:docs`. Keep narrative inline comments separate — JSDoc above the export, `//` for in-body explanations.
 
 Example shape:
 
@@ -50,6 +54,11 @@ src/
       index.tsx
       index.test.tsx
       index.module.scss
+      utils/
+        is-active/
+          index.ts
+          index.test.ts
+        index.ts             ← barrel for app's utils
     pages/
       compare/
         index.tsx
@@ -58,14 +67,22 @@ src/
           some-util/
             index.tsx
             index.test.tsx
-          index.tsx          ← barrel for compare's utils
+          index.tsx
+        sub-component/       ← used only by compare
+          index.tsx
+          index.test.tsx
+          utils/
+            sub-util/
+              index.tsx
+              index.test.tsx
+            index.tsx
   utils/
     requests/
       index.ts
       index.test.ts
     index.ts                 ← barrel for shared utils
   types/
-    electron-api.ts          ← flat: types don't need a barrel or test
+    electron-api.ts          ← flat: types don't get a barrel or test
 ```
 
 ## Conventions / gotchas

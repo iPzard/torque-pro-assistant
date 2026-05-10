@@ -1,14 +1,18 @@
 import { Group, Stack, Text, Title } from '@mantine/core';
-import { Dropzone, MIME_TYPES, type FileWithPath } from '@mantine/dropzone';
+import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
+import { handleDrop } from './utils';
 
-// Placeholder for the design's three-stage Import flow (drop → parsing →
-// preview). For now, just the dropzone shell — Papa Parse wiring,
-// validation panel, and the session-details form land during feature work.
+/**
+ * Renders the Import session page — a full-page Mantine `Dropzone` shell
+ * the user lands on from the sidebar nav or the Library page's "Import CSV"
+ * button. Currently a placeholder for the design's three-stage flow
+ * (drop → parsing → preview); only the drop surface is wired up. The Papa
+ * Parse pipeline, validation panel, and session-details form land in
+ * CLAUDE.md TODO §D.
+ *
+ * @returns The Import page React element.
+ */
 function Import() {
-  const handleDrop = (files: FileWithPath[]): void => {
-    console.log('Dropped CSV files (parser wiring deferred):', files.map((f) => f.name));
-  };
-
   return (
     <Stack gap="md">
       <Stack gap={ 4 }>

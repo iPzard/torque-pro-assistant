@@ -1,5 +1,5 @@
 // Talks to the Python/Flask backend via fetch. The Flask port is provided by
-// the preload bridge (see preload.js → contextBridge → window.electronAPI).
+// the preload bridge (see preload.ts → contextBridge → window.electronAPI).
 // The renderer no longer has direct Electron access (contextIsolation: true).
 //
 // Flask is spawned by Electron in parallel with the React dev server, so the
@@ -11,22 +11,40 @@
 // window.electronAPI before any module-load reads fire.
 
 let portCache: number | undefined;
-const getPort = (): number => {
+
+/**
+ * Resolves the Flask port via the preload bridge, caching the result so
+ * subsequent calls are free. Reading lazily keeps tests able to install a
+ * stub `window.electronAPI` before the first request fires.
+ *
+ * @returns The port number Flask is bound to in the running window.
+ */
+const resolvePort = (): number => {
   if (portCache === undefined) portCache = window.electronAPI.getPort();
   return portCache;
 };
 
 const RETRYABLE_NETWORK_ERROR = /Failed to fetch|NetworkError|ECONNREFUSED|connection refused/i;
 
+/**
+ * fetch wrapper that retries on connection-refused-style network errors.
+ * Used by `get` and `post` to absorb the race between the React dev
+ * server and the Flask process during startup.
+ *
+ * @param requestUrl - Absolute URL to fetch.
+ * @param requestInit - Optional fetch init (method, headers, body).
+ * @param maxAttempts - Total attempts before re-throwing the last error.
+ * @returns The fetch `Response` from the first successful attempt.
+ */
 const fetchWithRetry = async (
-  url: string,
-  init?: RequestInit,
+  requestUrl: string,
+  requestInit?: RequestInit,
   maxAttempts = 6
 ): Promise<Response> => {
   let lastError: unknown;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
-      return await (init === undefined ? fetch(url) : fetch(url, init));
+      return await (requestInit === undefined ? fetch(requestUrl) : fetch(requestUrl, requestInit));
     } catch (error) {
       lastError = error;
       const message = (error instanceof Error ? error.message : '') || '';
@@ -35,52 +53,54 @@ const fetchWithRetry = async (
       }
       // Exponential backoff: 100ms, 200ms, 400ms, 800ms, 1600ms (capped)
       const delay = Math.min(100 * 2 ** (attempt - 1), 1600);
-      await new Promise<void>((r) => { setTimeout(r, delay); });
+      await new Promise<void>((resolve) => { setTimeout(resolve, delay); });
     }
   }
   throw lastError;
 };
 
 /**
- * Helper functions for network requests (e.g., get, post, put, delete, etc..)
+ * Issues a GET to the Python/Flask backend at the bridge-supplied port.
+ *
+ * @param route - Path under the Flask root (no leading slash) — e.g.
+ *   `'ping'` or `'sessions/abc'`.
+ * @param onSuccess - Callback invoked with the parsed JSON body.
+ * @param onError - Optional callback for fetch failures. Defaults to
+ *   `console.error`.
  */
-
-/**
-* Helper GET method for sending requests to and from the Python/Flask services.
-* @param {string} route - Path of the Python/Flask service you want to use.
-* @param {Function} callback - Callback function which uses the returned data as an argument.
-* @return response data from Python/Flask service.
-*/
-export const get = <T = unknown>(
+export const get = <ResponseBody = unknown>(
   route: string,
-  callback: (data: T) => void,
-  errorCallback?: (error: unknown) => void
+  onSuccess: (data: ResponseBody) => void,
+  onError?: (error: unknown) => void
 ): void => {
-  fetchWithRetry(`http://127.0.0.1:${getPort()}/${route}`)
-    .then((response) => response.json() as Promise<T>)
-    .then(callback)
-    .catch((error) => (errorCallback ? errorCallback(error) : console.error(error)));
+  fetchWithRetry(`http://127.0.0.1:${resolvePort()}/${route}`)
+    .then((response) => response.json() as Promise<ResponseBody>)
+    .then(onSuccess)
+    .catch((error) => (onError ? onError(error) : console.error(error)));
 };
 
 /**
-* Helper POST method for sending requests to and from the Python/Flask services.
-* @param body - request body of data that you want to pass.
-* @param route - URL route of the Python/Flask service you want to use.
-* @param callback - optional callback function to be invoked if provided.
-* @return response data from Python/Flask service.
-*/
-export const post = <TBody extends BodyInit | null | undefined, TResp = unknown>(
-  body: TBody,
+ * Issues a POST to the Python/Flask backend at the bridge-supplied port,
+ * with `Content-Type: application/json`.
+ *
+ * @param requestBody - Body payload (already serialised) to send.
+ * @param route - Path under the Flask root (no leading slash).
+ * @param onSuccess - Callback invoked with the parsed JSON body.
+ * @param onError - Optional callback for fetch failures. Defaults to
+ *   `console.error`.
+ */
+export const post = <RequestBody extends BodyInit | null | undefined, ResponseBody = unknown>(
+  requestBody: RequestBody,
   route: string,
-  callback: (data: TResp) => void,
-  errorCallback?: (error: unknown) => void
+  onSuccess: (data: ResponseBody) => void,
+  onError?: (error: unknown) => void
 ): void => {
-  fetchWithRetry(`http://127.0.0.1:${getPort()}/${route}`, {
-    body,
+  fetchWithRetry(`http://127.0.0.1:${resolvePort()}/${route}`, {
+    body: requestBody,
     headers: { 'Content-type': 'application/json' },
     method: 'POST'
   })
-    .then((response) => response.json() as Promise<TResp>)
-    .then(callback)
-    .catch((error) => (errorCallback ? errorCallback(error) : console.error(error)));
+    .then((response) => response.json() as Promise<ResponseBody>)
+    .then(onSuccess)
+    .catch((error) => (onError ? onError(error) : console.error(error)));
 };

@@ -15,17 +15,17 @@ import {
   Routes,
   useLocation
 } from 'react-router-dom';
-import { app as windowControls, get } from '../../utils';
+import { app as windowControls } from '../../utils';
 import Library from '../pages/library';
 import Compare from '../pages/compare';
 import Import from '../pages/import';
 import Settings from '../pages/settings';
+import { isActive, pingFlask } from './utils';
 import styles from './index.module.scss';
 
-// Sidebar layout matches the handoff design:
-//   Workspace group  — Library / Compare / Import
-//   pinned at bottom — Settings
-// Adding a workspace page is a one-edit change against TOP_NAV.
+// Single source of truth for sidebar entries. Top group renders inside the
+// "Workspace" label; bottom group is pinned to the floor. Adding a route is
+// a one-edit change against TOP_NAV / BOTTOM_NAV plus a matching <Route>.
 const TOP_NAV = [
   { label: 'Library', path: '/library' },
   { label: 'Compare', path: '/compare' },
@@ -36,28 +36,30 @@ const BOTTOM_NAV = [
   { label: 'Settings', path: '/settings' }
 ] as const;
 
+/**
+ * Root shell of the renderer. Owns the Mantine `AppShell` (44px header,
+ * 220px navbar, padded main) and the route switch for the placeholder
+ * pages. Branches the window-chrome on platform — macOS lets the OS draw
+ * traffic lights via `titleBarStyle: 'hiddenInset'` (configured in
+ * main.ts), Windows / Linux render Mantine `ActionIcon` min/max/close
+ * controls on the right.
+ *
+ * Fires a one-shot `pingFlask` on mount to confirm the Electron ↔ Flask
+ * bridge is alive before any feature work hits the backend.
+ *
+ * @returns The full app shell React element.
+ */
 function App() {
   // preload freezes process.platform at bridge-creation time, so reading it
   // inside the component is a constant for the lifetime of the window.
   // Inlined here (not at module scope) so tests can swap window.electronAPI
   // between renders without juggling isolateModules.
-  // macOS gets the OS-rendered traffic lights via main.ts's
-  // `titleBarStyle: 'hiddenInset'`; Windows / Linux get our own min/max/close.
   const isMac = window.electronAPI.platform === 'darwin';
   const location = useLocation();
 
   useEffect(() => {
-    get<string>(
-      'ping',
-      (response) => console.log('Flask /ping:', response),
-      (error) => console.error('Flask /ping failed:', error)
-    );
+    pingFlask();
   }, []);
-
-  const isActive = (path: string): boolean => (
-    location.pathname === path
-    || (path === '/library' && location.pathname === '/')
-  );
 
   return (
     <AppShell
@@ -102,24 +104,24 @@ function App() {
           <Text size="xs" c="dimmed" tt="uppercase" fw={ 500 } pl="xs" pb={ 4 }>
             Workspace
           </Text>
-          { TOP_NAV.map((item) => (
+          { TOP_NAV.map((navItem) => (
             <NavLink
-              key={ item.path }
+              key={ navItem.path }
               component={ Link }
-              to={ item.path }
-              label={ item.label }
-              active={ isActive(item.path) }
+              to={ navItem.path }
+              label={ navItem.label }
+              active={ isActive(location.pathname, navItem.path) }
             />
           )) }
 
           <Stack gap={ 2 } mt="auto">
-            { BOTTOM_NAV.map((item) => (
+            { BOTTOM_NAV.map((navItem) => (
               <NavLink
-                key={ item.path }
+                key={ navItem.path }
                 component={ Link }
-                to={ item.path }
-                label={ item.label }
-                active={ isActive(item.path) }
+                to={ navItem.path }
+                label={ navItem.label }
+                active={ isActive(location.pathname, navItem.path) }
               />
             )) }
           </Stack>

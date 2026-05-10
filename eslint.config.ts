@@ -147,6 +147,7 @@ export default tseslint.config(
     // Test files: relax type-aware rules that fight common test patterns.
     files: ['**/*.test.{ts,tsx}', 'src/setupTests.ts'],
     rules: {
+      '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',

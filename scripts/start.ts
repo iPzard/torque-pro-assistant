@@ -141,8 +141,8 @@ export class Starter {
       if (!input) return;
       const rl = readline.createInterface({ input });
       rl.on('line', (line: string) => {
-        const clean = line.replace(ANSI_RE, '');
-        if (patterns.some((p) => p.test(clean))) return;
+        const cleanLine = line.replace(ANSI_RE, '');
+        if (patterns.some((pattern) => pattern.test(cleanLine))) return;
         sink.write(`${line}\n`);
       });
     };

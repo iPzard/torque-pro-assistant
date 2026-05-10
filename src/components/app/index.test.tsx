@@ -5,23 +5,43 @@ import { MantineProvider } from '@mantine/core';
 import { MemoryRouter } from 'react-router-dom';
 import type { ElectronAPI } from '../../types/electron-api';
 import store from '../../state/store';
+
+// Each page is mocked with a sentinel marker so App's routing can be asserted
+// without reaching into the real page implementations. Per the project's
+// architecture rules, a component's test never asserts another component's
+// behaviour — composition is verified by mocking the children.
+jest.mock('../pages/library', () => ({
+  __esModule: true,
+  default: () => <div data-testid="library-route" />
+}));
+jest.mock('../pages/compare', () => ({
+  __esModule: true,
+  default: () => <div data-testid="compare-route" />
+}));
+jest.mock('../pages/import', () => ({
+  __esModule: true,
+  default: () => <div data-testid="import-route" />
+}));
+jest.mock('../pages/settings', () => ({
+  __esModule: true,
+  default: () => <div data-testid="settings-route" />
+}));
+
+// pingFlask fires inside App's mount effect via utils/requests; mock it out
+// so tests don't trigger fetchWithRetry timers.
+jest.mock('./utils', () => ({
+  ...jest.requireActual('./utils'),
+  pingFlask: jest.fn()
+}));
+
 import App from '.';
+import { pingFlask } from './utils';
 
-// App reads window.electronAPI inside the component body (not at module
-// load), so each render can be exercised against a fresh stub bridge with
-// no module-graph juggling.
-//
-// App also fires a GET /ping on mount via utils/requests. The renderer
-// helper retries on connection errors up to 6 times with backoff, which
-// would slow tests down without a fetch stub. Mock it once per test so
-// the /ping resolves immediately and quietly.
-
-beforeEach(() => {
-  global.fetch = jest.fn().mockResolvedValue({
-    json: () => Promise.resolve('pong')
-  }) as unknown as typeof fetch;
-});
-
+/**
+ * Build a stub ElectronAPI bridge. Each test installs one before rendering
+ * so window.electronAPI.platform / .minimize / .maximize / .quit are
+ * jest.fn instances that can be asserted against.
+ */
 function makeApi(overrides: Partial<ElectronAPI> = {}): ElectronAPI {
   return {
     getPort: jest.fn(() => 3001),
@@ -47,6 +67,10 @@ function renderApp(api: ElectronAPI = makeApi(), initialPath = '/') {
   );
 }
 
+beforeEach(() => {
+  (pingFlask as jest.Mock).mockClear();
+});
+
 describe('components/app', () => {
   test('renders the app name in the header', () => {
     renderApp();
@@ -55,20 +79,31 @@ describe('components/app', () => {
     expect(screen.getByText(/· Assistant/)).toBeInTheDocument();
   });
 
-  test('default route ("/") redirects to Library', () => {
+  test('default route ("/") renders the Library route', () => {
     renderApp(makeApi(), '/');
-    expect(
-      screen.getByRole('heading', { level: 2, name: /library/i })
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('library-route')).toBeInTheDocument();
+  });
+
+  test('initial path /compare renders the Compare route', () => {
+    renderApp(makeApi(), '/compare');
+    expect(screen.getByTestId('compare-route')).toBeInTheDocument();
+  });
+
+  test('initial path /import renders the Import route', () => {
+    renderApp(makeApi(), '/import');
+    expect(screen.getByTestId('import-route')).toBeInTheDocument();
+  });
+
+  test('initial path /settings renders the Settings route', () => {
+    renderApp(makeApi(), '/settings');
+    expect(screen.getByTestId('settings-route')).toBeInTheDocument();
   });
 
   test('sidebar shows the workspace + pinned nav items', () => {
     renderApp();
     expect(screen.getByRole('link', { name: /library/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /compare/i })).toBeInTheDocument();
-    // The "Import" sidebar link and the page-level "Import CSV" button
-    // both exist on the Library page; either match counts here.
-    expect(screen.getAllByRole('link').some((l) => /import$/i.test(l.textContent ?? ''))).toBe(true);
+    expect(screen.getByRole('link', { name: /import/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /settings/i })).toBeInTheDocument();
   });
 
@@ -87,26 +122,29 @@ describe('components/app', () => {
   });
 
   test('window-control buttons fire the matching electronAPI calls', async () => {
-    const api = makeApi({ platform: 'win32' });
-    renderApp(api);
+    const electronApi = makeApi({ platform: 'win32' });
+    renderApp(electronApi);
     const user = userEvent.setup();
 
     await user.click(screen.getByRole('button', { name: /minimize/i }));
-    expect(api.minimize).toHaveBeenCalledTimes(1);
+    expect(electronApi.minimize).toHaveBeenCalledTimes(1);
 
     await user.click(screen.getByRole('button', { name: /maximize/i }));
-    expect(api.maximize).toHaveBeenCalledTimes(1);
+    expect(electronApi.maximize).toHaveBeenCalledTimes(1);
 
     await user.click(screen.getByRole('button', { name: /close/i }));
-    expect(api.quit).toHaveBeenCalledTimes(1);
+    expect(electronApi.quit).toHaveBeenCalledTimes(1);
   });
 
-  test('clicking the Compare nav link routes to the Compare page', async () => {
+  test('clicking the Compare nav link navigates to the Compare route', async () => {
     renderApp();
     const user = userEvent.setup();
     await user.click(screen.getByRole('link', { name: /compare/i }));
-    expect(
-      screen.getByRole('heading', { level: 2, name: /compare/i })
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('compare-route')).toBeInTheDocument();
+  });
+
+  test('fires pingFlask once on mount', () => {
+    renderApp();
+    expect(pingFlask).toHaveBeenCalledTimes(1);
   });
 });

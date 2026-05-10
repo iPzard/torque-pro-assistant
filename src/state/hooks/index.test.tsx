@@ -18,7 +18,7 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 describe('state/hooks', () => {
   test('useAppSelector reads from the production store with the typed RootState', () => {
     const { result } = renderHook(
-      () => useAppSelector((s: RootState) => s.app.ready),
+      () => useAppSelector((state: RootState) => state.app.ready),
       { wrapper }
     );
     expect(result.current).toBe(true);
