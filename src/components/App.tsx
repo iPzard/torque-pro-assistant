@@ -28,9 +28,9 @@ import styles from './App.module.scss';
 // Single source of truth for nav entries — labels + paths drive both the
 // sidebar links and the route definitions, so adding a page is one edit.
 const NAV_ITEMS = [
-  { path: '/library',  label: 'Library' },
-  { path: '/compare',  label: 'Compare' },
-  { path: '/settings', label: 'Settings' }
+  { label: 'Library',  path: '/library' },
+  { label: 'Compare',  path: '/compare' },
+  { label: 'Settings', path: '/settings' }
 ] as const;
 
 function App() {
@@ -49,7 +49,7 @@ function App() {
     <>
       <AppShell
         header={ { height: 44 } }
-        navbar={ { width: 220, breakpoint: 'sm' } }
+        navbar={ { breakpoint: 'sm', width: 220 } }
         padding="md"
       >
         <AppShell.Header className={ styles.header }>
@@ -66,10 +66,10 @@ function App() {
 
               <Group gap={ 4 } className={ styles.windowControls }>
                 <ActionIcon variant="subtle" color="gray" size="sm" onClick={ windowControls.minimize } aria-label="Minimize">
-                  <span aria-hidden style={ { width: 10, borderTop: '1px solid currentColor' } } />
+                  <span aria-hidden style={ { borderTop: '1px solid currentColor', width: 10 } } />
                 </ActionIcon>
                 <ActionIcon variant="subtle" color="gray" size="sm" onClick={ windowControls.maximize } aria-label="Maximize">
-                  <span aria-hidden style={ { width: 10, height: 10, border: '1px solid currentColor' } } />
+                  <span aria-hidden style={ { border: '1px solid currentColor', height: 10, width: 10 } } />
                 </ActionIcon>
                 <ActionIcon variant="subtle" color="red" size="sm" onClick={ windowControls.quit } aria-label="Close">
                   <span aria-hidden>✕</span>

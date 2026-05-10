@@ -20,12 +20,12 @@ import store from './state/store';
 // renderer via file:// — BrowserRouter's deep links would 404 there.
 
 const theme = createTheme({
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontFamilyMonospace: 'ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace',
   // Mantine ships ten-shade scales; "orange" is the closest stock match for
   // the design's amber instrument-backlight accent (#ffb020). The exact
   // shade tuning can move into a custom palette later.
-  primaryColor: 'orange',
-  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  fontFamilyMonospace: 'ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace'
+  primaryColor: 'orange'
 });
 
 const container = document.getElementById('root');
