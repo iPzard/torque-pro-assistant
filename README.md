@@ -117,10 +117,9 @@ Code documentation, generated with [TypeDoc](https://typedoc.org/), is built int
 
 ## 🦟 Bugs
 
-<!-- TODO: replace with the real issues URL once the repo has a remote -->
-File bugs on the project's issues page. Steps to reproduce make them much easier to track down.
+Bugs reported on the project's [issues page](https://github.com/iPzard/torque-pro-assistant/issues) will be exterminated as quickly as possible, be sure to include steps to reproduce so they can be spotted easily.
 <br><br>
 
 ## 🏷️ License
 
-MIT — see [LICENSE](LICENSE).
+MIT © [iPzard][LICENSE](LICENSE)
