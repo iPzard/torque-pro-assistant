@@ -47,7 +47,7 @@ yarn install
 
 **Electron:** `main.ts` and `preload.ts` live at the project root. They compile to `dist-electron/` via `tsc -p tsconfig.electron.json` (run automatically by `yarn start` and `yarn build`).
 
-**React:** Renderer code lives in `./src/`. The frameless window's custom titlebar is in `./src/components/titlebar/`.
+**React:** Renderer code lives in `./src/`. The renderer root is `./src/components/app/`, which hosts the Mantine `AppShell` and the platform-aware window chrome — frameless on Windows / Linux with custom min/max/close controls inside the header, `titleBarStyle: 'hiddenInset'` on macOS so the OS renders the real traffic lights.
 
 **UI:** [Mantine](https://mantine.dev/) (core, hooks, dates, notifications, dropzone). Theme is configured in the renderer entry point and defaults to dark mode.
 
@@ -122,4 +122,4 @@ Bugs reported on the project's [issues page](https://github.com/iPzard/torque-pr
 
 ## 🏷️ License
 
-MIT © [iPzard][LICENSE](LICENSE)
+MIT © [iPzard](LICENSE)
