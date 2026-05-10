@@ -1,0 +1,47 @@
+/**
+ * Metric tile — small label / large mono value / optional sub-line.
+ * Mirrors the design's `.metric` element via Mantine CSS variables; the
+ * .valuePeak variant swaps the value color to the brand amber.
+ */
+
+.metric {
+  background: var(--mantine-color-default);
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  padding: 10px 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.label {
+  color: var(--mantine-color-dimmed);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.value {
+  color: var(--mantine-color-text);
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.valuePeak {
+  composes: value;
+  color: var(--mantine-color-amber-6);
+}
+
+.unit {
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.sub {
+  color: var(--mantine-color-dimmed);
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 10px;
+}

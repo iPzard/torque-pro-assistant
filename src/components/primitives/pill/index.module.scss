@@ -1,0 +1,38 @@
+/**
+ * Pill primitive — rounded label with an optional leading status dot.
+ * Five status variants drive the dot color; the amber variant also
+ * recolors the pill body to match the design's vehicle-status chip.
+ */
+
+.pill {
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: 999px;
+  background: var(--mantine-color-default);
+  padding: 2px 8px;
+  font-family: var(--mantine-font-family-monospace);
+}
+
+.pillAmber {
+  composes: pill;
+  background: rgba(255, 176, 32, 0.14);
+  border-color: rgba(255, 176, 32, 0.55);
+  color: var(--mantine-color-amber-6);
+}
+
+.label {
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+%dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-neutral { @extend %dot; background: var(--mantine-color-dimmed); }
+.dot-ok      { @extend %dot; background: var(--mantine-color-green-5); }
+.dot-warn    { @extend %dot; background: var(--mantine-color-yellow-5); }
+.dot-err     { @extend %dot; background: var(--mantine-color-red-5); }
+.dot-amber   { @extend %dot; background: var(--mantine-color-amber-6); }

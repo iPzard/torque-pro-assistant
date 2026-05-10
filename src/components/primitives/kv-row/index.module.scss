@@ -1,0 +1,20 @@
+/**
+ * Key/value row — dimmed label left, mono value right, divider below
+ * unless the row is marked as the last in its stack.
+ */
+
+.row {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--mantine-color-default-border);
+}
+
+.rowLast {
+  composes: row;
+  border-bottom: 0;
+}
+
+.value {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}

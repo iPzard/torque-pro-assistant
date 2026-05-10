@@ -1,0 +1,18 @@
+/**
+ * Card header divider + body padding modes. Header gets a one-pixel
+ * divider matching the Mantine default-border CSS variable; flush mode
+ * removes body padding so consumers (tables, sparklines) can paint
+ * edge-to-edge.
+ */
+
+.header {
+  border-bottom: 1px solid var(--mantine-color-default-border);
+}
+
+.body {
+  padding: var(--mantine-spacing-md);
+}
+
+.bodyFlush {
+  padding: 0;
+}
