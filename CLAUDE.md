@@ -23,7 +23,7 @@ What I need you to do:
 2. Strip the template down
    - Remove all demo/sample code while keeping the working Electron ↔ React ↔ Python plumbing intact
    - Remove author-specific branding and replace with TorqueView placeholders
-   - Update LICENSE to keep MIT but with my name as a placeholder ("TODO: your name")
+   - Update LICENSE to keep MIT but with my name as iPzard
 
 3. Update the README
    - Keep the existing styled structure (badges, emoji section headers, code blocks, formatting) — don't redesign it
