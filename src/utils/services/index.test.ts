@@ -1,6 +1,6 @@
-import type { ElectronAPI } from '../types/electron-api';
+import type { ElectronAPI } from '../../types/electron-api';
 
-type ServicesModule = typeof import('../utils/services');
+type ServicesModule = typeof import('.');
 
 describe('utils/services', () => {
   let api: ElectronAPI;
@@ -18,7 +18,7 @@ describe('utils/services', () => {
     window.electronAPI = api;
 
     jest.isolateModules(() => {
-      const mod = jest.requireActual<ServicesModule>('../utils/services');
+      const mod = jest.requireActual<ServicesModule>('.');
       ({ app } = mod);
     });
   });

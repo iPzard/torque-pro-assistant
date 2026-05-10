@@ -15,13 +15,12 @@ import {
   Routes,
   useLocation
 } from 'react-router-dom';
-import { app as windowControls } from '../utils/services';
-import { get } from '../utils/requests';
-import Library from './pages/Library';
-import Compare from './pages/Compare';
-import Import from './pages/Import';
-import Settings from './pages/Settings';
-import styles from './App.module.scss';
+import { app as windowControls, get } from '../../utils';
+import Library from '../pages/library';
+import Compare from '../pages/compare';
+import Import from '../pages/import';
+import Settings from '../pages/settings';
+import styles from './index.module.scss';
 
 // Sidebar layout matches the handoff design:
 //   Workspace group  — Library / Compare / Import
@@ -37,13 +36,14 @@ const BOTTOM_NAV = [
   { label: 'Settings', path: '/settings' }
 ] as const;
 
-// Captured at module load so the platform branch is decided once. preload
-// freezes process.platform at bridge-creation time, so this won't drift
-// across renders. macOS gets the OS-rendered traffic lights via main.ts's
-// `titleBarStyle: 'hiddenInset'`; Windows / Linux get our own min/max/close.
-const isMac = window.electronAPI.platform === 'darwin';
-
 function App() {
+  // preload freezes process.platform at bridge-creation time, so reading it
+  // inside the component is a constant for the lifetime of the window.
+  // Inlined here (not at module scope) so tests can swap window.electronAPI
+  // between renders without juggling isolateModules.
+  // macOS gets the OS-rendered traffic lights via main.ts's
+  // `titleBarStyle: 'hiddenInset'`; Windows / Linux get our own min/max/close.
+  const isMac = window.electronAPI.platform === 'darwin';
   const location = useLocation();
 
   useEffect(() => {

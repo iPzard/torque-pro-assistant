@@ -13,7 +13,7 @@ import { Provider } from 'react-redux';
 import { HashRouter } from 'react-router-dom';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './components/App';
+import App from './components/app';
 import store from './state/store';
 
 // HashRouter (not BrowserRouter) because Electron's prod build loads the

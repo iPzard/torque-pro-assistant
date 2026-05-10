@@ -1,6 +1,6 @@
-import type { ElectronAPI } from '../types/electron-api';
+import type { ElectronAPI } from '../../types/electron-api';
 
-type RequestsModule = typeof import('../utils/requests');
+type RequestsModule = typeof import('.');
 
 describe('utils/requests', () => {
   let getPort: jest.Mock<number, []>;
@@ -23,12 +23,20 @@ describe('utils/requests', () => {
     global.fetch = fetchMock as unknown as typeof fetch;
 
     jest.isolateModules(() => {
-      const mod = jest.requireActual<RequestsModule>('../utils/requests');
+      const mod = jest.requireActual<RequestsModule>('.');
       ({ get, post } = mod);
     });
   });
 
-  test('reads port from electronAPI.getPort on import', () => {
+  test('does not read electronAPI.getPort until the first request fires', () => {
+    expect(getPort).not.toHaveBeenCalled();
+  });
+
+  test('reads electronAPI.getPort once on the first request, then caches', async () => {
+    fetchMock.mockResolvedValue({ json: () => Promise.resolve({ ok: true }) });
+    get('ping', jest.fn());
+    get('ping', jest.fn());
+    await new Promise<void>((r) => { setTimeout(r, 0); });
     expect(getPort).toHaveBeenCalledTimes(1);
   });
 

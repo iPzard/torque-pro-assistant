@@ -6,8 +6,15 @@
 // first few requests after startup may race the Flask bind. fetchWithRetry
 // retries on connection-refused-style errors with exponential backoff up to
 // `maxAttempts` total attempts.
+//
+// The port is read lazily and cached on first request so jest can stub
+// window.electronAPI before any module-load reads fire.
 
-const port: number = window.electronAPI.getPort();
+let portCache: number | undefined;
+const getPort = (): number => {
+  if (portCache === undefined) portCache = window.electronAPI.getPort();
+  return portCache;
+};
 
 const RETRYABLE_NETWORK_ERROR = /Failed to fetch|NetworkError|ECONNREFUSED|connection refused/i;
 
@@ -49,7 +56,7 @@ export const get = <T = unknown>(
   callback: (data: T) => void,
   errorCallback?: (error: unknown) => void
 ): void => {
-  fetchWithRetry(`http://127.0.0.1:${port}/${route}`)
+  fetchWithRetry(`http://127.0.0.1:${getPort()}/${route}`)
     .then((response) => response.json() as Promise<T>)
     .then(callback)
     .catch((error) => (errorCallback ? errorCallback(error) : console.error(error)));
@@ -68,7 +75,7 @@ export const post = <TBody extends BodyInit | null | undefined, TResp = unknown>
   callback: (data: TResp) => void,
   errorCallback?: (error: unknown) => void
 ): void => {
-  fetchWithRetry(`http://127.0.0.1:${port}/${route}`, {
+  fetchWithRetry(`http://127.0.0.1:${getPort()}/${route}`, {
     body,
     headers: { 'Content-type': 'application/json' },
     method: 'POST'
