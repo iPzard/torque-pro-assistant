@@ -39,6 +39,9 @@ const electronAPI: ElectronAPI = {
   // Window controls — fire-and-forget, no return value.
   maximize: (): void => { ipcRenderer.send('app-maximize'); },
   minimize: (): void => { ipcRenderer.send('app-minimize'); },
+  // process.platform is available in the preload (sandbox: false). Frozen at
+  // bridge-creation time so the renderer can branch on it synchronously.
+  platform: process.platform,
   quit: (): void => { ipcRenderer.send('app-quit'); },
   unmaximize: (): void => { ipcRenderer.send('app-unmaximize'); }
 };

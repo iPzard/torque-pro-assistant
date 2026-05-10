@@ -13,6 +13,14 @@ export interface ElectronAPI {
    */
   getPort: () => number;
 
+  /**
+   * Host platform string (`process.platform`) — 'win32' | 'darwin' | 'linux'
+   * etc. Read once at preload time so the renderer can pick a platform-
+   * appropriate chrome (e.g. native macOS traffic lights vs. custom Windows
+   * window controls) without round-tripping IPC.
+   */
+  platform: NodeJS.Platform;
+
   maximize: () => void;
   minimize: () => void;
   quit: () => void;

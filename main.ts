@@ -277,9 +277,23 @@ app.whenReady().then(async () => {
    *
    * preload sits next to main.js in dist-electron/ after compile —
    * use __dirname so this works in dev and inside the asar in prod.
+   *
+   * Platform-aware chrome:
+   *   - macOS uses `titleBarStyle: 'hiddenInset'` so the OS keeps rendering
+   *     the real traffic-light buttons inset into our custom 44px titlebar.
+   *     The renderer matches by NOT drawing its own min/max/close on Mac.
+   *   - Windows / Linux keep `frame: false` (fully frameless) and the
+   *     renderer draws Mantine ActionIcon-based min/max/close on the right.
    */
+  const platformChrome = process.platform === 'darwin'
+    ? {
+      titleBarStyle: 'hiddenInset' as const,
+      trafficLightPosition: { x: 14, y: 14 }
+    }
+    : { frame: false };
+
   browserWindows.mainWindow = new BrowserWindow({
-    frame: false,
+    ...platformChrome,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
