@@ -1,0 +1,49 @@
+import React, { useState } from 'react';
+import {
+  CloseButton,
+  ContractButton,
+  MaximizeButton,
+  MinimizeButton
+} from './TitlebarButtons';
+
+import { app } from '../../utils/services';
+
+import favicon from './img/favicon.png';
+import styles from './scss/Titlebar.module.scss';
+
+/**
+ * Title Component to use as an Electron customized titlebar.
+ * electron-window-title-text used in main.js to set opacity on/off focus.
+ * electron-window-title-buttons used in main.js to set opacity on/off focus.
+ */
+
+function Titlebar() {
+  const [maximized, setMaximized] = useState(false);
+
+  const handleMaximizeToggle = (): void => {
+    if (maximized) app.unmaximize();
+    else app.maximize();
+    setMaximized(!maximized);
+  };
+
+  return (
+    <section className={ styles.titlebar }>
+      <div>
+        <img src={ favicon } alt="favicon" />
+        <span id="electron-window-title-text">{ document.title }</span>
+      </div>
+
+      <div id="electron-window-title-buttons">
+        <MinimizeButton onClick={ app.minimize } />
+        {
+          maximized
+            ? <ContractButton onClick={ handleMaximizeToggle } />
+            : <MaximizeButton onClick={ handleMaximizeToggle } />
+        }
+        <CloseButton onClick={ app.quit } />
+      </div>
+    </section>
+  );
+}
+
+export default Titlebar;
