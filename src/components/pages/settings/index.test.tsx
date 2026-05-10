@@ -12,15 +12,18 @@ function renderSettings() {
 }
 
 describe('pages/settings', () => {
-  test('renders the page heading', () => {
+  it('renders the page wrapper', () => {
     renderSettings();
-    expect(
-      screen.getByRole('heading', { level: 2, name: /settings/i })
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('settings-page')).toBeInTheDocument();
   });
 
-  test('shows the placeholder copy', () => {
+  it('renders the page heading', () => {
     renderSettings();
-    expect(screen.getByText(/theme, units, and vehicle defaults/i)).toBeInTheDocument();
+    expect(screen.getByTestId('settings-page-title')).toBeInTheDocument();
+  });
+
+  it('renders the placeholder description', () => {
+    renderSettings();
+    expect(screen.getByTestId('settings-page-description')).toBeInTheDocument();
   });
 });

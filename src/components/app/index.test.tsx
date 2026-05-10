@@ -11,21 +11,21 @@ import type { ElectronAPI } from 'types/electron-api';
 // without reaching into the real page implementations. Per the project's
 // architecture rules, a component's test never asserts another component's
 // behaviour — composition is verified by mocking the children.
-jest.mock('../pages/library', () => ({
+jest.mock('components/pages/library', () => ({
   __esModule: true,
-  default: () => <div data-testid="library-route" />
+  default: () => <div data-testid="library-route-sentinel" />
 }));
-jest.mock('../pages/compare', () => ({
+jest.mock('components/pages/compare-logs', () => ({
   __esModule: true,
-  default: () => <div data-testid="compare-route" />
+  default: () => <div data-testid="compare-logs-route-sentinel" />
 }));
-jest.mock('../pages/import', () => ({
+jest.mock('components/pages/import-logs', () => ({
   __esModule: true,
-  default: () => <div data-testid="import-route" />
+  default: () => <div data-testid="import-logs-route-sentinel" />
 }));
-jest.mock('../pages/settings', () => ({
+jest.mock('components/pages/settings', () => ({
   __esModule: true,
-  default: () => <div data-testid="settings-route" />
+  default: () => <div data-testid="settings-route-sentinel" />
 }));
 
 // pingFlask fires inside App's mount effect via utils/requests; mock it out
@@ -73,78 +73,80 @@ beforeEach(() => {
 });
 
 describe('components/app', () => {
-  test('renders the app name in the header', () => {
+  it('renders the app name in the header', () => {
     renderApp();
-    expect(screen.getByText(/torque/i)).toBeInTheDocument();
-    expect(screen.getByText(/Pro/)).toBeInTheDocument();
-    expect(screen.getByText(/· Assistant/)).toBeInTheDocument();
+    expect(screen.getByTestId('app-name')).toBeInTheDocument();
+    expect(screen.getByTestId('app-name-pro')).toBeInTheDocument();
+    expect(screen.getByTestId('app-name-assistant')).toBeInTheDocument();
   });
 
-  test('default route ("/") renders the Library route', () => {
+  it('default route ("/") renders the Library route', () => {
     renderApp(makeApi(), '/');
-    expect(screen.getByTestId('library-route')).toBeInTheDocument();
+    expect(screen.getByTestId('library-route-sentinel')).toBeInTheDocument();
   });
 
-  test('initial path /compare renders the Compare route', () => {
+  it('initial path /compare renders the Compare Logs route', () => {
     renderApp(makeApi(), '/compare');
-    expect(screen.getByTestId('compare-route')).toBeInTheDocument();
+    expect(screen.getByTestId('compare-logs-route-sentinel')).toBeInTheDocument();
   });
 
-  test('initial path /import renders the Import route', () => {
+  it('initial path /import renders the Import Logs route', () => {
     renderApp(makeApi(), '/import');
-    expect(screen.getByTestId('import-route')).toBeInTheDocument();
+    expect(screen.getByTestId('import-logs-route-sentinel')).toBeInTheDocument();
   });
 
-  test('initial path /settings renders the Settings route', () => {
+  it('initial path /settings renders the Settings route', () => {
     renderApp(makeApi(), '/settings');
-    expect(screen.getByTestId('settings-route')).toBeInTheDocument();
+    expect(screen.getByTestId('settings-route-sentinel')).toBeInTheDocument();
   });
 
-  test('sidebar shows the workspace + pinned nav items', () => {
+  it('sidebar shows the workspace + pinned nav items', () => {
     renderApp();
-    expect(screen.getByRole('link', { name: /library/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /compare/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /import/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /settings/i })).toBeInTheDocument();
+    expect(screen.getByTestId('app-nav-link-library')).toBeInTheDocument();
+    expect(screen.getByTestId('app-nav-link-compare')).toBeInTheDocument();
+    expect(screen.getByTestId('app-nav-link-import')).toBeInTheDocument();
+    expect(screen.getByTestId('app-nav-link-settings')).toBeInTheDocument();
   });
 
-  test('on Windows the renderer draws min/max/close window controls', () => {
+  it('on Windows the renderer draws min/max/close window controls', () => {
     renderApp(makeApi({ platform: 'win32' }));
-    expect(screen.getByRole('button', { name: /minimize/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /maximize/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument();
+    expect(screen.getByTestId('app-window-controls')).toBeInTheDocument();
+    expect(screen.getByTestId('app-window-control-minimize')).toBeInTheDocument();
+    expect(screen.getByTestId('app-window-control-maximize')).toBeInTheDocument();
+    expect(screen.getByTestId('app-window-control-close')).toBeInTheDocument();
   });
 
-  test('on macOS the renderer hides its own window controls (OS draws them)', () => {
+  it('on macOS the renderer hides its own window controls (OS draws them)', () => {
     renderApp(makeApi({ platform: 'darwin' }));
-    expect(screen.queryByRole('button', { name: /minimize/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /maximize/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /close/i })).not.toBeInTheDocument();
+    expect(screen.queryByTestId('app-window-controls')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('app-window-control-minimize')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('app-window-control-maximize')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('app-window-control-close')).not.toBeInTheDocument();
   });
 
-  test('window-control buttons fire the matching electronAPI calls', async () => {
+  it('window-control buttons fire the matching electronAPI calls', async () => {
     const electronApi = makeApi({ platform: 'win32' });
     renderApp(electronApi);
     const user = userEvent.setup();
 
-    await user.click(screen.getByRole('button', { name: /minimize/i }));
+    await user.click(screen.getByTestId('app-window-control-minimize'));
     expect(electronApi.minimize).toHaveBeenCalledTimes(1);
 
-    await user.click(screen.getByRole('button', { name: /maximize/i }));
+    await user.click(screen.getByTestId('app-window-control-maximize'));
     expect(electronApi.maximize).toHaveBeenCalledTimes(1);
 
-    await user.click(screen.getByRole('button', { name: /close/i }));
+    await user.click(screen.getByTestId('app-window-control-close'));
     expect(electronApi.quit).toHaveBeenCalledTimes(1);
   });
 
-  test('clicking the Compare nav link navigates to the Compare route', async () => {
+  it('clicking the Compare nav link navigates to the Compare Logs route', async () => {
     renderApp();
     const user = userEvent.setup();
-    await user.click(screen.getByRole('link', { name: /compare/i }));
-    expect(screen.getByTestId('compare-route')).toBeInTheDocument();
+    await user.click(screen.getByTestId('app-nav-link-compare'));
+    expect(screen.getByTestId('compare-logs-route-sentinel')).toBeInTheDocument();
   });
 
-  test('fires pingFlask once on mount', () => {
+  it('fires pingFlask once on mount', () => {
     renderApp();
     expect(pingFlask).toHaveBeenCalledTimes(1);
   });

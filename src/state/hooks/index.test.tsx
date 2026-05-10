@@ -18,7 +18,7 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 );
 
 describe('state/hooks', () => {
-  test('useAppSelector reads from the production store with the typed RootState', () => {
+  it('useAppSelector reads from the production store with the typed RootState', () => {
     const { result } = renderHook(
       () => useAppSelector((state: RootState) => state.app.ready),
       { wrapper }
@@ -26,7 +26,7 @@ describe('state/hooks', () => {
     expect(result.current).toBe(true);
   });
 
-  test('useAppDispatch returns the store dispatch function', () => {
+  it('useAppDispatch returns the store dispatch function', () => {
     const { result } = renderHook(() => useAppDispatch(), { wrapper });
     expect(typeof result.current).toBe('function');
 

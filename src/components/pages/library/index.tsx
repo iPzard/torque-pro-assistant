@@ -16,15 +16,17 @@ function Library() {
   const navigate = useNavigate();
 
   return (
-    <Stack gap="md">
+    <Stack data-testid="library-page" gap="md">
       <Group align="flex-end" justify="space-between">
         <Stack gap={ 4 }>
-          <Title order={ 2 }>Library</Title>
-          <Text c="dimmed" size="sm">
+          <Title data-testid="library-page-title" order={ 2 }>Library</Title>
+          <Text c="dimmed" data-testid="library-page-description" size="sm">
             Imported sessions will land here. Currently a placeholder.
           </Text>
         </Stack>
-        <Button onClick={ () => navigate('/import') }>Import CSV</Button>
+        <Button data-testid="library-import-button" onClick={ () => navigate('/import') }>
+          Import CSV
+        </Button>
       </Group>
     </Stack>
   );

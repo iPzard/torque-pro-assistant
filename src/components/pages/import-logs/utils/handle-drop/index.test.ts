@@ -12,7 +12,7 @@ const makeDroppedFile = (name: string): FileWithPath => {
   return Object.assign(file, { path: name }) as FileWithPath;
 };
 
-describe('pages/import/utils/handle-drop', () => {
+describe('pages/import-logs/utils/handle-drop', () => {
   let consoleSpy: jest.SpyInstance;
 
   beforeEach(() => {
@@ -23,7 +23,7 @@ describe('pages/import/utils/handle-drop', () => {
     consoleSpy.mockRestore();
   });
 
-  test('logs an empty filename list when the dropzone resolves with no files', () => {
+  it('logs an empty filename list when the dropzone resolves with no files', () => {
     handleDrop([]);
     expect(consoleSpy).toHaveBeenCalledWith(
       'Dropped CSV files (parser wiring deferred):',
@@ -31,7 +31,7 @@ describe('pages/import/utils/handle-drop', () => {
     );
   });
 
-  test('logs the names of every dropped file in order', () => {
+  it('logs the names of every dropped file in order', () => {
     const droppedFiles = [
       makeDroppedFile('trackLog-20260510-093412.csv'),
       makeDroppedFile('trackLog-20260509-074218.csv')
@@ -43,7 +43,7 @@ describe('pages/import/utils/handle-drop', () => {
     );
   });
 
-  test('does not throw on a single-file drop', () => {
+  it('does not throw on a single-file drop', () => {
     expect(() => handleDrop([makeDroppedFile('one.csv')])).not.toThrow();
   });
 });

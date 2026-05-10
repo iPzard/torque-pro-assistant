@@ -28,11 +28,11 @@ describe('utils/requests', () => {
     });
   });
 
-  test('does not read electronAPI.getPort until the first request fires', () => {
+  it('does not read electronAPI.getPort until the first request fires', () => {
     expect(getPort).not.toHaveBeenCalled();
   });
 
-  test('reads electronAPI.getPort once on the first request, then caches', async () => {
+  it('reads electronAPI.getPort once on the first request, then caches', async () => {
     fetchMock.mockResolvedValue({ json: () => Promise.resolve({ ok: true }) });
     get('ping', jest.fn());
     get('ping', jest.fn());
@@ -40,7 +40,7 @@ describe('utils/requests', () => {
     expect(getPort).toHaveBeenCalledTimes(1);
   });
 
-  test('get hits localhost:<port>/<route> and invokes success callback with parsed JSON', async () => {
+  it('get hits localhost:<port>/<route> and invokes success callback with parsed JSON', async () => {
     fetchMock.mockResolvedValue({ json: () => Promise.resolve({ ok: true }) });
     const cb = jest.fn();
 
@@ -51,7 +51,7 @@ describe('utils/requests', () => {
     expect(cb).toHaveBeenCalledWith({ ok: true });
   });
 
-  test('get invokes errorCallback on fetch failure', async () => {
+  it('get invokes errorCallback on fetch failure', async () => {
     const err = new Error('boom');
     fetchMock.mockRejectedValue(err);
     const cb = jest.fn();
@@ -64,7 +64,7 @@ describe('utils/requests', () => {
     expect(errCb).toHaveBeenCalledWith(err);
   });
 
-  test('post sends body, JSON content-type, and POST method', async () => {
+  it('post sends body, JSON content-type, and POST method', async () => {
     fetchMock.mockResolvedValue({ json: () => Promise.resolve('done') });
     const cb = jest.fn();
     const body = JSON.stringify({ a: 1 });

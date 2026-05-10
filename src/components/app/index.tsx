@@ -16,8 +16,8 @@ import {
   useLocation
 } from 'react-router-dom';
 
-import Compare from 'components/pages/compare';
-import Import from 'components/pages/import';
+import CompareLogs from 'components/pages/compare-logs';
+import ImportLogs from 'components/pages/import-logs';
 import Library from 'components/pages/library';
 import Settings from 'components/pages/settings';
 import { windowControls } from 'utils';
@@ -30,13 +30,13 @@ import styles from './index.module.scss';
 // "Workspace" label; bottom group is pinned to the floor. Adding a route is
 // a one-edit change against TOP_NAV / BOTTOM_NAV plus a matching <Route>.
 const TOP_NAV = [
-  { label: 'Library', path: '/library' },
-  { label: 'Compare', path: '/compare' },
-  { label: 'Import',  path: '/import' }
+  { label: 'Library', path: '/library', testId: 'app-nav-link-library' },
+  { label: 'Compare', path: '/compare', testId: 'app-nav-link-compare' },
+  { label: 'Import',  path: '/import',  testId: 'app-nav-link-import' }
 ] as const;
 
 const BOTTOM_NAV = [
-  { label: 'Settings', path: '/settings' }
+  { label: 'Settings', path: '/settings', testId: 'app-nav-link-settings' }
 ] as const;
 
 /**
@@ -70,7 +70,7 @@ function App() {
       navbar={ { breakpoint: 'sm', width: 220 } }
       padding="md"
     >
-      <AppShell.Header className={ styles.header }>
+      <AppShell.Header className={ styles.header } data-testid="app-header">
         {/* macOS reserves ~70px on the left for native traffic lights (inset
             by trafficLightPosition in main.ts), so pl jumps to 86 there. */}
         <Group
@@ -81,20 +81,44 @@ function App() {
           pr="md"
           wrap="nowrap"
         >
-          <Title className={ styles.appName } fw={ 600 } order={ 5 }>
-            Torque<Text c="amber.6" fw={ 600 } inherit span>Pro</Text>
-            <Text c="dimmed" fw={ 500 } inherit span> · Assistant</Text>
+          <Title className={ styles.appName } data-testid="app-name" fw={ 600 } order={ 5 }>
+            Torque
+            <Text c="amber.6" data-testid="app-name-pro" fw={ 600 } inherit span>Pro</Text>
+            <Text c="dimmed" data-testid="app-name-assistant" fw={ 500 } inherit span>
+              { ' · Assistant' }
+            </Text>
           </Title>
 
           { !isMac && (
-            <Group className={ styles.windowControls } gap={ 4 }>
-              <ActionIcon aria-label="Minimize" color="gray" onClick={ windowControls.minimize } size="sm" variant="subtle">
+            <Group className={ styles.windowControls } data-testid="app-window-controls" gap={ 4 }>
+              <ActionIcon
+                aria-label="Minimize"
+                color="gray"
+                data-testid="app-window-control-minimize"
+                onClick={ windowControls.minimize }
+                size="sm"
+                variant="subtle"
+              >
                 <span aria-hidden style={ { borderTop: '1px solid currentColor', width: 10 } } />
               </ActionIcon>
-              <ActionIcon aria-label="Maximize" color="gray" onClick={ windowControls.maximize } size="sm" variant="subtle">
+              <ActionIcon
+                aria-label="Maximize"
+                color="gray"
+                data-testid="app-window-control-maximize"
+                onClick={ windowControls.maximize }
+                size="sm"
+                variant="subtle"
+              >
                 <span aria-hidden style={ { border: '1px solid currentColor', height: 10, width: 10 } } />
               </ActionIcon>
-              <ActionIcon aria-label="Close" color="red" onClick={ windowControls.quit } size="sm" variant="subtle">
+              <ActionIcon
+                aria-label="Close"
+                color="red"
+                data-testid="app-window-control-close"
+                onClick={ windowControls.quit }
+                size="sm"
+                variant="subtle"
+              >
                 <span aria-hidden>✕</span>
               </ActionIcon>
             </Group>
@@ -102,9 +126,9 @@ function App() {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="sm">
+      <AppShell.Navbar data-testid="app-navbar" p="sm">
         <Stack gap={ 2 } h="100%">
-          <Text c="dimmed" fw={ 500 } pb={ 4 } pl="xs" size="xs" tt="uppercase">
+          <Text c="dimmed" data-testid="app-nav-workspace-label" fw={ 500 } pb={ 4 } pl="xs" size="xs" tt="uppercase">
             Workspace
           </Text>
           { TOP_NAV.map((navItem) => (
@@ -112,6 +136,7 @@ function App() {
               key={ navItem.path }
               active={ isActive(location.pathname, navItem.path) }
               component={ Link }
+              data-testid={ navItem.testId }
               label={ navItem.label }
               to={ navItem.path }
             />
@@ -123,6 +148,7 @@ function App() {
                 key={ navItem.path }
                 active={ isActive(location.pathname, navItem.path) }
                 component={ Link }
+                data-testid={ navItem.testId }
                 label={ navItem.label }
                 to={ navItem.path }
               />
@@ -131,12 +157,12 @@ function App() {
         </Stack>
       </AppShell.Navbar>
 
-      <AppShell.Main>
+      <AppShell.Main data-testid="app-main">
         <Routes>
           <Route element={ <Navigate replace to="/library" /> } path="/" />
           <Route element={ <Library /> } path="/library" />
-          <Route element={ <Compare /> } path="/compare" />
-          <Route element={ <Import /> } path="/import" />
+          <Route element={ <CompareLogs /> } path="/compare" />
+          <Route element={ <ImportLogs /> } path="/import" />
           <Route element={ <Settings /> } path="/settings" />
         </Routes>
       </AppShell.Main>

@@ -41,21 +41,21 @@ describe('components/app/utils/ping-flask', () => {
     consoleErrorSpy.mockRestore();
   });
 
-  test('issues a GET against /ping at the bridge-supplied port', async () => {
+  it('issues a GET against /ping at the bridge-supplied port', async () => {
     fetchMock.mockResolvedValue({ json: () => Promise.resolve('pong') });
     pingFlask();
     await new Promise<void>((resolve) => { setTimeout(resolve, 0); });
     expect(fetchMock).toHaveBeenCalledWith('http://127.0.0.1:3042/ping');
   });
 
-  test('logs the response on success', async () => {
+  it('logs the response on success', async () => {
     fetchMock.mockResolvedValue({ json: () => Promise.resolve('pong') });
     pingFlask();
     await new Promise<void>((resolve) => { setTimeout(resolve, 0); });
     expect(consoleLogSpy).toHaveBeenCalledWith('Flask /ping:', 'pong');
   });
 
-  test('logs to console.error when fetch rejects', async () => {
+  it('logs to console.error when fetch rejects', async () => {
     const networkError = new Error('refused');
     fetchMock.mockRejectedValue(networkError);
     pingFlask();

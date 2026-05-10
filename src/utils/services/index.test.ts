@@ -23,22 +23,22 @@ describe('utils/services', () => {
     });
   });
 
-  test('maximize calls electronAPI.maximize', () => {
+  it('maximize calls electronAPI.maximize', () => {
     windowControls.maximize();
     expect(electronApi.maximize).toHaveBeenCalledTimes(1);
   });
 
-  test('minimize calls electronAPI.minimize', () => {
+  it('minimize calls electronAPI.minimize', () => {
     windowControls.minimize();
     expect(electronApi.minimize).toHaveBeenCalledTimes(1);
   });
 
-  test('quit calls electronAPI.quit', () => {
+  it('quit calls electronAPI.quit', () => {
     windowControls.quit();
     expect(electronApi.quit).toHaveBeenCalledTimes(1);
   });
 
-  test('unmaximize calls electronAPI.unmaximize', () => {
+  it('unmaximize calls electronAPI.unmaximize', () => {
     windowControls.unmaximize();
     expect(electronApi.unmaximize).toHaveBeenCalledTimes(1);
   });

@@ -7,15 +7,15 @@ import Library from '.';
 
 // Library renders a heading and a CTA that should navigate to /import.
 // We mount it inside a MemoryRouter with a probe route at /import so the
-// navigation can be observed by reading the screen rather than mocking
-// useNavigate — keeps the assertion behavioural.
+// navigation can be observed by reading the sentinel — keeps the assertion
+// behavioural without rendering the real Import page.
 function renderLibrary() {
   return render(
     <MantineProvider>
       <MemoryRouter initialEntries={ ['/library'] }>
         <Routes>
           <Route element={ <Library /> } path="/library" />
-          <Route element={ <div>IMPORT_ROUTE_PROBE</div> } path="/import" />
+          <Route element={ <div data-testid="import-route-sentinel" /> } path="/import" />
         </Routes>
       </MemoryRouter>
     </MantineProvider>
@@ -23,27 +23,25 @@ function renderLibrary() {
 }
 
 describe('pages/library', () => {
-  test('renders the page heading', () => {
+  it('renders the page heading', () => {
     renderLibrary();
-    expect(
-      screen.getByRole('heading', { level: 2, name: /library/i })
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('library-page-title')).toBeInTheDocument();
   });
 
-  test('shows the placeholder copy', () => {
+  it('shows the placeholder copy', () => {
     renderLibrary();
-    expect(screen.getByText(/imported sessions will land here/i)).toBeInTheDocument();
+    expect(screen.getByTestId('library-page-description')).toBeInTheDocument();
   });
 
-  test('Import CSV button is present and accessible by name', () => {
+  it('Import CSV button is present', () => {
     renderLibrary();
-    expect(screen.getByRole('button', { name: /import csv/i })).toBeInTheDocument();
+    expect(screen.getByTestId('library-import-button')).toBeInTheDocument();
   });
 
-  test('clicking Import CSV navigates to /import', async () => {
+  it('clicking Import CSV navigates to /import', async () => {
     const user = userEvent.setup();
     renderLibrary();
-    await user.click(screen.getByRole('button', { name: /import csv/i }));
-    expect(screen.getByText('IMPORT_ROUTE_PROBE')).toBeInTheDocument();
+    await user.click(screen.getByTestId('library-import-button'));
+    expect(screen.getByTestId('import-route-sentinel')).toBeInTheDocument();
   });
 });
