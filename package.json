@@ -2,11 +2,18 @@
   "author": "Daniel Wade",
   "description": "Torque Pro log viewer — explore OBD-II driving session CSVs.",
   "dependencies": {
+    "@mantine/core": "^9.1.1",
+    "@mantine/dates": "^9.1.1",
+    "@mantine/dropzone": "^9.1.1",
+    "@mantine/hooks": "^9.1.1",
+    "@mantine/notifications": "^9.1.1",
     "@reduxjs/toolkit": "2.11.2",
+    "dayjs": "^1.11.20",
     "get-port": "5.1.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-redux": "9.2.0",
+    "react-router-dom": "^7.15.0",
     "react-scripts": "5.0.1"
   },
   "devDependencies": {

@@ -42,6 +42,16 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Torque Pro Assistant</title>
+    <!--
+      Mantine ColorSchemeScript equivalent. SSR libraries (Next, Remix) ship a
+      <ColorSchemeScript /> component that sets data-mantine-color-scheme on
+      <html> before paint to prevent a flash of light theme. CRA has no SSR
+      hook, so we inline the same one-liner here. Keep this in sync with the
+      defaultColorScheme passed to MantineProvider (src/index.tsx).
+    -->
+    <script>
+      document.documentElement.dataset.mantineColorScheme = 'dark';
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

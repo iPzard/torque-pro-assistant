@@ -1,4 +1,13 @@
-.app {
-  padding: 56px 24px 24px;
-  min-height: 100vh;
+// Frameless-window drag region. -webkit-app-region: drag turns the header
+// into the OS drag handle; interactive children flip back to no-drag so
+// clicks on the window-control buttons aren't swallowed.
+.header {
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.windowControls,
+.windowControls button,
+.appName {
+  -webkit-app-region: no-drag;
 }
