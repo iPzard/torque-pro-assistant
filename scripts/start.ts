@@ -1,15 +1,15 @@
 import {
-  spawn,
-  spawnSync,
   type ChildProcess,
+  spawn,
   type SpawnOptions,
+  spawnSync,
   type SpawnSyncOptions
 } from 'child_process';
-import * as http from 'http';
-import * as readline from 'readline';
 // get-port v5 publishes via `export = getPort` (CommonJS namespace),
 // which works as a default import under esModuleInterop.
 import getPort from 'get-port';
+import * as http from 'http';
+import * as readline from 'readline';
 
 /**
  * Patterns for known-noisy Electron stderr lines that are harmless and

@@ -1,10 +1,11 @@
+import { MantineProvider } from '@mantine/core';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
-import { MantineProvider } from '@mantine/core';
 import { MemoryRouter } from 'react-router-dom';
-import type { ElectronAPI } from '../../types/electron-api';
-import store from '../../state/store';
+
+import store from 'state/store';
+import type { ElectronAPI } from 'types/electron-api';
 
 // Each page is mocked with a sentinel marker so App's routing can be asserted
 // without reaching into the real page implementations. Per the project's

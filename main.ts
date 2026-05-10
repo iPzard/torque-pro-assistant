@@ -1,9 +1,5 @@
 // Built-in modules
 import { spawn } from 'child_process';
-import * as fs from 'fs';
-import * as http from 'http';
-import * as path from 'path';
-
 // Electron modules
 import {
   app,
@@ -11,10 +7,12 @@ import {
   ipcMain,
   type IpcMainEvent
 } from 'electron';
-
+import * as fs from 'fs';
 // Extra modules. get-port v5 publishes via `export = getPort` (CommonJS
 // namespace), which works as a default import under esModuleInterop.
 import getPort from 'get-port';
+import * as http from 'http';
+import * as path from 'path';
 
 // Electron's `app.isPackaged` is the canonical "is this a packaged build?"
 // signal — no need for the `electron-is-dev` shim. Defined here as a
@@ -60,8 +58,8 @@ const shutdown = (port: number): void => {
  * @see https://www.electronjs.org/docs/api/browser-window
  */
 interface BrowserWindowsRefs {
-  mainWindow?: BrowserWindow;
   loadingWindow?: BrowserWindow | null;
+  mainWindow?: BrowserWindow;
 }
 
 const browserWindows: BrowserWindowsRefs = {};

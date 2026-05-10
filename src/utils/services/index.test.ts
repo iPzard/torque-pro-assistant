@@ -1,13 +1,13 @@
-import type { ElectronAPI } from '../../types/electron-api';
+import type { ElectronAPI } from 'types/electron-api';
 
 type ServicesModule = typeof import('.');
 
 describe('utils/services', () => {
-  let api: ElectronAPI;
-  let app: ServicesModule['app'];
+  let electronApi: ElectronAPI;
+  let windowControls: ServicesModule['windowControls'];
 
   beforeEach(() => {
-    api = {
+    electronApi = {
       getPort: jest.fn(() => 3001),
       maximize: jest.fn(),
       minimize: jest.fn(),
@@ -15,31 +15,31 @@ describe('utils/services', () => {
       quit: jest.fn(),
       unmaximize: jest.fn()
     };
-    window.electronAPI = api;
+    window.electronAPI = electronApi;
 
     jest.isolateModules(() => {
-      const mod = jest.requireActual<ServicesModule>('.');
-      ({ app } = mod);
+      const servicesModule = jest.requireActual<ServicesModule>('.');
+      ({ windowControls } = servicesModule);
     });
   });
 
   test('maximize calls electronAPI.maximize', () => {
-    app.maximize();
-    expect(api.maximize).toHaveBeenCalledTimes(1);
+    windowControls.maximize();
+    expect(electronApi.maximize).toHaveBeenCalledTimes(1);
   });
 
   test('minimize calls electronAPI.minimize', () => {
-    app.minimize();
-    expect(api.minimize).toHaveBeenCalledTimes(1);
+    windowControls.minimize();
+    expect(electronApi.minimize).toHaveBeenCalledTimes(1);
   });
 
   test('quit calls electronAPI.quit', () => {
-    app.quit();
-    expect(api.quit).toHaveBeenCalledTimes(1);
+    windowControls.quit();
+    expect(electronApi.quit).toHaveBeenCalledTimes(1);
   });
 
   test('unmaximize calls electronAPI.unmaximize', () => {
-    app.unmaximize();
-    expect(api.unmaximize).toHaveBeenCalledTimes(1);
+    windowControls.unmaximize();
+    expect(electronApi.unmaximize).toHaveBeenCalledTimes(1);
   });
 });

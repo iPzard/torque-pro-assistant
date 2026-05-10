@@ -8,27 +8,33 @@ Desktop log viewer for [Torque Pro](https://torque-bhp.com/) OBD-II driving sess
 - React 18.3 + TypeScript 5.6, served by CRA 5 (`react-scripts@5.0.1`).
 - Mantine 7.17 — `@mantine/{core,hooks,dates,notifications,dropzone}` + `dayjs`.
 - Redux Toolkit 2.11 with typed hooks via `src/state/hooks.ts`.
-- `react-router-dom@7` — `HashRouter` (file:// safe in packaged builds).
+- `react-router-dom@6` — `HashRouter` (file:// safe in packaged builds). Pinned at v6 because v7 is ESM-only and jest under CRA 5 can't resolve it.
 - Recharts 3 + Papa Parse 5 — installed; not yet wired into features.
 - Python 3.10–3.12 + Flask backend, bundled by PyInstaller for prod.
 - ESLint 9 flat config (`eslint.config.ts`), Jest via CRA, pytest.
 
 ## Codebase map
 
+Top-level:
+
 - `main.ts`, `preload.ts` — Electron main + contextBridge. Compile to `dist-electron/`.
 - `app.py` — Flask service. Currently `/ping` (proof of life) and `/quit`.
-- `src/index.tsx` — renderer entry. MantineProvider w/ amber palette + dark default, Notifications, Redux Provider, HashRouter.
-- `src/components/App.tsx` — AppShell skeleton, sidebar nav (top group + pinned Settings at the bottom), route switch.
-- `src/components/pages/{Library,Compare,Import,Settings}.tsx` — placeholder pages.
-- `src/state/{store,hooks}.ts` — Redux store + typed `useAppDispatch` / `useAppSelector`.
-- `src/utils/requests.ts` — Flask GET/POST with retry-on-connection-refused.
-- `src/utils/services.ts` — window-control facade over `window.electronAPI`.
-- `src/types/electron-api.ts` — contextBridge contract (must stay in lock-step with `preload.ts`).
 - `scripts/{start,build,clean,package,dispatch}.ts` — dev/build orchestration.
 - `tests/test_app.py` — pytest for Flask routes.
-- `src/tests/*.test.ts` — Jest for utils.
 - `utilities/{deb,dmg,msi}/images/` — installer art (placeholder).
 - `utilities/loaders/redux/` — dev-mode loading screen HTML.
+
+Renderer (`src/`):
+
+- `index.tsx` — renderer entry. `MantineProvider` (amber palette, dark default), `Notifications`, Redux `Provider`, `HashRouter`.
+- `components/app/index.tsx` — AppShell skeleton, sidebar nav (Workspace group + pinned Settings), route switch. Uses `components/app/utils/{is-active,ping-flask}` for the inline-extracted handlers.
+- `components/pages/{library,compare,import,settings}/index.tsx` — placeholder pages. Each carries `index.test.tsx` colocated. `pages/import/utils/handle-drop` holds the Dropzone callback.
+- `state/store/index.ts` — Redux store. Empty placeholder reducer until feature slices arrive.
+- `state/hooks/index.ts` — typed `useAppDispatch` / `useAppSelector`.
+- `utils/requests/index.ts` — Flask GET/POST with retry-on-connection-refused.
+- `utils/services/index.ts` — `windowControls` facade over `window.electronAPI`.
+- `utils/index.ts` — barrel that re-exports `get`, `post`, `windowControls` so consumers write `import { ... } from 'utils'`.
+- `types/electron-api.ts` — contextBridge contract (stays in lock-step with `preload.ts`).
 
 ## File layout rules
 
@@ -36,7 +42,7 @@ Hard rules — apply to all new code; fix existing code that violates them when 
 
 1. **Kebab-case for every file / folder we control.** Folder name is the kebab form of the thing's camelCase identifier — `someUtil` lives in `some-util/index.ts`, exported as `someUtil`. Exceptions: framework-mandated names (`setupTests.ts`, `tsconfig*.json`, `package.json`) and Python (snake_case).
 2. **Folder-per-thing with `index.{tsx,ts}`.** Every component, page, hook, slice, or util lives in its own kebab-cased folder. Implementation is `index.tsx` (React) or `index.ts` (logic). Optional sibling `index.module.scss` when CSS modules are needed. Imports stay clean: `import Library from './pages/library'`.
-3. **Tests colocated as `index.test.{tsx,ts}`.** Each component / page / util / hook / slice gets a unit test using **React Testing Library**. Behaviour-level assertions; no snapshots.
+3. **Tests colocated as `index.test.{tsx,ts}`.** Each component / page / util / hook / slice gets a unit test using **React Testing Library**. Behavior-level assertions; no snapshots.
 4. **Barrels at `<thing>/utils/index.{tsx,ts}` only.** A `utils/` folder gets a barrel re-exporting siblings so consumers write `import { someUtil, otherUtil } from '<path>/utils'`. Shared utils → `src/utils/index.ts`. Page- or component-local utils → `<thing>/utils/index.tsx`. **Do NOT barrel-export components, pages, hooks, types, slices, or anything else** — import those by direct path.
 5. **CSS modules only for bespoke styling.** Mantine carries 95% via CSS variables / component props. For custom CSS, use a sibling `index.module.scss` imported as `import styles from './index.module.scss'`. No global selectors inside module files.
 6. **Sub-components nest under their parent.** A sub-component used only by `componentA` lives at `component-a/sub-component/index.tsx` — not hoisted to the shared component pool. Sub-components carry their own `utils/` and barrel. Things sit only as high in the tree as they need to to feed the current directory + descendants.
@@ -84,6 +90,32 @@ src/
   types/
     electron-api.ts          ← flat: types don't get a barrel or test
 ```
+
+## Lint / TS / commit rules
+
+These match the file-layout rules in spirit — strict, machine-enforced, auto-fixable. Saving in VS Code (with the ESLint extension + `source.fixAll.eslint` on save) reformats automatically. Run `yarn lint --fix` to apply across the tree manually.
+
+**Sort everything (alphabetical, auto-fixable):**
+- Imports — `simple-import-sort/imports` (groups: side-effect, external, absolute, relative, type-only).
+- Object literal keys — `sort-keys-fix` (replaces non-fixable built-in `sort-keys`).
+- JSX prop order — `react/jsx-sort-props`.
+- TS interface / type members + string enums — `typescript-sort-keys`.
+
+**Absolute imports under `src/`:**
+- `tsconfig.json` sets `baseUrl: "src"`. CRA 5 / jest auto-resolve.
+- `no-relative-import-paths/no-relative-import-paths` with `rootDir: 'src'` enforces and auto-fixes `../foo` → absolute.
+- Same-folder imports use `./` or `.` (both accepted). Anything reaching outside the current folder must be absolute. Valid absolute roots: `components/`, `state/`, `types/`, `utils/` (i.e. the top-level `src/` subdirs).
+- Electron-side files (`main.ts`, `preload.ts`) compile under `tsconfig.electron.json` and aren't covered by the rule.
+
+**TypeScript hygiene:**
+- `@typescript-eslint/no-explicit-any: error` — never use `any`. Use `unknown` and narrow.
+- `interface` for public surfaces (props, bridge contracts); `type` for unions / aliases.
+- `readonly` arrays / fields for immutable data.
+- No non-null `!` assertions without a one-line `// why:` comment.
+
+**Naming (extends architecture rule #9):** types, interfaces, enums, components, utils, hooks all carry self-explanatory names. `SessionDataRow` not `Row`; `ElectronAPI` not `API`; verb-led utils (`handleDrop`, `pingFlask`); predicate-led booleans (`isActive`).
+
+**Commits:** every subject starts with a gitmoji (gitmoji CLI is installed globally). Format `:emoji: scope: subject`. Common picks — `:sparkles:` feat, `:bug:` fix, `:recycle:` refactor, `:memo:` docs, `:wrench:` config, `:white_check_mark:` tests, `:package:` deps, `:rotating_light:` lint, `:fire:` removal, `:lock:` security.
 
 ## Conventions / gotchas
 

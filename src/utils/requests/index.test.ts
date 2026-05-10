@@ -1,4 +1,4 @@
-import type { ElectronAPI } from '../../types/electron-api';
+import type { ElectronAPI } from 'types/electron-api';
 
 type RequestsModule = typeof import('.');
 

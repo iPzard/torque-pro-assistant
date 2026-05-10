@@ -10,7 +10,7 @@
  * directly — making the surface easy to swap out in tests and future
  * platforms (e.g. a web build with a mocked bridge).
  */
-export const app = {
+export const windowControls = {
   /** Maximize the program window. */
   maximize: (): void => window.electronAPI.maximize(),
   /** Minimize the program window. */

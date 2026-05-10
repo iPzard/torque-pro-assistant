@@ -6,8 +6,9 @@
 // Pattern documented at:
 // https://redux.js.org/usage/usage-with-typescript#define-typed-hooks
 
-import { useDispatch, useSelector, type TypedUseSelectorHook } from 'react-redux';
-import type { AppDispatch, RootState } from '../store';
+import { type TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+
+import type { AppDispatch, RootState } from 'state/store';
 
 /**
  * Pre-typed `useDispatch` hook bound to the renderer's `AppDispatch`,

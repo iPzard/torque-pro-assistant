@@ -1,6 +1,7 @@
 import { spawnSync, type SpawnSyncOptions } from 'child_process';
 import { MSICreator } from 'electron-wix-msi';
 import * as nodePath from 'path';
+
 import pkgJson from '../package.json';
 import { Builder } from './build';
 
@@ -17,10 +18,10 @@ const path = (directory: string): string => nodePath.resolve(__dirname, director
 // the raw author string. Set `author` in package.json to your company /
 // publisher name; it shows up in Add/Remove Programs on Windows.
 interface PackageJson {
+  author?: string | { name?: string };
+  description?: string;
   name: string;
   version: string;
-  description?: string;
-  author?: string | { name?: string };
 }
 
 const pkg = pkgJson as PackageJson;

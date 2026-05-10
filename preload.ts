@@ -4,6 +4,7 @@
 // IPC, fs, or child_process.
 
 import { contextBridge, ipcRenderer } from 'electron';
+
 import type { ElectronAPI } from './src/types/electron-api';
 
 // Surgical filter for one specific Electron security warning that fires in

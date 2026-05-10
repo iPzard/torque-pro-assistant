@@ -1,5 +1,6 @@
 import { Group, Stack, Text, Title } from '@mantine/core';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
+
 import { handleDrop } from './utils';
 
 /**
@@ -23,18 +24,18 @@ function Import() {
         </Text>
       </Stack>
 
+      {/* `accept` covers both the canonical text/csv mime and the
+          application/vnd.ms-excel spelling some OSes report for .csv. */}
       <Dropzone
-        onDrop={ handleDrop }
-        // text/csv covers the canonical mime; some OSes report
-        // application/vnd.ms-excel for .csv exports, so accept that too.
         accept={ [MIME_TYPES.csv, 'application/vnd.ms-excel'] }
         maxSize={ 200 * 1024 * 1024 }
         multiple={ false }
+        onDrop={ handleDrop }
       >
-        <Group justify="center" gap="xl" mih={ 280 } style={ { pointerEvents: 'none' } }>
-          <Stack gap={ 4 } align="center">
-            <Text size="lg" fw={ 500 }>Drop CSV here</Text>
-            <Text size="xs" c="dimmed">or click to browse — up to 200 MB</Text>
+        <Group gap="xl" justify="center" mih={ 280 } style={ { pointerEvents: 'none' } }>
+          <Stack align="center" gap={ 4 }>
+            <Text fw={ 500 } size="lg">Drop CSV here</Text>
+            <Text c="dimmed" size="xs">or click to browse — up to 200 MB</Text>
           </Stack>
         </Group>
       </Dropzone>

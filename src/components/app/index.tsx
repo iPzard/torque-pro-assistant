@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import {
   ActionIcon,
   AppShell,
@@ -8,6 +7,7 @@ import {
   Text,
   Title
 } from '@mantine/core';
+import { useEffect } from 'react';
 import {
   Link,
   Navigate,
@@ -15,12 +15,15 @@ import {
   Routes,
   useLocation
 } from 'react-router-dom';
-import { app as windowControls } from '../../utils';
-import Library from '../pages/library';
-import Compare from '../pages/compare';
-import Import from '../pages/import';
-import Settings from '../pages/settings';
+
+import Compare from 'components/pages/compare';
+import Import from 'components/pages/import';
+import Library from 'components/pages/library';
+import Settings from 'components/pages/settings';
+import { windowControls } from 'utils';
+
 import { isActive, pingFlask } from './utils';
+
 import styles from './index.module.scss';
 
 // Single source of truth for sidebar entries. Top group renders inside the
@@ -68,30 +71,30 @@ function App() {
       padding="md"
     >
       <AppShell.Header className={ styles.header }>
+        {/* macOS reserves ~70px on the left for native traffic lights (inset
+            by trafficLightPosition in main.ts), so pl jumps to 86 there. */}
         <Group
+          gap="sm"
           h="100%"
-          // Reserve room on the left for native macOS traffic lights
-          // (~70px wide, inset by trafficLightPosition in main.ts).
+          justify="space-between"
           pl={ isMac ? 86 : 'md' }
           pr="md"
-          justify="space-between"
-          gap="sm"
           wrap="nowrap"
         >
-          <Title order={ 5 } fw={ 600 } className={ styles.appName }>
-            Torque<Text span c="amber.6" fw={ 600 } inherit>Pro</Text>
-            <Text span c="dimmed" fw={ 500 } inherit> · Assistant</Text>
+          <Title className={ styles.appName } fw={ 600 } order={ 5 }>
+            Torque<Text c="amber.6" fw={ 600 } inherit span>Pro</Text>
+            <Text c="dimmed" fw={ 500 } inherit span> · Assistant</Text>
           </Title>
 
           { !isMac && (
-            <Group gap={ 4 } className={ styles.windowControls }>
-              <ActionIcon variant="subtle" color="gray" size="sm" onClick={ windowControls.minimize } aria-label="Minimize">
+            <Group className={ styles.windowControls } gap={ 4 }>
+              <ActionIcon aria-label="Minimize" color="gray" onClick={ windowControls.minimize } size="sm" variant="subtle">
                 <span aria-hidden style={ { borderTop: '1px solid currentColor', width: 10 } } />
               </ActionIcon>
-              <ActionIcon variant="subtle" color="gray" size="sm" onClick={ windowControls.maximize } aria-label="Maximize">
+              <ActionIcon aria-label="Maximize" color="gray" onClick={ windowControls.maximize } size="sm" variant="subtle">
                 <span aria-hidden style={ { border: '1px solid currentColor', height: 10, width: 10 } } />
               </ActionIcon>
-              <ActionIcon variant="subtle" color="red" size="sm" onClick={ windowControls.quit } aria-label="Close">
+              <ActionIcon aria-label="Close" color="red" onClick={ windowControls.quit } size="sm" variant="subtle">
                 <span aria-hidden>✕</span>
               </ActionIcon>
             </Group>
@@ -101,16 +104,16 @@ function App() {
 
       <AppShell.Navbar p="sm">
         <Stack gap={ 2 } h="100%">
-          <Text size="xs" c="dimmed" tt="uppercase" fw={ 500 } pl="xs" pb={ 4 }>
+          <Text c="dimmed" fw={ 500 } pb={ 4 } pl="xs" size="xs" tt="uppercase">
             Workspace
           </Text>
           { TOP_NAV.map((navItem) => (
             <NavLink
               key={ navItem.path }
-              component={ Link }
-              to={ navItem.path }
-              label={ navItem.label }
               active={ isActive(location.pathname, navItem.path) }
+              component={ Link }
+              label={ navItem.label }
+              to={ navItem.path }
             />
           )) }
 
@@ -118,10 +121,10 @@ function App() {
             { BOTTOM_NAV.map((navItem) => (
               <NavLink
                 key={ navItem.path }
-                component={ Link }
-                to={ navItem.path }
-                label={ navItem.label }
                 active={ isActive(location.pathname, navItem.path) }
+                component={ Link }
+                label={ navItem.label }
+                to={ navItem.path }
               />
             )) }
           </Stack>
@@ -130,11 +133,11 @@ function App() {
 
       <AppShell.Main>
         <Routes>
-          <Route path="/" element={ <Navigate to="/library" replace /> } />
-          <Route path="/library" element={ <Library /> } />
-          <Route path="/compare" element={ <Compare /> } />
-          <Route path="/import" element={ <Import /> } />
-          <Route path="/settings" element={ <Settings /> } />
+          <Route element={ <Navigate replace to="/library" /> } path="/" />
+          <Route element={ <Library /> } path="/library" />
+          <Route element={ <Compare /> } path="/compare" />
+          <Route element={ <Import /> } path="/import" />
+          <Route element={ <Settings /> } path="/settings" />
         </Routes>
       </AppShell.Main>
     </AppShell>

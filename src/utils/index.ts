@@ -4,4 +4,4 @@
  * or component-local helpers belong under `<thing>/utils/`.
  */
 export { get, post } from './requests';
-export { app } from './services';
+export { windowControls } from './services';

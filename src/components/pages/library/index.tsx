@@ -17,7 +17,7 @@ function Library() {
 
   return (
     <Stack gap="md">
-      <Group justify="space-between" align="flex-end">
+      <Group align="flex-end" justify="space-between">
         <Stack gap={ 4 }>
           <Title order={ 2 }>Library</Title>
           <Text c="dimmed" size="sm">

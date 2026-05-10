@@ -1,4 +1,4 @@
-import { get } from '../../../../utils';
+import { get } from 'utils';
 
 /**
  * Fires a one-shot GET /ping against the Flask backend as a proof-of-life

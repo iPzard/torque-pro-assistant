@@ -1,7 +1,8 @@
+import { MantineProvider } from '@mantine/core';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MantineProvider } from '@mantine/core';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+
 import Library from '.';
 
 // Library renders a heading and a CTA that should navigate to /import.
@@ -13,8 +14,8 @@ function renderLibrary() {
     <MantineProvider>
       <MemoryRouter initialEntries={ ['/library'] }>
         <Routes>
-          <Route path="/library" element={ <Library /> } />
-          <Route path="/import" element={ <div>IMPORT_ROUTE_PROBE</div> } />
+          <Route element={ <Library /> } path="/library" />
+          <Route element={ <div>IMPORT_ROUTE_PROBE</div> } path="/import" />
         </Routes>
       </MemoryRouter>
     </MantineProvider>

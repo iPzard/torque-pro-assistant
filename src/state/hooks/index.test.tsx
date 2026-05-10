@@ -1,8 +1,10 @@
 import { renderHook } from '@testing-library/react';
-import { Provider } from 'react-redux';
 import type { ReactNode } from 'react';
-import store from '../store';
-import type { RootState } from '../store';
+import { Provider } from 'react-redux';
+
+import type { RootState } from 'state/store';
+import store from 'state/store';
+
 import { useAppDispatch, useAppSelector } from '.';
 
 // useAppSelector / useAppDispatch are typed against the production RootState,

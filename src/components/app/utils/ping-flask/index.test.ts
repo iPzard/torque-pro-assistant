@@ -1,4 +1,4 @@
-import type { ElectronAPI } from '../../../../types/electron-api';
+import type { ElectronAPI } from 'types/electron-api';
 
 // pingFlask delegates to utils/requests#get, which lazy-reads the Flask port
 // from window.electronAPI on the first request. The test stubs both the
