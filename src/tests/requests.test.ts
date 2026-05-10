@@ -35,10 +35,10 @@ describe('utils/requests', () => {
     fetchMock.mockResolvedValue({ json: () => Promise.resolve({ ok: true }) });
     const cb = jest.fn();
 
-    get('example', cb);
+    get('ping', cb);
     await new Promise<void>((r) => { setTimeout(r, 0); });
 
-    expect(fetchMock).toHaveBeenCalledWith('http://127.0.0.1:3042/example');
+    expect(fetchMock).toHaveBeenCalledWith('http://127.0.0.1:3042/ping');
     expect(cb).toHaveBeenCalledWith({ ok: true });
   });
 
@@ -48,7 +48,7 @@ describe('utils/requests', () => {
     const cb = jest.fn();
     const errCb = jest.fn();
 
-    get('example', cb, errCb);
+    get('ping', cb, errCb);
     await new Promise<void>((r) => { setTimeout(r, 0); });
 
     expect(cb).not.toHaveBeenCalled();

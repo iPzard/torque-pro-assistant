@@ -144,12 +144,6 @@ export default tseslint.config(
     rules: { 'no-console': 'off' }
   },
   {
-    // CRA boilerplate; console.log calls are part of the upstream
-    // reference implementation. Allow them rather than touch CRA code.
-    files: ['src/serviceWorker.ts'],
-    rules: { 'no-console': 'off' }
-  },
-  {
     // Test files: relax type-aware rules that fight common test patterns.
     files: ['**/*.test.{ts,tsx}', 'src/setupTests.ts'],
     rules: {

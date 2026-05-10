@@ -1,6 +1,6 @@
 {
   "author": "Daniel Wade",
-  "description": "Starter template for Electron, React, Python app",
+  "description": "Torque Pro log viewer — explore OBD-II driving session CSVs.",
   "dependencies": {
     "@reduxjs/toolkit": "2.11.2",
     "get-port": "5.1.1",
@@ -64,7 +64,7 @@
   "homepage": "./",
   "license": "MIT",
   "main": "dist-electron/main.js",
-  "name": "electron-react-python-template",
+  "name": "torque-pro-assistant",
   "private": true,
   "scripts": {
     "build": "tsx ./scripts/dispatch.ts build all",

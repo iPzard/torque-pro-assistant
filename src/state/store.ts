@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import type { Action, ThunkAction } from '@reduxjs/toolkit';
-import counterReducer from '../components/counter/counterSlice';
 
+// Empty reducer map for now — slices will be added as features land.
+// configureStore requires a non-empty reducer object, so a placeholder
+// `app` slice with a single boolean is the smallest legal shape.
 const store = configureStore({
   reducer: {
-    counter: counterReducer
+    app: (state: { ready: boolean } = { ready: true }) => state
   }
 });
 

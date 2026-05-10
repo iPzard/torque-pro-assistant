@@ -1,6 +1,6 @@
 {
-  "short_name": "Electron React Python Template",
-  "name": "Electron React Python Template",
+  "short_name": "Torque Pro Assistant",
+  "name": "Torque Pro Assistant",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#0b0c0e",
+  "background_color": "#0b0c0e"
 }

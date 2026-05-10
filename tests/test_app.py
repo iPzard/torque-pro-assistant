@@ -24,16 +24,14 @@ def client():
         yield c
 
 
-def test_example_returns_json_string(client):
-    response = client.get("/example")
+def test_ping_returns_pong(client):
+    response = client.get("/ping")
     assert response.status_code == 200
-    payload = response.get_json()
-    assert isinstance(payload, str)
-    assert payload.startswith("Example response from Flask")
+    assert response.get_json() == "pong"
 
 
-def test_example_returns_json_content_type(client):
-    response = client.get("/example")
+def test_ping_returns_json_content_type(client):
+    response = client.get("/ping")
     assert response.content_type == "application/json"
 
 
@@ -43,19 +41,19 @@ def test_unknown_route_returns_404(client):
 
 
 def test_cors_headers_present_for_localhost_origin(client):
-    response = client.get("/example", headers={"Origin": "http://localhost:3000"})
+    response = client.get("/ping", headers={"Origin": "http://localhost:3000"})
     assert response.status_code == 200
     assert response.headers.get("Access-Control-Allow-Origin") == "http://localhost:3000"
 
 
 def test_cors_headers_present_for_127_0_0_1_origin(client):
-    response = client.get("/example", headers={"Origin": "http://127.0.0.1:3000"})
+    response = client.get("/ping", headers={"Origin": "http://127.0.0.1:3000"})
     assert response.status_code == 200
     assert response.headers.get("Access-Control-Allow-Origin") == "http://127.0.0.1:3000"
 
 
 def test_cors_blocks_disallowed_origin(client):
-    response = client.get("/example", headers={"Origin": "https://evil.example"})
+    response = client.get("/ping", headers={"Origin": "https://evil.example"})
     # Request still succeeds at HTTP level; the browser is what enforces CORS
     # by reading (or not reading) Access-Control-Allow-Origin. We assert the
     # disallowed origin is NOT echoed back, which is the security-relevant bit.

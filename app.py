@@ -40,12 +40,12 @@ if "app.py" in sys.argv[0]:
 """
 --------------------------- REST CALLS -----------------------------
 """
-# Remove and replace with your own
-@app.route("/example")
-def example():
-
-  # See /src/components/App.js for frontend call
-  return jsonify("Example response from Flask! Learn more in /app.py & /src/components/App.js")
+# Proof-of-life endpoint. The renderer fires GET /ping on mount and logs the
+# response — confirms the Electron ↔ Flask bridge is live. Real Torque Pro
+# routes (CSV ingest, summary aggregation, etc.) land later.
+@app.route("/ping")
+def ping():
+  return jsonify("pong")
 
 
 """
