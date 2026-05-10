@@ -13,12 +13,14 @@ When starting a non-trivial change in this project, read both files first.
 
 ## Review agents
 
-Two read-only agents under `.claude/agents/`. Invoke via the Agent tool with `subagent_type`.
+Two read-only agents under `.claude/agents/`. Invoke via the Agent tool with `subagent_type`. Use them **throughout the work**, not just pre-commit — catching drift mid-feature is cheaper than catching it at the end.
 
-- **`code-reviewer`** — real-bug / security / logic / suspect-TS / perf / dead-code review of a diff or file. Does NOT comment on conventions.
-- **`convention-reviewer`** — rule validator. Cross-checks a diff or file against `.claude/rules/`. Does NOT comment on bugs or logic.
+- **`code-reviewer`** — real-bug / security / logic / suspect-TS / perf / dead-code review of a diff or file. Invoke when finishing a chunk of feature work, when a change touches something subtle (IPC, async, types), or when something feels off. Does NOT comment on conventions.
+- **`convention-reviewer`** — rule validator. Cross-checks a diff or file against `.claude/rules/`. Invoke after any non-trivial structural change (new component / page / util / hook, renamed thing, new tests), or whenever you're unsure whether something matches the project's documented norms. Does NOT comment on bugs or logic.
 
-Run both pre-commit on substantial changes — they're scoped not to overlap.
+Both agents are read-only and scoped not to overlap — safe to run in parallel. Pre-commit on substantial changes, run both as a final pass.
+
+The agents are a check, not a substitute for knowing the rules. Read `.claude/rules/architecture.md` and `.claude/rules/eslint.md` at the start of any non-trivial work so the rules apply to the first draft, not just the review.
 
 ## Stack
 
