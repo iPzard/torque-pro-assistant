@@ -19,14 +19,21 @@ import { app as windowControls } from '../utils/services';
 import { get } from '../utils/requests';
 import Library from './pages/Library';
 import Compare from './pages/Compare';
+import Import from './pages/Import';
 import Settings from './pages/Settings';
 import styles from './App.module.scss';
 
-// Single source of truth for nav entries — labels + paths drive both the
-// sidebar links and the route definitions, so adding a page is one edit.
-const NAV_ITEMS = [
-  { label: 'Library',  path: '/library' },
-  { label: 'Compare',  path: '/compare' },
+// Sidebar layout matches the handoff design:
+//   Workspace group  — Library / Compare / Import
+//   pinned at bottom — Settings
+// Adding a workspace page is a one-edit change against TOP_NAV.
+const TOP_NAV = [
+  { label: 'Library', path: '/library' },
+  { label: 'Compare', path: '/compare' },
+  { label: 'Import',  path: '/import' }
+] as const;
+
+const BOTTOM_NAV = [
   { label: 'Settings', path: '/settings' }
 ] as const;
 
@@ -46,6 +53,11 @@ function App() {
       (error) => console.error('Flask /ping failed:', error)
     );
   }, []);
+
+  const isActive = (path: string): boolean => (
+    location.pathname === path
+    || (path === '/library' && location.pathname === '/')
+  );
 
   return (
     <AppShell
@@ -86,22 +98,31 @@ function App() {
       </AppShell.Header>
 
       <AppShell.Navbar p="sm">
-        <Stack gap={ 2 }>
+        <Stack gap={ 2 } h="100%">
           <Text size="xs" c="dimmed" tt="uppercase" fw={ 500 } pl="xs" pb={ 4 }>
             Workspace
           </Text>
-          { NAV_ITEMS.map((item) => (
+          { TOP_NAV.map((item) => (
             <NavLink
               key={ item.path }
               component={ Link }
               to={ item.path }
               label={ item.label }
-              active={
-                location.pathname === item.path
-                || (item.path === '/library' && location.pathname === '/')
-              }
+              active={ isActive(item.path) }
             />
           )) }
+
+          <Stack gap={ 2 } mt="auto">
+            { BOTTOM_NAV.map((item) => (
+              <NavLink
+                key={ item.path }
+                component={ Link }
+                to={ item.path }
+                label={ item.label }
+                active={ isActive(item.path) }
+              />
+            )) }
+          </Stack>
         </Stack>
       </AppShell.Navbar>
 
@@ -110,6 +131,7 @@ function App() {
           <Route path="/" element={ <Navigate to="/library" replace /> } />
           <Route path="/library" element={ <Library /> } />
           <Route path="/compare" element={ <Compare /> } />
+          <Route path="/import" element={ <Import /> } />
           <Route path="/settings" element={ <Settings /> } />
         </Routes>
       </AppShell.Main>

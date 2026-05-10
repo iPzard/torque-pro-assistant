@@ -1,9 +1,8 @@
 import { Button, Group, Stack, Text, Title } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import ImportDropzone from '../ImportDropzone';
+import { useNavigate } from 'react-router-dom';
 
 function Library() {
-  const [importOpen, { close, open }] = useDisclosure(false);
+  const navigate = useNavigate();
 
   return (
     <Stack gap="md">
@@ -14,10 +13,8 @@ function Library() {
             Imported sessions will land here. Currently a placeholder.
           </Text>
         </Stack>
-        <Button onClick={ open }>Import CSV</Button>
+        <Button onClick={ () => navigate('/import') }>Import CSV</Button>
       </Group>
-
-      <ImportDropzone opened={ importOpen } onClose={ close } />
     </Stack>
   );
 }
