@@ -20,11 +20,6 @@ Important constraints:
 
 What I need you to do:
 
-1. Audit the current state of the repo
-   - List every file/folder and what it does
-   - Flag anything that is purely template demo code (sample components, demo routes, placeholder Python endpoints, the example toolbar demo, sample Redux slices, etc.)
-   - Flag any remaining branding/personalization tied to the original author (iPzard references, JSDoc/TSDoc remnants, license attribution, etc.)
-
 2. Strip the template down
    - Remove all demo/sample code while keeping the working Electron ↔ React ↔ Python plumbing intact
    - Remove author-specific branding and replace with TorqueView placeholders
@@ -61,4 +56,48 @@ What I need you to do:
    - Don't commit node_modules, build artifacts, or Python venv
 
 9. Delete everything in this file, and re-write the CLAUDE.md (this file) to something appropriate for the project at that time.
+
+---
+
+## Open questions (deferred — defaults assumed for now)
+
+These came up during the audit. The user said "leave all for now" — defaults below were applied so steps 2–8 could proceed. Confirm or override before step 9 (CLAUDE.md rewrite).
+
+The handoff bundle at `C:\Users\Daniel\Downloads\torque-pro-assistant-handoff.zip` (Claude Design export of `TorquePro Assistant.html`) is the visual target for future feature work. Several defaults below were biased toward what that design implies, since the user pointed at it for context.
+
+1. **Custom titlebar (frameless window).**
+   - Options: (a) drop frameless, use OS chrome and delete `Titlebar*` files; (b) keep frameless, restyle Titlebar into Mantine `AppShell.Header` w/ `-webkit-app-region: drag`; (c) keep current Titlebar bolted on top of AppShell unchanged.
+   - **Default applied:** (b). Design has a custom 44px titlebar w/ macOS-style traffic lights, app name "TorquePro · Assistant", connection pills, and version stamp. Frameless will stay; Titlebar will be folded into the AppShell.Header during scaffolding.
+
+2. **Redux store after stripping the counter slice.**
+   - Options: keep `state/store.ts` + typed hooks with an empty reducer object for future use, vs. delete `state/` entirely until needed.
+   - **Default applied:** keep, empty reducer object. Brief lists Redux Toolkit as part of the stack going forward.
+
+3. **Sample-endpoint proof-of-life call.**
+   - Options: have the renderer fire a `/ping` GET on mount and `console.log` the response; or leave the endpoint with no caller; or fire and `alert`.
+   - **Default applied:** fire `/ping` on mount, `console.log` the response (no UI alert).
+
+4. **`src/theme/` directory.**
+   - The template's `theme/palette.ts` is a Microsoft Fluent UI palette never wired up; `variables.scss` is two SCSS vars.
+   - **Default applied:** delete `src/theme/` entirely. Mantine theme will be defined inline in `src/index.tsx` (or alongside the App component) — no separate theme dir until there's enough config to justify one.
+
+5. **GitHub issue templates.**
+   - `assignees: iPzard` in both `bug_report.md` and `feature_request.md`.
+   - **Default applied:** strip `assignees:` to empty. Reinstate w/ user's GitHub handle when known.
+
+6. **CRA service worker.**
+   - `src/serviceWorker.ts` + the `serviceWorker.unregister()` call in `index.tsx` are CRA PWA boilerplate; useless inside Electron.
+   - **Default applied:** delete the file and its call.
+
+7. **Sidebar nav vs. design.**
+   - Brief says "Library, Compare, Settings". Design uses "Library, Compare, Import" with Settings pinned at the bottom of the nav (and Import as both a button AND its own route).
+   - **Default applied:** follow brief — Library, Compare, Settings as routes. Import remains a header button → Mantine Dropzone modal (per brief), not a route. Reconcile with design when feature work begins.
+
+8. **Loader dev-mode HTML.**
+   - `utilities/loaders/redux/index.html` says "Starting React Development Server" with a generic logo. Not personalized to the template author, but it's there.
+   - **Default applied:** leave as-is for now. Cosmetic; revisit when branding/icons land.
+
+9. **Generic CRA assets.**
+   - `public/favicon.ico`, `logo192.png`, `logo512.png`, `src/components/titlebar/img/favicon.png` — all generic CRA placeholders. Installer art under `utilities/{deb,dmg,msi}/images/` is also generic.
+   - **Default applied:** leave in place. Replace as a single later pass with a real Torque Pro Assistant icon set.
 
