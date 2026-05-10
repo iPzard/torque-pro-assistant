@@ -47,5 +47,7 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# Claude Code local settings
-.claude/
+# Claude Code — track shared project config, ignore per-user files.
+.claude/*
+!.claude/rules/
+!.claude/agents/
