@@ -1,8 +1,10 @@
 import store from '.';
 
 describe('state/store', () => {
-  it('configureStore initialises with the placeholder app slice', () => {
-    expect(store.getState()).toEqual({ app: { ready: true } });
+  it('configureStore initialises with the sessions slice empty', () => {
+    expect(store.getState()).toEqual({
+      sessions: { selectedId: null, sessions: [] }
+    });
   });
 
   it('dispatch is callable and unknown actions leave state untouched', () => {

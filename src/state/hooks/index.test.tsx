@@ -22,10 +22,10 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 describe('state/hooks', () => {
   it('useAppSelector reads from the production store with the typed RootState', () => {
     const { result } = renderHook(
-      () => useAppSelector((state: RootState) => state.app.ready),
+      () => useAppSelector((state: RootState) => state.sessions.sessions.length),
       { wrapper }
     );
-    expect(result.current).toBe(true);
+    expect(result.current).toBe(0);
   });
 
   it('useAppDispatch returns the store dispatch function', () => {
