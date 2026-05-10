@@ -1,10 +1,12 @@
-// Single source of truth for the contextBridge surface exposed in preload.js
-// (preload.ts after Phase 5). The renderer reads this via the global.d.ts
-// declaration on Window; the preload imports it to satisfy the contextBridge
-// shape. Keep these three in lock-step:
-//   - preload.js / preload.ts  (publishes electronAPI)
-//   - src/global.d.ts          (augments Window)
-//   - src/types/electron-api.ts (this file — the contract)
+/**
+ * Single source of truth for the contextBridge surface exposed in
+ * preload.ts. The renderer reads this via the `Window` augmentation in
+ * src/global.d.ts; the preload imports it to satisfy the contextBridge
+ * shape. Keep these three in lock-step:
+ *   - preload.ts                  (publishes electronAPI)
+ *   - src/global.d.ts             (augments Window)
+ *   - src/types/electron-api.ts   (this file — the contract)
+ */
 
 export interface ElectronAPI {
   /**

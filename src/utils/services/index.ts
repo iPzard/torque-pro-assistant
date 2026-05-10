@@ -1,5 +1,7 @@
-// Window-control helpers backed by the preload bridge (window.electronAPI).
-// See preload.ts for the exposed API.
+/**
+ * Window-control helpers backed by the preload bridge (window.electronAPI).
+ * See preload.ts for the exposed API.
+ */
 
 /**
  * Window-control facade for the renderer. Each method delegates to the

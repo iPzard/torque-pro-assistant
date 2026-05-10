@@ -1,10 +1,12 @@
-// Pre-typed versions of the standard react-redux hooks. Use these throughout
-// the app instead of the plain `useDispatch` / `useSelector` so components
-// get the full RootState / AppDispatch types without having to repeat the
-// cast.
-//
-// Pattern documented at:
-// https://redux.js.org/usage/usage-with-typescript#define-typed-hooks
+/**
+ * Pre-typed versions of the standard react-redux hooks. Use these throughout
+ * the app instead of the plain `useDispatch` / `useSelector` so components
+ * get the full RootState / AppDispatch types without having to repeat the
+ * cast.
+ *
+ * Pattern documented at:
+ * https://redux.js.org/usage/usage-with-typescript#define-typed-hooks
+ */
 
 import { type TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 

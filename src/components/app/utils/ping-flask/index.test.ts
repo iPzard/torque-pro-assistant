@@ -1,8 +1,10 @@
 import type { ElectronAPI } from 'types/electron-api';
 
-// pingFlask delegates to utils/requests#get, which lazy-reads the Flask port
-// from window.electronAPI on the first request. The test stubs both the
-// bridge and global fetch, then asserts the http call shape.
+/**
+ * pingFlask delegates to utils/requests#get, which lazy-reads the Flask port
+ * from window.electronAPI on the first request. The test stubs both the
+ * bridge and global fetch, then asserts the http call shape.
+ */
 type PingModule = typeof import('.');
 
 describe('components/app/utils/ping-flask', () => {
@@ -28,8 +30,10 @@ describe('components/app/utils/ping-flask', () => {
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    // isolateModules ensures the cached port inside utils/requests is fresh
-    // for each test (the cache lives at module scope).
+    /**
+     * isolateModules ensures the cached port inside utils/requests is fresh
+     * for each test (the cache lives at module scope).
+     */
     jest.isolateModules(() => {
       const pingModule = jest.requireActual<PingModule>('.');
       ({ pingFlask } = pingModule);

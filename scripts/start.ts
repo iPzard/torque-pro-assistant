@@ -5,8 +5,10 @@ import {
   spawnSync,
   type SpawnSyncOptions
 } from 'child_process';
-// get-port v5 publishes via `export = getPort` (CommonJS namespace),
-// which works as a default import under esModuleInterop.
+/**
+ * get-port v5 publishes via `export = getPort` (CommonJS namespace),
+ * which works as a default import under esModuleInterop.
+ */
 import getPort from 'get-port';
 import * as http from 'http';
 import * as readline from 'readline';
@@ -104,18 +106,21 @@ export class Starter {
     // Kill anything already on the React port.
     spawnSync('npx kill-port 3000', spawnOptions.hideLogs);
 
-    // Start React dev server.
-    //   HOST=127.0.0.1 — bind to loopback so Windows Defender Firewall does
-    //     not prompt; the renderer talks to it via http://127.0.0.1:3000.
-    //   BROWSER=none — Electron is the renderer; no browser tab needed.
-    //   DISABLE_ESLINT_PLUGIN=true — CRA 5 ships eslint-config-react-app and
-    //     loads it inside the webpack-dev-server overlay. Combined with this
-    //     project's .eslintrc.cjs (which already lists `plugins: ['react']`),
-    //     ESLint errors with "Plugin 'react' was conflicted between …".
-    //     Disabling CRA's plugin keeps the overlay quiet; standalone
-    //     `yarn lint` still runs the airbnb config we want.
-    // Pipe react-scripts stdout/stderr so we can filter known-noisy upstream
-    // deprecation chatter (see REACT_STDOUT_NOISE). Real errors fall through.
+    /**
+     * Start React dev server.
+     *   HOST=127.0.0.1 — bind to loopback so Windows Defender Firewall does
+     *     not prompt; the renderer talks to it via http://127.0.0.1:3000.
+     *   BROWSER=none — Electron is the renderer; no browser tab needed.
+     *   DISABLE_ESLINT_PLUGIN=true — CRA 5 ships eslint-config-react-app and
+     *     loads it inside the webpack-dev-server overlay. Combined with this
+     *     project's .eslintrc.cjs (which already lists `plugins: ['react']`),
+     *     ESLint errors with "Plugin 'react' was conflicted between …".
+     *     Disabling CRA's plugin keeps the overlay quiet; standalone
+     *     `yarn lint` still runs the airbnb config we want.
+     *
+     * Pipe react-scripts stdout/stderr so we can filter known-noisy upstream
+     * deprecation chatter (see REACT_STDOUT_NOISE). Real errors fall through.
+     */
     const reactSpawnOptions: SpawnOptions = {
       detached: false, shell: true, stdio: ['inherit', 'pipe', 'pipe']
     };
@@ -123,15 +128,17 @@ export class Starter {
       'cross-env BROWSER=none HOST=127.0.0.1 DISABLE_ESLINT_PLUGIN=true react-scripts start',
       reactSpawnOptions
     );
-    // ANSI color codes get stripped before pattern matching so anchored
-    // patterns (^LOG from ...) still match webpack's colored output. The
-    // ORIGINAL line is what gets forwarded, so colors stay intact for
-    // anything we don't filter.
-    //
-    // Match the full escape sequence — `\x1b[<digits>;<digits>m`. Built
-    // via the RegExp constructor with String.fromCharCode(0x1b) so the
-    // literal ESC byte never appears in a regex literal — that would trip
-    // ESLint's `no-control-regex` rule. Equivalent pattern at runtime.
+    /**
+     * ANSI color codes get stripped before pattern matching so anchored
+     * patterns (^LOG from ...) still match webpack's colored output. The
+     * ORIGINAL line is what gets forwarded, so colors stay intact for
+     * anything we don't filter.
+     *
+     * Match the full escape sequence — `\x1b[<digits>;<digits>m`. Built
+     * via the RegExp constructor with String.fromCharCode(0x1b) so the
+     * literal ESC byte never appears in a regex literal — that would trip
+     * ESLint's `no-control-regex` rule. Equivalent pattern at runtime.
+     */
     const ANSI_RE = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, 'g');
     const filterStream = (
       input: NodeJS.ReadableStream | null,
@@ -149,15 +156,20 @@ export class Starter {
     filterStream(reactProc.stdout, process.stdout, REACT_STDOUT_NOISE);
     filterStream(reactProc.stderr, process.stderr, REACT_STDOUT_NOISE);
 
-    // Compile main.ts + preload.ts to dist-electron/ before Electron starts.
-    // package.json "main" points at dist-electron/main.js, so this output must
-    // exist before `electron .` runs. Synchronous so dev startup is sequential
-    // and any TS errors surface up front instead of after the loader appears.
+    /**
+     * Compile main.ts + preload.ts to dist-electron/ before Electron starts.
+     * package.json "main" points at dist-electron/main.js, so this output
+     * must exist before `electron .` runs. Synchronous so dev startup is
+     * sequential and any TS errors surface up front instead of after the
+     * loader appears.
+     */
     spawnSync('tsc -p tsconfig.electron.json', spawnOptions.showLogs);
 
-    // Spawn Electron with stderr piped (not inherited) so we can filter out
-    // known-harmless DevTools chatter. stdout still inherits — real Chromium
-    // logs and our own console.log calls stay visible.
+    /**
+     * Spawn Electron with stderr piped (not inherited) so we can filter out
+     * known-harmless DevTools chatter. stdout still inherits — real Chromium
+     * logs and our own console.log calls stay visible.
+     */
     const electronSpawnOptions: SpawnOptions = {
       detached: false,
       shell: true,
@@ -187,10 +199,12 @@ export class Starter {
       if (shuttingDown) return;
       shuttingDown = true;
 
-      // Best-effort: tell Flask to terminate itself. Use Node's built-in
-      // http rather than pulling in a dependency just for one fire-and-
-      // forget request. ECONNRESET / ECONNREFUSED are expected if Flask
-      // already exited; anything else gets logged.
+      /**
+       * Best-effort: tell Flask to terminate itself. Use Node's built-in
+       * http rather than pulling in a dependency just for one fire-and-
+       * forget request. ECONNRESET / ECONNREFUSED are expected if Flask
+       * already exited; anything else gets logged.
+       */
       try {
         const req = http.get(`http://127.0.0.1:${port}/quit`);
         req.on('error', (error: NodeJS.ErrnoException) => {
@@ -215,8 +229,10 @@ export class Starter {
     // When the user closes the Electron window, take the whole dev stack down.
     electronProc.on('exit', () => shutdown('electron-exit'));
 
-    // If the React dev server crashes, also tear everything down — running
-    // Electron without the dev server is useless.
+    /**
+     * If the React dev server crashes, also tear everything down — running
+     * Electron without the dev server is useless.
+     */
     reactProc.on('exit', (code) => {
       if (!shuttingDown) shutdown(`react-exit-${code}`);
     });

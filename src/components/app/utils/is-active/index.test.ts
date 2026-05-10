@@ -20,8 +20,10 @@ describe('components/app/utils/is-active', () => {
   });
 
   it('returns false for a child path that only shares a prefix', () => {
-    // "/library/sessions/abc" should not light up the top-level Library item
-    // (the design pins active state to exact match, not prefix).
+    /**
+     * "/library/sessions/abc" should not light up the top-level Library
+     * item (the design pins active state to exact match, not prefix).
+     */
     expect(isActive('/library/sessions/abc', '/library')).toBe(false);
   });
 });

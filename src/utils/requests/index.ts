@@ -1,14 +1,16 @@
-// Talks to the Python/Flask backend via fetch. The Flask port is provided by
-// the preload bridge (see preload.ts → contextBridge → window.electronAPI).
-// The renderer no longer has direct Electron access (contextIsolation: true).
-//
-// Flask is spawned by Electron in parallel with the React dev server, so the
-// first few requests after startup may race the Flask bind. fetchWithRetry
-// retries on connection-refused-style errors with exponential backoff up to
-// `maxAttempts` total attempts.
-//
-// The port is read lazily and cached on first request so jest can stub
-// window.electronAPI before any module-load reads fire.
+/**
+ * Talks to the Python/Flask backend via fetch. The Flask port is provided
+ * by the preload bridge (see preload.ts → contextBridge → window.electronAPI).
+ * The renderer no longer has direct Electron access (contextIsolation: true).
+ *
+ * Flask is spawned by Electron in parallel with the React dev server, so
+ * the first few requests after startup may race the Flask bind.
+ * `fetchWithRetry` retries on connection-refused-style errors with
+ * exponential backoff up to `maxAttempts` total attempts.
+ *
+ * The port is read lazily and cached on first request so jest can stub
+ * `window.electronAPI` before any module-load reads fire.
+ */
 
 let portCache: number | undefined;
 
@@ -83,7 +85,7 @@ export const get = <ResponseBody = unknown>(
  * Issues a POST to the Python/Flask backend at the bridge-supplied port,
  * with `Content-Type: application/json`.
  *
- * @param requestBody - Body payload (already serialised) to send.
+ * @param requestBody - Body payload (already serialized) to send.
  * @param route - Path under the Flask root (no leading slash).
  * @param onSuccess - Callback invoked with the parsed JSON body.
  * @param onError - Optional callback for fetch failures. Defaults to

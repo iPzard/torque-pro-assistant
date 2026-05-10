@@ -8,15 +8,19 @@ import {
   type IpcMainEvent
 } from 'electron';
 import * as fs from 'fs';
-// Extra modules. get-port v5 publishes via `export = getPort` (CommonJS
-// namespace), which works as a default import under esModuleInterop.
+/**
+ * Extra modules. get-port v5 publishes via `export = getPort` (CommonJS
+ * namespace), which works as a default import under esModuleInterop.
+ */
 import getPort from 'get-port';
 import * as http from 'http';
 import * as path from 'path';
 
-// Electron's `app.isPackaged` is the canonical "is this a packaged build?"
-// signal — no need for the `electron-is-dev` shim. Defined here as a
-// constant so the rest of the file reads naturally.
+/**
+ * Electron's `app.isPackaged` is the canonical "is this a packaged build?"
+ * signal — no need for the `electron-is-dev` shim. Defined here as a
+ * constant so the rest of the file reads naturally.
+ */
 const isDevMode = !app.isPackaged;
 
 
@@ -94,9 +98,11 @@ const createMainWindow = (port: number): void => {
    */
   if (isDevMode) {
 
-    // Use 127.0.0.1 (not localhost) — CRA binds IPv4 only when HOST=127.0.0.1
-    // is set in scripts/start.js. On Windows, Electron resolves "localhost"
-    // to ::1 (IPv6) and the connection is refused.
+    /**
+     * Use 127.0.0.1 (not localhost) — CRA binds IPv4 only when HOST=127.0.0.1
+     * is set in scripts/start.js. On Windows, Electron resolves "localhost"
+     * to ::1 (IPv6) and the connection is refused.
+     */
     mainWindow.loadURL('http://127.0.0.1:3000');
     mainWindow.hide();
 
@@ -204,13 +210,17 @@ const createLoadingWindow = (): Promise<void> => {
       return;
     }
 
-    // Path to the developer loading screen shown while CRA compiles.
-    // Add new variants under utilities/loaders/<name>/ if you want to swap.
+    /**
+     * Path to the developer loading screen shown while CRA compiles.
+     * Add new variants under utilities/loaders/<name>/ if you want to swap.
+     */
     const loaderHtml = 'utilities/loaders/redux/index.html';
 
     try {
-      // app.getAppPath() instead of __dirname so this resolves correctly
-      // after main.js relocated to dist-electron/.
+      /**
+       * app.getAppPath() instead of __dirname so this resolves correctly
+       * after main.js relocated to dist-electron/.
+       */
       loadingWindow.loadFile(path.join(app.getAppPath(), loaderHtml));
 
       loadingWindow.webContents.on('did-finish-load', () => {
@@ -318,19 +328,21 @@ app.whenReady().then(async () => {
   else {
     createMainWindow(port);
 
-    // Production Flask launch.
-    //
-    // Path lives at process.resourcesPath (the dir CONTAINING app.asar),
-    // NOT app.getAppPath() (which is the asar itself — you can't spawn a
-    // binary from inside a read-only archive). electron-packager's
-    // --extra-resource flag drops the PyInstaller dir at
-    //   <install>/resources/app/   on Win/Linux
-    //   <install>/Resources/app/   inside the .app bundle on macOS
-    // and process.resourcesPath resolves to that parent on every platform.
-    //
-    // We spawn the Flask binary directly rather than through a shell. That
-    // avoids the `start` cmd quirk on Windows (returns immediately, drops
-    // stderr) and the `open -gj` path on macOS (swallows errors silently).
+    /**
+     * Production Flask launch.
+     *
+     * Path lives at process.resourcesPath (the dir CONTAINING app.asar),
+     * NOT app.getAppPath() (which is the asar itself — you can't spawn a
+     * binary from inside a read-only archive). electron-packager's
+     * --extra-resource flag drops the PyInstaller dir at
+     *   <install>/resources/app/   on Win/Linux
+     *   <install>/Resources/app/   inside the .app bundle on macOS
+     * and process.resourcesPath resolves to that parent on every platform.
+     *
+     * We spawn the Flask binary directly rather than through a shell. That
+     * avoids the `start` cmd quirk on Windows (returns immediately, drops
+     * stderr) and the `open -gj` path on macOS (swallows errors silently).
+     */
     const flaskBinaryName = process.platform === 'win32' ? 'app.exe' : 'app';
     const flaskBinary = path.join(
       process.resourcesPath,
@@ -338,15 +350,17 @@ app.whenReady().then(async () => {
       flaskBinaryName
     );
 
-    // Capture Flask stdout + stderr to a logfile in the OS user-data dir.
-    // PyInstaller's `console=False` (in app.spec) means there's no console
-    // window in production, so a Flask traceback would otherwise vanish.
-    // The log path is platform-specific:
-    //   Windows: %APPDATA%\<app-name>\flask.log
-    //   macOS:   ~/Library/Application Support/<app-name>/flask.log
-    //   Linux:   ~/.config/<app-name>/flask.log
-    // Template users who want different routing (rotation, no log at all,
-    // separate stdout/stderr) can edit the few lines below.
+    /**
+     * Capture Flask stdout + stderr to a logfile in the OS user-data dir.
+     * PyInstaller's `console=False` (in app.spec) means there's no console
+     * window in production, so a Flask traceback would otherwise vanish.
+     * The log path is platform-specific:
+     *   Windows: %APPDATA%\<app-name>\flask.log
+     *   macOS:   ~/Library/Application Support/<app-name>/flask.log
+     *   Linux:   ~/.config/<app-name>/flask.log
+     * Template users who want different routing (rotation, no log at all,
+     * separate stdout/stderr) can edit the few lines below.
+     */
     const userDataDir = app.getPath('userData');
     fs.mkdirSync(userDataDir, { recursive: true });
     const flaskLogPath = path.join(userDataDir, 'flask.log');

@@ -26,9 +26,11 @@ import { isActive, pingFlask } from './utils';
 
 import styles from './index.module.scss';
 
-// Single source of truth for sidebar entries. Top group renders inside the
-// "Workspace" label; bottom group is pinned to the floor. Adding a route is
-// a one-edit change against TOP_NAV / BOTTOM_NAV plus a matching <Route>.
+/**
+ * Single source of truth for sidebar entries. Top group renders inside the
+ * "Workspace" label; bottom group is pinned to the floor. Adding a route is
+ * a one-edit change against TOP_NAV / BOTTOM_NAV plus a matching <Route>.
+ */
 const TOP_NAV = [
   { label: 'Library', path: '/library', testId: 'app-nav-link-library' },
   { label: 'Compare', path: '/compare', testId: 'app-nav-link-compare' },
@@ -53,10 +55,12 @@ const BOTTOM_NAV = [
  * @returns The full app shell React element.
  */
 function App() {
-  // preload freezes process.platform at bridge-creation time, so reading it
-  // inside the component is a constant for the lifetime of the window.
-  // Inlined here (not at module scope) so tests can swap window.electronAPI
-  // between renders without juggling isolateModules.
+  /**
+   * preload freezes process.platform at bridge-creation time, so reading
+   * it inside the component is a constant for the lifetime of the window.
+   * Inlined here (not at module scope) so tests can swap window.electronAPI
+   * between renders without juggling isolateModules.
+   */
   const isMac = window.electronAPI.platform === 'darwin';
   const location = useLocation();
 

@@ -106,9 +106,11 @@ function cleanProject({ removeDeps = false }: CleanProjectOptions = {}): void {
     getPath('.DS_Store')
   ];
 
-  // Dependency caches and lockfiles — only removed by `yarn clean:all`.
-  // Removing yarn.lock + node_modules forces a full reinstall and may drift
-  // dependency versions, so we gate it behind an explicit opt-in.
+  /**
+   * Dependency caches and lockfiles — only removed by `yarn clean:all`.
+   * Removing yarn.lock + node_modules forces a full reinstall and may
+   * drift dependency versions, so we gate it behind an explicit opt-in.
+   */
   const dependencyPaths = [
     getPath('.pnp'),
     getPath('.pnp.js'),

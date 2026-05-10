@@ -10,13 +10,15 @@ const builder = new Builder();
 // Define input and output directories
 const path = (directory: string): string => nodePath.resolve(__dirname, directory);
 
-// Read app metadata from package.json so the installers always reflect the
-// current name/version/description/author. Template users only need to edit
-// package.json — these values flow through to the MSI/DMG/DEB output.
-//
-// `manufacturer` falls back to `author.name` if `author` is an object, or
-// the raw author string. Set `author` in package.json to your company /
-// publisher name; it shows up in Add/Remove Programs on Windows.
+/**
+ * Read app metadata from package.json so the installers always reflect the
+ * current name/version/description/author. Template users only need to edit
+ * package.json — these values flow through to the MSI/DMG/DEB output.
+ *
+ * `manufacturer` falls back to `author.name` if `author` is an object, or
+ * the raw author string. Set `author` in package.json to your company /
+ * publisher name; it shows up in Add/Remove Programs on Windows.
+ */
 interface PackageJson {
   author?: string | { name?: string };
   description?: string;
@@ -54,17 +56,23 @@ export class Packager {
 
     const buildArgs = [
       'app',
-      // PyInstaller's resources/app/ dir is dropped into the bundle's
-      // Resources/ alongside (NOT inside) the asar. main.js resolves it
-      // via process.resourcesPath, so the runtime path is
-      //   <install>/resources/app/<binary>
+      /**
+       * PyInstaller's resources/app/ dir is dropped into the bundle's
+       * Resources/ alongside (NOT inside) the asar. main.js resolves it
+       * via process.resourcesPath, so the runtime path is
+       *   <install>/resources/app/<binary>
+       */
       '--extra-resource=./resources/app',
-      // Keep the asar lean: project source dirs and PyInstaller scratch
-      // are not needed at runtime — the CRA build/ output is.
+      /**
+       * Keep the asar lean: project source dirs and PyInstaller scratch
+       * are not needed at runtime — the CRA build/ output is.
+       */
       '--ignore="^/(resources|dist|\\.pyi-build|src|public|tests|utilities|docs)(/|$)"',
-      // Drop TS source + tsconfigs (only compiled output in dist-electron/
-      // is needed at runtime) and the empty type-only emit at
-      // dist-electron/src/types/electron-api.js (interface-only file).
+      /**
+       * Drop TS source + tsconfigs (only compiled output in dist-electron/
+       * is needed at runtime) and the empty type-only emit at
+       * dist-electron/src/types/electron-api.js (interface-only file).
+       */
       '--ignore="^/(main|preload)\\.ts$"',
       '--ignore="^/tsconfig.*\\.json$"',
       '--ignore="^/dist-electron/src(/|$)"',
@@ -104,13 +112,17 @@ export class Packager {
 
     const buildArgs = [
       'app',
-      // See packageLinux comment; same Resources/app/ layout on macOS,
-      // resolved at runtime via process.resourcesPath.
+      /**
+       * See packageLinux comment; same Resources/app/ layout on macOS,
+       * resolved at runtime via process.resourcesPath.
+       */
       '--extra-resource=./resources/app',
       '--ignore="^/(resources|dist|\\.pyi-build|src|public|tests|utilities|docs)(/|$)"',
-      // Drop TS source + tsconfigs (only compiled output in dist-electron/
-      // is needed at runtime) and the empty type-only emit at
-      // dist-electron/src/types/electron-api.js (interface-only file).
+      /**
+       * Drop TS source + tsconfigs (only compiled output in dist-electron/
+       * is needed at runtime) and the empty type-only emit at
+       * dist-electron/src/types/electron-api.js (interface-only file).
+       */
       '--ignore="^/(main|preload)\\.ts$"',
       '--ignore="^/tsconfig.*\\.json$"',
       '--ignore="^/dist-electron/src(/|$)"',
@@ -152,13 +164,17 @@ export class Packager {
     const appArgs = [
       'app',
       '--asar',
-      // PyInstaller dist lands at <install>/resources/app/, resolved at
-      // runtime via process.resourcesPath in main.js.
+      /**
+       * PyInstaller dist lands at <install>/resources/app/, resolved at
+       * runtime via process.resourcesPath in main.js.
+       */
       '--extra-resource=./resources/app',
       '--ignore="^/(resources|dist|\\.pyi-build|src|public|tests|utilities|docs)(/|$)"',
-      // Drop TS source + tsconfigs (only compiled output in dist-electron/
-      // is needed at runtime) and the empty type-only emit at
-      // dist-electron/src/types/electron-api.js (interface-only file).
+      /**
+       * Drop TS source + tsconfigs (only compiled output in dist-electron/
+       * is needed at runtime) and the empty type-only emit at
+       * dist-electron/src/types/electron-api.js (interface-only file).
+       */
       '--ignore="^/(main|preload)\\.ts$"',
       '--ignore="^/tsconfig.*\\.json$"',
       '--ignore="^/dist-electron/src(/|$)"',

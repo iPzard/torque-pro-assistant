@@ -7,10 +7,12 @@ import { MemoryRouter } from 'react-router-dom';
 import store from 'state/store';
 import type { ElectronAPI } from 'types/electron-api';
 
-// Each page is mocked with a sentinel marker so App's routing can be asserted
-// without reaching into the real page implementations. Per the project's
-// architecture rules, a component's test never asserts another component's
-// behaviour — composition is verified by mocking the children.
+/**
+ * Each page is mocked with a sentinel marker so App's routing can be asserted
+ * without reaching into the real page implementations. Per the project's
+ * architecture rules, a component's test never asserts another component's
+ * behavior — composition is verified by mocking the children.
+ */
 jest.mock('components/pages/library', () => ({
   __esModule: true,
   default: () => <div data-testid="library-route-sentinel" />
@@ -28,8 +30,10 @@ jest.mock('components/pages/settings', () => ({
   default: () => <div data-testid="settings-route-sentinel" />
 }));
 
-// pingFlask fires inside App's mount effect via utils/requests; mock it out
-// so tests don't trigger fetchWithRetry timers.
+/**
+ * pingFlask fires inside App's mount effect via utils/requests; mock it out
+ * so tests don't trigger fetchWithRetry timers.
+ */
 jest.mock('./utils', () => ({
   ...jest.requireActual('./utils'),
   pingFlask: jest.fn()

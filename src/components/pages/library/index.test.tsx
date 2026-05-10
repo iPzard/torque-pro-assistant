@@ -5,10 +5,12 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import Library from '.';
 
-// Library renders a heading and a CTA that should navigate to /import.
-// We mount it inside a MemoryRouter with a probe route at /import so the
-// navigation can be observed by reading the sentinel — keeps the assertion
-// behavioural without rendering the real Import page.
+/**
+ * Library renders a heading and a CTA that should navigate to /import.
+ * We mount it inside a MemoryRouter with a probe route at /import so the
+ * navigation can be observed by reading the sentinel — keeps the assertion
+ * behavioral without rendering the real Import page.
+ */
 function renderLibrary() {
   return render(
     <MantineProvider>

@@ -1,6 +1,8 @@
-// Mantine CSS bundles must be imported before MantineProvider mounts so the
-// CSS variables (--mantine-*) are in scope when components query them.
-// Order matches the dependency direction: core → dates → notifications → dropzone.
+/**
+ * Mantine CSS bundles must be imported before MantineProvider mounts so the
+ * CSS variables (--mantine-*) are in scope when components query them.
+ * Order matches the dependency direction: core → dates → notifications → dropzone.
+ */
 import { createTheme, type MantineColorsTuple, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import React from 'react';
@@ -17,13 +19,17 @@ import '@mantine/notifications/styles.css';
 import '@mantine/dropzone/styles.css';
 import './index.scss';
 
-// HashRouter (not BrowserRouter) because Electron's prod build loads the
-// renderer via file:// — BrowserRouter's deep links would 404 there.
+/**
+ * HashRouter (not BrowserRouter) because Electron's prod build loads the
+ * renderer via file:// — BrowserRouter's deep links would 404 there.
+ */
 
-// Custom palette for the design's instrument-backlight amber accent.
-// Index 6 is the design target (#ffb020); other shades are hand-derived
-// to stay perceptually balanced light-to-dark for hover / press / disabled
-// states. Mantine's color generator can be re-run later if precision matters.
+/**
+ * Custom palette for the design's instrument-backlight amber accent.
+ * Index 6 is the design target (#ffb020); other shades are hand-derived
+ * to stay perceptually balanced light-to-dark for hover / press / disabled
+ * states. Mantine's color generator can be re-run later if precision matters.
+ */
 const amber: MantineColorsTuple = [
   '#fff8e1',
   '#ffeebb',
@@ -42,9 +48,11 @@ const theme = createTheme({
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   fontFamilyMonospace: 'ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace',
   primaryColor: 'amber',
-  // Mantine 7 defaults to { light: 6, dark: 8 } for primaryShade, which would
-  // dim the amber on the dark-default theme. Pin shade 6 across both schemes
-  // so the brand colour stays the brand colour.
+  /**
+   * Mantine 7 defaults to { light: 6, dark: 8 } for primaryShade, which would
+   * dim the amber on the dark-default theme. Pin shade 6 across both schemes
+   * so the brand color stays the brand color.
+   */
   primaryShade: { dark: 6, light: 6 }
 });
 

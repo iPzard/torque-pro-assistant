@@ -1,13 +1,15 @@
-// Flat config (ESLint 9+) authored in TypeScript. ESLint 9.18+ loads
-// eslint.config.ts via `jiti` (declared in devDependencies).
-//
-// This config is the project's single source of truth for sort order +
-// import-shape rules. Every formatting rule is auto-fixable so saving in
-// VS Code (with ESLint extension's `source.fixAll.eslint` action) reformats
-// in place. Run `yarn lint --fix` to apply across the tree.
-//
-// Rule keys are alphabetised within each rules object — sort-keys is
-// project-wide, so this config must satisfy its own rule.
+/**
+ * Flat config (ESLint 9+) authored in TypeScript. ESLint 9.18+ loads
+ * eslint.config.ts via `jiti` (declared in devDependencies).
+ *
+ * This config is the project's single source of truth for sort order +
+ * import-shape rules. Every formatting rule is auto-fixable so saving in
+ * VS Code (with ESLint extension's `source.fixAll.eslint` action) reformats
+ * in place. Run `yarn lint --fix` to apply across the tree.
+ *
+ * Rule keys are alphabetized within each rules object — sort-keys is
+ * project-wide, so this config must satisfy its own rule.
+ */
 
 import js from '@eslint/js';
 import importX from 'eslint-plugin-import-x';
@@ -22,9 +24,11 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  // -------------------------------------------------------------------
-  // Ignored paths — replaces .eslintignore + the old `ignorePatterns`.
-  // -------------------------------------------------------------------
+  /**
+   * ───────────────────────────────────────────────────────────────
+   * Ignored paths — replaces .eslintignore + the old `ignorePatterns`.
+   * ───────────────────────────────────────────────────────────────
+   */
   {
     ignores: [
       '.pyi-build/',
@@ -45,9 +49,11 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   ...tseslint.configs.stylistic,
 
-  // -------------------------------------------------------------------
-  // Project-wide configuration applied to source files.
-  // -------------------------------------------------------------------
+  /**
+   * ───────────────────────────────────────────────────────────────
+   * Project-wide configuration applied to source files.
+   * ───────────────────────────────────────────────────────────────
+   */
   {
     files: ['**/*.{js,jsx,ts,tsx,mjs,cjs}'],
     languageOptions: {
@@ -59,11 +65,13 @@ export default tseslint.config(
       },
       parserOptions: {
         ecmaFeatures: { jsx: true },
-        // Three tsconfigs cover the three contexts: renderer (src/),
-        // electron (main.ts + preload.ts), and scripts (scripts/**/*.ts).
-        // typescript-eslint walks them in order until one includes the
-        // linted file. eslint.config.ts itself is excluded from
-        // type-aware linting via the override block below.
+        /**
+         * Three tsconfigs cover the three contexts: renderer (src/),
+         * electron (main.ts + preload.ts), and scripts (scripts/**\/*.ts).
+         * typescript-eslint walks them in order until one includes the
+         * linted file. eslint.config.ts itself is excluded from
+         * type-aware linting via the override block below.
+         */
         project: [
           './tsconfig.json',
           './tsconfig.electron.json',
@@ -84,21 +92,27 @@ export default tseslint.config(
       'typescript-sort-keys': typescriptSortKeys
     },
     rules: {
-      // Spread presets first — keys before/after a spread are sorted
-      // independently, so this group lives outside the literal-key block.
+      /**
+       * Spread presets first — keys before/after a spread are sorted
+       * independently, so this group lives outside the literal-key block.
+       */
       ...react.configs.flat.recommended.rules,
       ...react.configs.flat['jsx-runtime'].rules,
       ...reactHooks.configs['recommended-latest'].rules,
       ...jsxA11y.flatConfigs.recommended.rules,
 
-      // Literal keys, alphabetised (sort-keys-fix enforces this on
-      // object literals; sort-keys itself stays off because the built-in
-      // rule isn't auto-fixable).
+      /**
+       * Literal keys, alphabetized (sort-keys-fix enforces this on
+       * object literals; sort-keys itself stays off because the built-in
+       * rule isn't auto-fixable).
+       */
       '@typescript-eslint/consistent-type-imports': ['warn', {
-        // `typeof import('./foo')` is the canonical pattern for typing a
-        // module's shape inside jest mocks; leave it alone instead of
-        // forcing a top-level `import type` rewrite that would break the
-        // `requireActual` flow.
+        /**
+         * `typeof import('./foo')` is the canonical pattern for typing a
+         * module's shape inside jest mocks; leave it alone instead of
+         * forcing a top-level `import type` rewrite that would break the
+         * `requireActual` flow.
+         */
         disallowTypeAnnotations: false,
         fixStyle: 'separate-type-imports',
         prefer: 'type-imports'
@@ -120,10 +134,12 @@ export default tseslint.config(
       'jsx-a11y/label-has-associated-control': 'off',
       'jsx-a11y/no-noninteractive-element-interactions': 'off',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
-      // Forbid relative parent imports (`../foo`). `rootDir: 'src'` makes
-      // any reference outside the current folder rewrite to an absolute
-      // path rooted at the matching src/ subdir. `./foo` and `.` stay
-      // valid for same-folder imports per the project rules.
+      /**
+       * Forbid relative parent imports (`../foo`). `rootDir: 'src'` makes
+       * any reference outside the current folder rewrite to an absolute
+       * path rooted at the matching src/ subdir. `./foo` and `.` stay
+       * valid for same-folder imports per the project rules.
+       */
       'no-promise-executor-return': 'error',
       'no-relative-import-paths/no-relative-import-paths': ['error', {
         allowSameFolder: true,
@@ -145,8 +161,10 @@ export default tseslint.config(
       'react/jsx-curly-spacing': ['warn', 'always'],
       'react/jsx-filename-extension': 'off',
       'react/jsx-props-no-spreading': 'off',
-      // JSX prop order — alphabetical (case-insensitive), callbacks/short
-      // hands intermixed. Auto-fixable.
+      /**
+       * JSX prop order — alphabetical (case-insensitive), callbacks/short
+       * hands intermixed. Auto-fixable.
+       */
       'react/jsx-sort-props': ['warn', {
         callbacksLast: false,
         ignoreCase: true,
@@ -158,13 +176,15 @@ export default tseslint.config(
       'react/react-in-jsx-scope': 'off',
       'react/require-default-props': 'off',
       semi: ['warn', 'always'],
-      // simple-import-sort handles BOTH grouping and alphabetisation of
-      // imports; auto-fixable so save reformats. Five groups in order:
-      //   1. side-effect (e.g. `import 'foo.css'`)
-      //   2. node-builtins + external packages
-      //   3. absolute imports rooted at src/ (components, state, types, utils)
-      //   4. relative same-folder imports (`./foo`, `.`)
-      //   5. style / asset imports
+      /**
+       * simple-import-sort handles BOTH grouping and alphabetization of
+       * imports; auto-fixable so save reformats. Five groups in order:
+       *   1. side-effect (e.g. `import 'foo.css'`)
+       *   2. node-builtins + external packages
+       *   3. absolute imports rooted at src/ (components, state, types, utils)
+       *   4. relative same-folder imports (`./foo`, `.`)
+       *   5. style / asset imports
+       */
       'simple-import-sort/exports': 'warn',
       'simple-import-sort/imports': ['warn', {
         groups: [
@@ -190,17 +210,21 @@ export default tseslint.config(
     }
   },
 
-  // -------------------------------------------------------------------
-  // Per-area overrides.
-  // -------------------------------------------------------------------
+  /**
+   * ───────────────────────────────────────────────────────────────
+   * Per-area overrides.
+   * ───────────────────────────────────────────────────────────────
+   */
   {
-    // Build/dev scripts intentionally console.log progress and errors —
-    // they are CLI entry points, not production code.
+    /**
+     * Build/dev scripts intentionally console.log progress and errors —
+     * they are CLI entry points, not production code.
+     */
     files: ['scripts/**/*.ts'],
     rules: { 'no-console': 'off' }
   },
   {
-    // Test files: relax type-aware rules that fight common test patterns.
+    /** Test files: relax type-aware rules that fight common test patterns. */
     files: ['**/*.test.{ts,tsx}', 'src/setupTests.ts'],
     rules: {
       '@typescript-eslint/no-empty-function': 'off',
@@ -213,16 +237,20 @@ export default tseslint.config(
     }
   },
   {
-    // Electron main + preload sit at the repo root and import each other
-    // by relative path, plus `./src/types/...`. Those *are* relative parent
-    // imports from src/'s perspective, but main/preload aren't under src/
-    // so the `rootDir: 'src'` rule shouldn't apply to them.
+    /**
+     * Electron main + preload sit at the repo root and import each other
+     * by relative path, plus `./src/types/...`. Those *are* relative parent
+     * imports from src/'s perspective, but main/preload aren't under src/
+     * so the `rootDir: 'src'` rule shouldn't apply to them.
+     */
     files: ['main.ts', 'preload.ts'],
     rules: { 'no-relative-import-paths/no-relative-import-paths': 'off' }
   },
   {
-    // eslint.config.ts itself isn't in any tsconfig — disable type-aware
-    // rules so the parser doesn't complain about missing project info.
+    /**
+     * eslint.config.ts itself isn't in any tsconfig — disable type-aware
+     * rules so the parser doesn't complain about missing project info.
+     */
     extends: [tseslint.configs.disableTypeChecked],
     files: ['eslint.config.ts']
   }

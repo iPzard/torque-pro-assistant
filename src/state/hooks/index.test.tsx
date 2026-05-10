@@ -7,11 +7,13 @@ import store from 'state/store';
 
 import { useAppDispatch, useAppSelector } from '.';
 
-// useAppSelector / useAppDispatch are typed against the production RootState,
-// so the test asserts behaviour against the real store rather than building a
-// throwaway one (that would fight the typed shape). The hooks themselves are
-// thin wrappers — this test guards that the typed signatures actually call
-// through to react-redux.
+/**
+ * useAppSelector / useAppDispatch are typed against the production RootState,
+ * so the test asserts behavior against the real store rather than building a
+ * throwaway one (that would fight the typed shape). The hooks themselves are
+ * thin wrappers — this test guards that the typed signatures actually call
+ * through to react-redux.
+ */
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <Provider store={ store }>{ children }</Provider>

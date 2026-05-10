@@ -43,16 +43,20 @@ export class Builder {
     const options = [
       '--noconfirm', // Don't confirm overwrite
       '--distpath ./resources', // Dist (out) path
-      // PyInstaller's intermediate workpath defaults to ./build/<name>/.
-      // That collides with CRA's `react-scripts build` which clears ./build/
-      // and refuses to rmdir a non-empty subdirectory — yarn build:package:*
-      // would fail with "ENOTEMPTY: directory not empty, rmdir 'build/app'".
-      // Route PyInstaller's scratch dir outside ./build/.
+      /**
+       * PyInstaller's intermediate workpath defaults to ./build/<name>/.
+       * That collides with CRA's `react-scripts build` which clears ./build/
+       * and refuses to rmdir a non-empty subdirectory — yarn build:package:*
+       * would fail with "ENOTEMPTY: directory not empty, rmdir 'build/app'".
+       * Route PyInstaller's scratch dir outside ./build/.
+       */
       '--workpath ./.pyi-build'
     ].join(' ');
 
-    // Invoke via `python -m PyInstaller` so the build works even when
-    // pip's user scripts directory isn't on PATH (common on Windows).
+    /**
+     * Invoke via `python -m PyInstaller` so the build works even when
+     * pip's user scripts directory isn't on PATH (common on Windows).
+     */
     spawnSync(`python -m PyInstaller ${options} app.spec`, spawnOptions);
   };
 

@@ -50,9 +50,11 @@ Hard rules — apply to all new code; fix existing code that violates them when 
 5. **CSS modules only for bespoke styling.** Mantine carries 95% via CSS variables / component props. For custom CSS, use a sibling `index.module.scss` imported as `import styles from './index.module.scss'`. No global selectors inside module files.
 6. **Sub-components nest under their parent.** A sub-component used only by `componentA` lives at `component-a/sub-component/index.tsx` — not hoisted to the shared component pool. Sub-components carry their own `utils/` and barrel. Things sit only as high in the tree as they need to to feed the current directory + descendants.
 7. **No utils inside component / page files.** Any named function defined inside a component (event handlers, predicates, fetchers) gets extracted to a util folder with its own test. Anonymous one-line lambdas inline in JSX (`onClick={() => navigate(...)}`) are fine.
-8. **Tests don't reach across.** A component's test asserts only that component's behaviour. To verify routing or composition, mock the children — don't assert the rendered output of B inside A's test.
+8. **Tests don't reach across.** A component's test asserts only that component's behavior. To verify routing or composition, mock the children — don't assert the rendered output of B inside A's test.
 9. **Descriptive variable names.** No single-letter identifiers. `state` not `s`, `error` not `e`. The reader should never need to inspect surrounding code to know what a variable holds.
 10. **Every component / util / hook / slice gets a TSDoc block.** A `/** ... */` JSDoc comment above each default export (and each named export of utils) describing what the thing does, its parameters, and its return. Feeds `yarn build:docs`. Keep narrative inline comments separate — JSDoc above the export, `//` for in-body explanations.
+11. **Multi-line comments use `/** ... */` blocks.** Any narrative comment spanning two or more lines must be a `/** */` block (each interior line prefixed by ` * `). Single-line `// ...` is fine for one-line explanations and trailing comments. Decorative section dividers (`// ─── Section ───`) stay as `//`.
+12. **American English throughout.** `behavior` not `behaviour`, `color` not `colour`, `center` not `centre`, `organize` not `organise`, `analyze`, `realize`, `favorite`, `recognize`, `catalog`, `artifact`. Applies to comments, doc text, identifiers, commit subjects.
 
 Example shape:
 
@@ -127,7 +129,7 @@ These match the file-layout rules in spirit — strict, machine-enforced, auto-f
 - **Frameless window — platform-aware chrome.** `main.ts` branches at `BrowserWindow` creation: macOS uses `titleBarStyle: 'hiddenInset'` + `trafficLightPosition: { x: 14, y: 14 }`; Windows / Linux use `frame: false` and the renderer draws Mantine ActionIcon-based min/max/close on the right. Detect in the renderer via `window.electronAPI.platform === 'darwin'` (captured once at module load in `App.tsx`).
 - **`-webkit-app-region`.** AppShell.Header is the OS drag handle (`drag` in `App.module.scss`). Interactive children opt out with `no-drag`.
 - **ColorScheme FOUC.** `public/index.html` sets `data-mantine-color-scheme="dark"` before paint as a CRA stand-in for Mantine's `<ColorSchemeScript />` (CRA has no SSR hook).
-- **ESLint `sort-keys: error`.** Object literals must be alphabetised — including inline JSX `style` props.
+- **ESLint `sort-keys: error`.** Object literals must be alphabetized — including inline JSX `style` props.
 - **Bridge updates require three edits.** Adding to the preload bridge means: (a) `preload.ts` exposes the field, (b) `src/types/electron-api.ts` declares it, (c) Jest mocks in `src/tests/{services,requests}.test.ts` set it.
 - **Branding.** This is iPzard's project. LICENSE copyright reads `iPzard`, `.github/ISSUE_TEMPLATE/*` set `assignees: iPzard`. Don't strip these as "stale template branding" — they're intentional.
 
@@ -155,7 +157,7 @@ Sequenced feature plan to implement the design. Each item is roughly a commit-si
 ### A. Data foundations
 1. Port the PID catalog (`PID_CATEGORIES`, `PID_BY_KEY`) from the design's `data.jsx` to `src/data/pids.ts`. Drop the seed/synthetic generator — we read real CSV exports.
 2. Define TS types in `src/types/session.ts` — `SessionMeta`, `SessionDataRow`, `Vehicle`, `Session = { meta, data }`.
-3. CSV ingestion in `src/utils/csv.ts` — Papa Parse adapter that maps Torque Pro export column headers to the canonical `SessionDataRow` shape. Header detection + unit normalisation.
+3. CSV ingestion in `src/utils/csv.ts` — Papa Parse adapter that maps Torque Pro export column headers to the canonical `SessionDataRow` shape. Header detection + unit normalization.
 4. Port `summarize()` from `data.jsx` to `src/utils/summarize.ts` — derives `{ maxSpeed, peakHp, peakTq, maxBoost, maxCool, avgMpg, dist, t0to30, t0to60 }`.
 5. Redux `sessionsSlice` in `src/state/sessionsSlice.ts` — add / remove / select sessions; persist via `localStorage` first (Flask-backed JSON file later).
 

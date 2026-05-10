@@ -1,6 +1,8 @@
-// Frameless-window drag region. -webkit-app-region: drag turns the header
-// into the OS drag handle; interactive children flip back to no-drag so
-// clicks on the window-control buttons aren't swallowed.
+/**
+ * Frameless-window drag region. -webkit-app-region: drag turns the header
+ * into the OS drag handle; interactive children flip back to no-drag so
+ * clicks on the window-control buttons aren't swallowed.
+ */
 .header {
   -webkit-app-region: drag;
   user-select: none;
