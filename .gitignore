@@ -34,7 +34,11 @@ yarn-error.log*
 
 # editors
 .idea/
-.vscode/
+# Track shared VS Code workspace settings (auto-fix on save, validate list)
+# but keep per-user files (launch.json / tasks.json) ignored.
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 
 # misc
 .DS_Store
