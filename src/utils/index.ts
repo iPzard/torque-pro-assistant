@@ -5,3 +5,4 @@
  */
 export { get, post } from './requests';
 export { windowControls } from './services';
+export { summarize } from './summarize';
