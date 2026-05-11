@@ -1,9 +1,17 @@
 import { MantineProvider } from '@mantine/core';
+import { configureStore } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
 
+import preferencesReducer, { INITIAL_PREFERENCES } from 'state/preferences';
 import type { Session, SessionDataRow, SessionSummary } from 'types/session';
 
 import MapTab from '.';
+
+const makeStore = () => configureStore({
+  preloadedState: { preferences: INITIAL_PREFERENCES },
+  reducer:        { preferences: preferencesReducer }
+});
 
 const makeRow = (overrides: Partial<SessionDataRow>): SessionDataRow => ({
   t:  0,
@@ -45,9 +53,11 @@ const makeSummary = (): SessionSummary => ({
 
 function renderMapTab() {
   return render(
-    <MantineProvider>
-      <MapTab session={ makeSession() } summary={ makeSummary() } testId="map-tab" />
-    </MantineProvider>
+    <Provider store={ makeStore() }>
+      <MantineProvider>
+        <MapTab session={ makeSession() } summary={ makeSummary() } testId="map-tab" />
+      </MantineProvider>
+    </Provider>
   );
 }
 

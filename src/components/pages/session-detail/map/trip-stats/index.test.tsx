@@ -1,6 +1,9 @@
 import { MantineProvider } from '@mantine/core';
+import { configureStore } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
 
+import preferencesReducer, { INITIAL_PREFERENCES, type PreferencesState } from 'state/preferences';
 import type { Session, SessionSummary } from 'types/session';
 
 import TripStats from '.';
@@ -34,11 +37,21 @@ const makeSummary = (): SessionSummary => ({
   t0to60:   7.1
 });
 
-function renderTripStats(session: Session = makeSession()) {
+const makeStore = (preferences: PreferencesState = INITIAL_PREFERENCES) => configureStore({
+  preloadedState: { preferences },
+  reducer:        { preferences: preferencesReducer }
+});
+
+function renderTripStats(
+  session: Session = makeSession(),
+  preferences?: PreferencesState
+) {
   return render(
-    <MantineProvider>
-      <TripStats session={ session } summary={ makeSummary() } testId="trip-stats" />
-    </MantineProvider>
+    <Provider store={ makeStore(preferences) }>
+      <MantineProvider>
+        <TripStats session={ session } summary={ makeSummary() } testId="trip-stats" />
+      </MantineProvider>
+    </Provider>
   );
 }
 
@@ -48,9 +61,14 @@ describe('pages/session-detail/map/trip-stats', () => {
     expect(screen.getByTestId('trip-stats')).toBeInTheDocument();
   });
 
-  it('renders the distance row in miles with one decimal', () => {
+  it('renders the distance row in miles under imperial', () => {
     renderTripStats();
     expect(screen.getByTestId('trip-stats-distance-value')).toHaveTextContent('124.6 mi');
+  });
+
+  it('renders the distance row in km under metric', () => {
+    renderTripStats(makeSession(), { ...INITIAL_PREFERENCES, units: 'metric' });
+    expect(screen.getByTestId('trip-stats-distance-value')).toHaveTextContent('km');
   });
 
   it('renders the duration row formatted as H:MM:SS for hour+ sessions', () => {
@@ -58,9 +76,14 @@ describe('pages/session-detail/map/trip-stats', () => {
     expect(screen.getByTestId('trip-stats-duration-value')).toHaveTextContent('30:20');
   });
 
-  it('renders the max-speed row in mph rounded to whole', () => {
+  it('renders the max-speed row in mph rounded to whole under imperial', () => {
     renderTripStats();
     expect(screen.getByTestId('trip-stats-max-speed-value')).toHaveTextContent('97 mph');
+  });
+
+  it('renders the max-speed row in km/h under metric', () => {
+    renderTripStats(makeSession(), { ...INITIAL_PREFERENCES, units: 'metric' });
+    expect(screen.getByTestId('trip-stats-max-speed-value')).toHaveTextContent('km/h');
   });
 
   it('renders the file row with the source CSV name', () => {

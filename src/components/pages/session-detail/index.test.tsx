@@ -5,17 +5,23 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
+import preferencesReducer, { INITIAL_PREFERENCES } from 'state/preferences';
 import sessionsReducer from 'state/sessions';
 import type { Session, SessionDataRow } from 'types/session';
 
 import SessionDetail from '.';
 
-/** Build a fresh store seeded with the given sessions. */
+/** Build a fresh store seeded with the given sessions + default
+ *  preferences. SessionDetail reads from both slices. */
 const makeTestStore = (sessions: readonly Session[] = []) => configureStore({
   preloadedState: {
-    sessions: { selectedId: null, sessions }
+    preferences: INITIAL_PREFERENCES,
+    sessions:    { selectedId: null, sessions }
   },
-  reducer: { sessions: sessionsReducer }
+  reducer: {
+    preferences: preferencesReducer,
+    sessions:    sessionsReducer
+  }
 });
 
 /**

@@ -21,6 +21,8 @@ import ImportLogs from 'components/pages/import-logs';
 import Library from 'components/pages/library';
 import SessionDetail from 'components/pages/session-detail';
 import Settings from 'components/pages/settings';
+import { useAppSelector } from 'state/hooks';
+import { selectUnits } from 'state/preferences';
 import { windowControls } from 'utils';
 
 import StatusBar from './status-bar';
@@ -65,6 +67,7 @@ function App() {
    */
   const isMac = window.electronAPI.platform === 'darwin';
   const location = useLocation();
+  const units = useAppSelector((state) => selectUnits(state.preferences));
 
   useEffect(() => {
     pingFlask();
@@ -176,7 +179,7 @@ function App() {
       </AppShell.Main>
 
       <AppShell.Footer data-testid="app-footer">
-        <StatusBar testId="app-status-bar" />
+        <StatusBar testId="app-status-bar" units={ units } />
       </AppShell.Footer>
     </AppShell>
   );

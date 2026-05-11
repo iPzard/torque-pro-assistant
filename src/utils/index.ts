@@ -6,6 +6,12 @@
 export type { ColumnDetection, ParsedCsv } from './csv';
 export { parseCsv } from './csv';
 export { formatDuration } from './format-duration';
+export {
+  formatBoost,
+  formatDistance,
+  formatSpeed,
+  formatTemperature
+} from './format-units';
 export { get, post } from './requests';
 export { windowControls } from './services';
 export { summarize } from './summarize';

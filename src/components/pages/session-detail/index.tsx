@@ -3,8 +3,9 @@ import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { useAppSelector } from 'state/hooks';
+import { selectUnits } from 'state/preferences';
 import { selectSessionById } from 'state/sessions';
-import { formatDuration, summarize } from 'utils';
+import { formatDistance, formatDuration, summarize } from 'utils';
 
 import ChartsTab from './charts-tab';
 import MapTab from './map';
@@ -36,6 +37,7 @@ function SessionDetail() {
   const session = useAppSelector((state) =>
     id !== undefined ? selectSessionById(state.sessions, id) : undefined
   );
+  const units = useAppSelector((state) => selectUnits(state.preferences));
   /**
    * `summarize` walks every row, so memoize across re-renders. The slice
    * is immutable after import — once a Session reference lands in the
@@ -90,7 +92,7 @@ function SessionDetail() {
             </Text>
             <Text c="dimmed" size="sm">·</Text>
             <Text c="dimmed" data-testid="session-detail-kv-distance" size="sm">
-              { summary.dist.toFixed(1) } mi
+              { formatDistance(summary.dist, units) }
             </Text>
             <Text c="dimmed" size="sm">·</Text>
             <Text c="dimmed" data-testid="session-detail-kv-filename" size="sm">

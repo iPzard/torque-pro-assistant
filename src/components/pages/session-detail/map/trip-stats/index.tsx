@@ -2,8 +2,10 @@ import { Stack } from '@mantine/core';
 
 import Card from 'components/primitives/card';
 import KvRow from 'components/primitives/kv-row';
+import { useAppSelector } from 'state/hooks';
+import { selectUnits } from 'state/preferences';
 import type { Session, SessionSummary } from 'types/session';
-import { formatDuration } from 'utils';
+import { formatDistance, formatDuration, formatSpeed } from 'utils';
 
 interface TripStatsProps {
   readonly session: Session;
@@ -22,6 +24,7 @@ interface TripStatsProps {
  * @returns A card containing the trip-stats KV stack.
  */
 function TripStats({ session, summary, testId }: TripStatsProps) {
+  const units = useAppSelector((state) => selectUnits(state.preferences));
   const vehicleParts = [session.meta.vehicle.make, session.meta.vehicle.model]
     .filter((part) => part !== '');
   const vehicleLabel = vehicleParts.length === 0 ? '—' : vehicleParts.join(' ');
@@ -42,7 +45,7 @@ function TripStats({ session, summary, testId }: TripStatsProps) {
         <KvRow
           label="Distance"
           testId={ testId === undefined ? undefined : `${ testId }-distance` }
-          value={ `${ summary.dist.toFixed(1) } mi` }
+          value={ formatDistance(summary.dist, units) }
         />
         <KvRow
           label="Duration"
@@ -52,7 +55,7 @@ function TripStats({ session, summary, testId }: TripStatsProps) {
         <KvRow
           label="Max Speed"
           testId={ testId === undefined ? undefined : `${ testId }-max-speed` }
-          value={ `${ summary.maxSpeed.toFixed(0) } mph` }
+          value={ formatSpeed(summary.maxSpeed, units) }
         />
         <KvRow
           label="Avg MPG"

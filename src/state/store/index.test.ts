@@ -1,9 +1,12 @@
+import { INITIAL_PREFERENCES } from 'state/preferences';
+
 import store from '.';
 
 describe('state/store', () => {
-  it('configureStore initialises with the sessions slice empty', () => {
+  it('configureStore initialises with the sessions slice empty + default preferences', () => {
     expect(store.getState()).toEqual({
-      sessions: { selectedId: null, sessions: [] }
+      preferences: INITIAL_PREFERENCES,
+      sessions:    { selectedId: null, sessions: [] }
     });
   });
 
