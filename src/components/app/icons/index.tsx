@@ -46,6 +46,7 @@ export const Icons = {
   chart:    <Icon><path d="M3 3v18h18" /><path d="m7 14 4-4 3 3 5-7" /></Icon>,
   check:    <Icon><path d="m5 12 5 5L20 7" /></Icon>,
   chevDown: <Icon><path d="m6 9 6 6 6-6" /></Icon>,
+  chevRight: <Icon><path d="m9 6 6 6-6 6" /></Icon>,
   compare:  <Icon><path d="M8 4v16M16 4v16M3 8l5-4 5 4M21 16l-5 4-5-4" /></Icon>,
   copy:     <Icon><rect height="13" rx="2" width="13" x="9" y="9" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></Icon>,
   cross:    <Icon><path d="M6 6l12 12M18 6l-12 12" /></Icon>,

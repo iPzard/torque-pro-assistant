@@ -102,6 +102,25 @@ CSS / structure additions: shared `<Alert>` primitive at `components/primitives/
 
 Files: `styles.css` (revised — `.alert` + `.alert.danger` / `.warn` / `.info` + `.alert.compact`; `.top-banner` + `pulse` / `bannerIn` keyframes; `.notfound` + `.nf-code` / `.nf-tag` / `.nf-trace` / `.nf-actions`; `.map-empty` + `.me-icon` / `.me-checks`; `.link-btn`), `app.jsx` (revised — banner + `NotFoundScreen` + error tweaks plumbing), `screens-lib.jsx` (revised — parse-failure card + permission alert + malformed-row val row), `screens-dash.jsx` (revised — MiniMap empty state grows the rich checklist), plus rest unchanged.
 
+### handoff-7 — OBD-II adapter pairing flow (`s8YyJWvDdIwyDh1QRenR5w`)
+
+One-time Bluetooth pairing for the OBD-II adapter — separate from per-car vehicle profiles. Four-stage modal (Scan → Pair → Probe → Done) with three failure variants.
+
+Covers:
+
+- **Scan stage** — animated spinner + progress %, devices stream in over the scan window with RSSI bar icons, MAC + vendor, chip pill (ELM327 / STN1170 + firmware). Stop button bails to the no-adapters failure; selecting + Continue moves to Pair.
+- **Pair stage** — pick details grid (Bluetooth class / signal / encryption / last-seen), `Trust this adapter` checkbox (auto-reconnect), Pair button kicks off a short `pair-confirmed` interstitial, then Probe.
+- **Probe stage** — terminal-styled live AT-command log (`ATZ` / `ATE0` / `ATSP0` / `0100` / `ATDP` / `0902`) streams in over ~2s. Healthy path reveals a 5-row summary (firmware / protocol / supported PIDs / VIN / ECU latency); failure path swaps three lines for `NO DATA` and surfaces the no-protocol alert.
+- **Done stage** — green check, paired device summary + decoded VIN row, plus a "Use this VIN for a new vehicle profile?" suggestion card. Finish dispatches a toast and closes the modal.
+- **Failure variants** — `no-adapters` (warn alert + troubleshooting list + scan-again retry), `failed` (danger alert with a mock `btle_pair_request` error block + try-again retry), `no-protocol` (warn alert with `Probe again` + `Force protocol…` actions).
+- **Entry points** — Settings → Network grows an "OBD-II adapter" row with a `Connect adapter…` button. Titlebar's `No vehicle selected` pill is now a button that opens the same modal — copy reads `No vehicle selected · Connect adapter`.
+
+Architecture: imperative controller at `utils/adapter-pairing/` (open / close / subscribe singleton; instance counter forces a fresh React mount per open). Host component `components/app/adapter-pairing/` subscribes + portals the modal. Mock data + RSSI bucket helper + AT-command script live under `adapter-pairing/utils/`. Real Bluetooth bridge is deferred until an Electron `noble` IPC lands; the modal's scan + probe stages currently stream fixed mock data on timers.
+
+CSS additions live in `adapter-pairing/index.module.scss`: `.backdrop` / `.modal`, `.header` + `.stepper` (4-dot step indicator), stage-specific blocks (`.scan-head` / `.spinner` / `.device-list` / `.kv-grid` / `.trust-row` / `.terminal` / `.probe-summary` / `.done-pane` / `.suggestion`), keyframes `spin` / `blink` / `modal-in` / `backdrop-in`. Icons file grows a `chevRight` glyph.
+
+Files: `adapter-pairing.jsx` (new — `AdapterPairingModal` + `AdapterPairingHost` + the `window.openAdapterPairing` global controller), `styles.css` (revised — `.pairing-*` + `.scan-*` + `.device-*` + `.rssi-bars` + `.probe-*` + `.done-*` + `.suggestion` rules; keyframes `apSpin` / `apBlink`), `screens-settings.jsx` (revised — Network section gets the OBD-II adapter card), `app.jsx` (revised — `NoVehicleScreen` pill becomes a clickable shortcut to the modal), plus rest unchanged.
+
 ## How to consume
 
 1. Read the handoff's own `README.md` first — Claude Design ships consumption instructions.

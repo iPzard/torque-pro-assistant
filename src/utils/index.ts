@@ -3,6 +3,8 @@
  * re-exports here only when a util is genuinely cross-cutting — page-
  * or component-local helpers belong under `<thing>/utils/`.
  */
+export type { PairingStage, PairingState } from './adapter-pairing';
+export { default as adapterPairing, peekAdapterPairing, subscribeToAdapterPairing } from './adapter-pairing';
 export type { ColumnDetection, ParsedCsv } from './csv';
 export { parseCsv } from './csv';
 export { formatDuration } from './format-duration';

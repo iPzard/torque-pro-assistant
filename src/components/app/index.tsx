@@ -18,8 +18,9 @@ import VehicleSetup from 'components/pages/vehicle-setup';
 import { useAppSelector } from 'state/hooks';
 import { selectPreferences, selectUnits } from 'state/preferences';
 import { selectAllSessions } from 'state/sessions';
-import { windowControls } from 'utils';
+import { adapterPairing, windowControls } from 'utils';
 
+import AdapterPairing from './adapter-pairing';
 import CommandPalette from './command-palette';
 import { Icons } from './icons';
 import OfflineBanner from './offline-banner';
@@ -176,10 +177,16 @@ function App() {
             </span>
           )
           : (
-            <span className="pill warn" data-testid="app-connection-pill">
+            <button
+              className="pill warn"
+              data-testid="app-connection-pill"
+              onClick={ () => adapterPairing() }
+              style={ { cursor: 'pointer', font: 'inherit' } }
+              type="button"
+            >
               <i className="dot" />
-              No vehicle selected
-            </span>
+              No vehicle selected · Connect adapter
+            </button>
           ) }
         <span className="pill mono" data-testid="app-rows-indexed">
           { totalRows.toLocaleString() } rows{ totalRows === 0 ? '' : ' indexed' }
@@ -397,6 +404,8 @@ function App() {
         opened={ paletteOpened }
         testId="app-command-palette"
       />
+
+      <AdapterPairing testId="app-adapter-pairing" />
     </div>
   );
 }

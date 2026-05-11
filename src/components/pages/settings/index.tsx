@@ -18,6 +18,7 @@ import {
   type UnitsPreference
 } from 'state/preferences';
 import { selectAllSessions } from 'state/sessions';
+import { adapterPairing } from 'utils';
 
 interface SegmentedOption<T extends string> {
   readonly label: string;
@@ -557,6 +558,19 @@ function Settings() {
                 <option key={ option.value } value={ option.value }>{ option.label }</option>
               )) }
             </select>
+          </SettingRow>
+          <SettingRow
+            detail="One-time Bluetooth pairing. Separate from per-car vehicle profiles — pair once, talk to any vehicle you plug this adapter into."
+            label="OBD-II adapter"
+          >
+            <button
+              className="btn"
+              data-testid="settings-network-connect-adapter"
+              onClick={ () => adapterPairing() }
+              type="button"
+            >
+              { Icons.vehicle }<span>Connect adapter…</span>
+            </button>
           </SettingRow>
           <SettingRow
             detail="Paste this into Torque Pro → Settings → Data Logging & Upload → Webserver URL on your phone."
