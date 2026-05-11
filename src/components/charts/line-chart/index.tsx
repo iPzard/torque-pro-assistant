@@ -26,6 +26,10 @@ export interface LineChartSeries {
   /** Which y-axis this series binds to. Defaults to `'left'`. */
   readonly axis?: 'left' | 'right';
   readonly color: string;
+  /** Connect across `undefined` values in the data array. Use for
+   *  overlays where a row only carries one series' value at a time
+   *  (Compare page). Defaults to false. */
+  readonly connectNulls?: boolean;
   /** Render dashed instead of solid. */
   readonly dashed?: boolean;
   /** `LineChartDatum` field name to plot. */
@@ -190,6 +194,7 @@ function LineChart({
               return (
                 <Area
                   key={ entry.key }
+                  connectNulls={ entry.connectNulls ?? false }
                   dataKey={ entry.key }
                   dot={ false }
                   fill={ entry.color }
@@ -209,6 +214,7 @@ function LineChart({
             return (
               <Line
                 key={ entry.key }
+                connectNulls={ entry.connectNulls ?? false }
                 dataKey={ entry.key }
                 dot={ false }
                 isAnimationActive={ false }
