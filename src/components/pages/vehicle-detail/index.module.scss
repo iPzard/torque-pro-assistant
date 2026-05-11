@@ -1,0 +1,174 @@
+/**
+ * Vehicle detail page — single-column stack of cards mirroring the
+ * Settings layout. Page-local styles cover the calibration-overrides
+ * table, the inline "actual = sensor (op) amount" editor, the danger
+ * action button, and the sessions-table hover behavior. Globally
+ * useful primitives (cards, pills, .input, .select) remain in
+ * `src/index.scss`.
+ */
+
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.crumb-arrow {
+  display: inline-flex;
+  transform: rotate(180deg);
+}
+
+.crumb-tag {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.crumb-tag-id {
+  color: var(--text-1);
+  font-family: var(--font-mono);
+}
+
+.title-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.subline {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.subline-value {
+  color: var(--text-1);
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.danger-btn {
+  background: rgba(255, 90, 90, .08);
+  border-color: rgba(255, 90, 90, .32);
+  color: var(--danger);
+}
+
+.danger-btn:hover {
+  background: rgba(255, 90, 90, .14);
+  border-color: rgba(255, 90, 90, .45);
+}
+
+/* ── Calibration table ──────────────────────────────────────────── */
+.cal-empty {
+  padding: 22px 16px;
+  text-align: center;
+}
+
+.cal-empty-copy {
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.55;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.cal-table td:first-child {
+  color: var(--accent);
+}
+
+.cal-formula {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cal-formula-input {
+  width: 56px;
+}
+
+.cal-formula-unit {
+  width: 48px;
+}
+
+.cal-formula-op {
+  width: 42px;
+  padding: 3px 4px !important;
+}
+
+.cal-add-row {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-1);
+}
+
+.cal-add-row-with-border {
+  composes: cal-add-row;
+  border-top: 1px solid var(--border);
+}
+
+.cal-note {
+  color: var(--text-3);
+  font-size: 11px;
+}
+
+/* ── Sessions table ──────────────────────────────────────────── */
+.sessions-empty {
+  padding: 22px 16px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+.sessions-row {
+  cursor: pointer;
+}
+
+.sessions-row:hover {
+  background: var(--bg-hover);
+}
+
+.sessions-row td:last-child {
+  color: var(--text-3);
+  width: 20px;
+}
+
+.sessions-row:hover td:last-child {
+  color: var(--accent);
+}
+
+/* ── Profile export ──────────────────────────────────────────── */
+.profile-code {
+  padding: 5px 10px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--text-1);
+  font-family: var(--font-mono);
+}
+
+.export-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Not-found fallback ──────────────────────────────────────── */
+.not-found {
+  padding: 56px 24px;
+  text-align: center;
+  color: var(--text-2);
+}
+
+.not-found-headline {
+  color: var(--text-0);
+  font-size: 18px;
+  margin: 4px 0 8px;
+}

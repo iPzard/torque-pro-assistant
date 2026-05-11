@@ -50,6 +50,7 @@ export const Icons = {
   compare:  <Icon><path d="M8 4v16M16 4v16M3 8l5-4 5 4M21 16l-5 4-5-4" /></Icon>,
   copy:     <Icon><rect height="13" rx="2" width="13" x="9" y="9" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></Icon>,
   cross:    <Icon><path d="M6 6l12 12M18 6l-12 12" /></Icon>,
+  download: <Icon><path d="M12 3v12M7 10l5 5 5-5M5 21h14" /></Icon>,
   ext:      <Icon><path d="M14 4h6v6" /><path d="M10 14 20 4" /><path d="M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6" /></Icon>,
   filter:   <Icon><path d="M3 5h18M6 12h12M10 19h4" /></Icon>,
   folder:   <Icon><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></Icon>,

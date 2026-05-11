@@ -1,0 +1,29 @@
+/**
+ * Confirm-delete modal styling for the vehicle-detail page. Builds on
+ * the global `.modal-backdrop` / `.modal` rules but adds a danger-tinted
+ * icon circle + a dedicated foot row for the destructive primary
+ * action.
+ */
+
+.icon-danger {
+  background: rgba(255, 90, 90, .12);
+  color: var(--danger);
+  border-color: rgba(255, 90, 90, .32);
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px 16px;
+}
+
+.confirm {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.confirm:hover {
+  filter: brightness(1.08);
+}

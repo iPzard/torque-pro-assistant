@@ -39,15 +39,56 @@ export interface VehicleDefaults {
   readonly year: number;
 }
 
+/** Drivetrain layout. Drives wheel-HP → crank-HP conversion + the
+ *  weight-shift modelling for 0-60 / quarter-mile estimates. */
+export type Drivetrain = 'AWD' | 'FWD' | 'RWD';
+
+/** Transmission code. Maps onto the shift-detection heuristic used
+ *  when summarizing an imported session. */
+export type Transmission = 'AT8' | 'AT9' | 'CVT' | 'DCT' | 'M6' | 'PDK';
+
+/** Operator used by a calibration override — `actual = sensor (op) amount`. */
+export type CalibrationOp = '+' | '-' | '×';
+
+/** One per-PID sensor calibration override. Used by `summarize` to
+ *  subtract sensor drift / replacement-part bias from the raw PID
+ *  value before deriving session-level metrics. */
+export interface VehicleCalibration {
+  readonly amount: number;
+  readonly label: string;
+  readonly note: string;
+  readonly op: CalibrationOp;
+  readonly pid: string;
+  readonly unit: string;
+}
+
 /** One saved vehicle profile. List of these powers the Settings
- *  "Vehicles" table. `activeVehicleId` picks which one drives the
- *  app's current vehicle context. */
+ *  "Vehicles" table + the per-vehicle detail page. `activeVehicleId`
+ *  picks which one drives the app's current vehicle context.
+ *
+ *  Spec fields (curb weight / drivetrain / redline / displacement /
+ *  transmission) + the calibration list are optional so existing
+ *  persisted state from before handoff-9 hydrates cleanly — the
+ *  detail page falls back to sensible placeholders when a field is
+ *  absent. */
 export interface SavedVehicle {
   /** ISO 8601 added-at timestamp. */
   readonly addedAt: string;
+  /** Per-PID calibration overrides applied at session import. */
+  readonly calibrations?: readonly VehicleCalibration[];
+  /** Curb weight in pounds. Metric display converts on the fly. */
+  readonly curbWeightLb?: number;
+  /** Engine displacement in liters. */
+  readonly displacementL?: number;
+  readonly drivetrain?: Drivetrain;
   readonly id: string;
+  /** ISO 8601 timestamp of the most recent session imported against
+   *  this vehicle. `null` when nothing has been logged yet. */
+  readonly lastUsed?: string | null;
   readonly make: string;
   readonly model: string;
+  readonly redlineRpm?: number;
+  readonly transmission?: Transmission;
   readonly vin: string;
   readonly year: number;
 }
@@ -132,6 +173,18 @@ const preferencesSlice = createSlice({
     },
     setVehicleDefaults: (state, action: PayloadAction<VehicleDefaults>) => {
       state.vehicleDefaults = action.payload;
+    },
+    /** Replace a vehicle's editable fields (spec + calibrations) in
+     *  place. id is taken from the payload; if it doesn't match an
+     *  existing entry the action is a no-op. */
+    updateSavedVehicle: (state, action: PayloadAction<SavedVehicle>) => {
+      const next = action.payload as Draft<SavedVehicle>;
+      const existingIndex = state.savedVehicles.findIndex(
+        (vehicle) => vehicle.id === next.id
+      );
+      if (existingIndex !== -1) {
+        state.savedVehicles[existingIndex] = next;
+      }
     }
   }
 });
@@ -146,7 +199,8 @@ export const {
   setDensity,
   setTheme,
   setUnits,
-  setVehicleDefaults
+  setVehicleDefaults,
+  updateSavedVehicle
 } = preferencesSlice.actions;
 
 /** Returns the active preferences. The whole slice is small and
@@ -165,5 +219,13 @@ export const selectActiveVehicle = (state: PreferencesState): SavedVehicle | nul
     (vehicle) => vehicle.id === state.activeVehicleId
   ) ?? null;
 };
+
+/** Returns the saved vehicle matching `id`, or `null` if no match. */
+export const selectSavedVehicleById = (
+  state: PreferencesState,
+  id: string
+): SavedVehicle | null => state.savedVehicles.find(
+  (vehicle) => vehicle.id === id
+) ?? null;
 
 export default preferencesSlice.reducer;

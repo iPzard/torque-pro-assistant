@@ -14,6 +14,7 @@ import ImportLogs from 'components/pages/import-logs';
 import Library from 'components/pages/library';
 import SessionDetail from 'components/pages/session-detail';
 import Settings from 'components/pages/settings';
+import VehicleDetail from 'components/pages/vehicle-detail';
 import VehicleSetup from 'components/pages/vehicle-setup';
 import { useAppSelector } from 'state/hooks';
 import { selectPreferences, selectUnits } from 'state/preferences';
@@ -308,7 +309,7 @@ function App() {
             <Link
               className={ styles['nav-item'] }
               data-testid="app-nav-vehicle"
-              to="/vehicle/setup"
+              to={ preferences.activeVehicleId === null ? '/vehicle/setup' : `/vehicles/${ preferences.activeVehicleId }` }
             >
               <span className={ styles['nav-ico'] } style={ { color: 'var(--accent)' } }>
                 { Icons.vehicle }
@@ -376,6 +377,7 @@ function App() {
           <Route element={ <ImportLogs /> } path="/import" />
           <Route element={ <Settings /> } path="/settings" />
           <Route element={ <VehicleSetup /> } path="/vehicle/setup" />
+          <Route element={ <VehicleDetail /> } path="/vehicles/:id" />
         </Routes>
 
         <StatusBar testId="app-status-bar" units={ units } />

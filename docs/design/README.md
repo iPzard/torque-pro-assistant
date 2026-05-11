@@ -138,6 +138,25 @@ Architecture: `compare-logs/no-sessions-empty/` + `compare-logs/pick-stage/` as 
 
 Files: `screens-dash.jsx` (revised — `CompareScreen` splits into a no-hooks shell + `CompareOverlay` for the full overlay; new `ComparePickScreen` + `CmpFeature` helpers), `styles.css` (revised — `.cmp-pick-grid` + `.cmp-search` + `.cmp-row` + `.cmp-pick-foot` + `.cmp-feature` + `.cmp-side-ghost` + `.cmp-picked-row` + `.cmp-need-more` + `.cmp-empty` rules), `app.jsx` (revised — Compare nav is always navigable; the route hands an `onImport` / `onPick` pair to `<CompareScreen>`), plus rest unchanged.
 
+### handoff-9 — Vehicle detail page (`xSnN1_7qMXTAMTPwd9DUsw`)
+
+Per-vehicle profile page at `/vehicles/:id`. Reached from the sidebar's Vehicle row (now routes to the active vehicle's detail page when one is set) and from future Settings → Vehicles row actions.
+
+Covers:
+
+- **Header** — year + make + model headline, "Active vehicle" amber pill when this is the active one, breadcrumb back to Settings + a `/vehicles/<id>` mono tag. Subline carries VIN + last-used timestamp + `.vprofile` filename. Right-aligned `Edit` + danger-tinted `Delete vehicle` buttons; edit mode swaps both for `Cancel` + primary `Save changes`.
+- **Specs** — Card with five editable rows: curb weight (lb input), drivetrain (AWD / FWD / RWD segmented control), redline (rpm input), displacement (L input with one decimal), transmission (select: AT9 / AT8 / PDK / DCT / M6 / CVT). Read-only mode shows formatted strings + pill chips; edit mode reveals the inputs.
+- **Calibration overrides** — Empty-state copy with "Add first override" CTA when nothing's configured. Once an override is added, a 4-column table renders (PID / Channel / `actual = sensor (op) amount unit` formula / Note) with inline editors and a per-row remove × in edit mode. Add-row footer pinned below the table when editing.
+- **Sessions logged with this vehicle** — Card matching by VIN (or year/make/model when VIN absent), shows the 5 most recent. Empty state when nothing matches. Rows are hover-clickable → navigate to `/sessions/:id`.
+- **Profile export** — Mono filename preview (`<year>-<make>-<model>.vprofile`) + primary `Export .vprofile` button (stubbed; toast confirms when the Electron wiring lands).
+- **Delete confirmation** — `DeleteDialog` sub-component, danger-tinted icon-circle, copy callout for calibration count, destructive primary action. Confirm dispatches `removeSavedVehicle` + navigates back to Settings.
+
+State plumbing: `SavedVehicle` grows optional `curbWeightLb` / `displacementL` / `drivetrain` / `redlineRpm` / `transmission` / `calibrations[]` / `lastUsed` fields, plus new `VehicleCalibration` / `Drivetrain` / `Transmission` / `CalibrationOp` types. New `updateSavedVehicle` slice action + `selectSavedVehicleById` selector. New `download` glyph in the icon set.
+
+Sidebar Vehicle row routes to `/vehicles/${ activeVehicleId }` when an active saved vehicle exists, else falls back to `/vehicle/setup` (the add-vehicle flow from handoff-2).
+
+Files: `screens-vehicle.jsx` (new — `VehicleDetailScreen` + `DEFAULT_VEHICLES` mock catalog), `styles.css` (revised — `.tbl.cal-tbl` rules + `.cal-clickable` hover row + `.modal-f` foot), `app.jsx` (revised — `vehicles/:id` routing, Tweaks toggle, sidebar wiring), plus rest unchanged.
+
 ## How to consume
 
 1. Read the handoff's own `README.md` first — Claude Design ships consumption instructions.
