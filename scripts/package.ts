@@ -67,7 +67,8 @@ export class Packager {
        * Keep the asar lean: project source dirs and PyInstaller scratch
        * are not needed at runtime — the CRA build/ output is.
        */
-      '--ignore="^/(resources|dist|\\.pyi-build|src|public|tests|utilities|docs)(/|$)"',
+      '--ignore="^/(resources|dist|\\.pyi-build|src|public|tests|docs)(/|$)"',
+      '--ignore="^/utilities/(deb|dmg|msi)(/|$)"',
       /**
        * Drop TS source + tsconfigs (only compiled output in dist-electron/
        * is needed at runtime) and the empty type-only emit at
@@ -117,7 +118,8 @@ export class Packager {
        * resolved at runtime via process.resourcesPath.
        */
       '--extra-resource=./resources/app',
-      '--ignore="^/(resources|dist|\\.pyi-build|src|public|tests|utilities|docs)(/|$)"',
+      '--ignore="^/(resources|dist|\\.pyi-build|src|public|tests|docs)(/|$)"',
+      '--ignore="^/utilities/(deb|dmg|msi)(/|$)"',
       /**
        * Drop TS source + tsconfigs (only compiled output in dist-electron/
        * is needed at runtime) and the empty type-only emit at
@@ -169,7 +171,8 @@ export class Packager {
        * runtime via process.resourcesPath in main.js.
        */
       '--extra-resource=./resources/app',
-      '--ignore="^/(resources|dist|\\.pyi-build|src|public|tests|utilities|docs)(/|$)"',
+      '--ignore="^/(resources|dist|\\.pyi-build|src|public|tests|docs)(/|$)"',
+      '--ignore="^/utilities/(deb|dmg|msi)(/|$)"',
       /**
        * Drop TS source + tsconfigs (only compiled output in dist-electron/
        * is needed at runtime) and the empty type-only emit at

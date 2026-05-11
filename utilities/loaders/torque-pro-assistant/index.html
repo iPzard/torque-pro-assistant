@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>TorquePro Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+  <!--
+    Pre-renderer splash shown by Electron's `loadingWindow`. Self-contained:
+    no React, no bundler — pure HTML/CSS/inline JS so the first frame ships
+    without a build round-trip. Animates a status reel + log while the
+    main window finishes loading; `main.ts` destroys the loadingWindow once
+    `mainWindow` fires `did-finish-load`.
+  -->
+  <div id="splash">
+    <div class="splash-stage">
+      <div class="splash-mark">
+        <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-width="3" opacity=".22"/>
+          <path class="splash-ring-arc" d="M32 8 A24 24 0 0 1 56 32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <path d="M32 18v14l9 5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M52 18l-1 .8M14 18l1 .8M52 46l-1-.8M14 46l1-.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="splash-title">Torque<span>Pro</span> &middot; Assistant</div>
+      <div class="splash-ver">v0.4.2 &middot; loading</div>
+
+      <div class="splash-bar"><i id="splash-fill"></i></div>
+      <div class="splash-status">
+        <span class="splash-dot"></span>
+        <span class="splash-msg" id="splash-msg">Booting runtime&hellip;</span>
+        <span class="splash-meta" id="splash-meta"></span>
+      </div>
+
+      <div class="splash-log" id="splash-log" aria-live="polite"></div>
+    </div>
+    <div class="splash-foot">
+      Torque Pro Assistant boots locally &mdash; no telemetry.
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var stages = [
+        { p: 12,  msg: 'Booting runtime…',                meta: 'electron' },
+        { p: 26,  msg: 'Loading vehicle profiles…',       meta: '' },
+        { p: 42,  msg: 'Indexing local session library…', meta: '' },
+        { p: 58,  msg: 'Scanning for paired adapters…',   meta: 'bluetooth' },
+        { p: 74,  msg: 'Connecting to backend…',          meta: 'flask' },
+        { p: 88,  msg: 'Hydrating UI…',                   meta: '' },
+        { p: 100, msg: 'Ready',                                meta: '' }
+      ];
+
+      var fill = document.getElementById('splash-fill');
+      var msg  = document.getElementById('splash-msg');
+      var meta = document.getElementById('splash-meta');
+      var log  = document.getElementById('splash-log');
+      var i = 0;
+
+      function pad(value) {
+        var s = String(value);
+        while (s.length < 3) s = ' ' + s;
+        return s;
+      }
+
+      function tick() {
+        if (i >= stages.length) return;
+        var current = stages[i];
+        if (fill) fill.style.width = current.p + '%';
+        if (msg)  msg.textContent = current.msg;
+        if (meta) meta.textContent = current.meta;
+        if (log && i > 0) {
+          var line = document.createElement('div');
+          var previous = stages[i - 1];
+          line.className = 'splash-log-line';
+          line.innerHTML =
+            '<span class="t">[' + pad(previous.p) + '%]</span> ' +
+            '<span class="m">' + previous.msg.replace(/…$/, '') + ' ✓</span>';
+          log.appendChild(line);
+          while (log.children.length > 4) log.removeChild(log.firstChild);
+        }
+        i += 1;
+        // Cap to ~1.5s so the reel finishes even when boot is fast;
+        // the loading window is destroyed by main.ts as soon as the
+        // renderer is ready regardless of this animation's progress.
+        setTimeout(tick, 180 + Math.random() * 220);
+      }
+
+      tick();
+    })();
+  </script>
+</body>
+</html>

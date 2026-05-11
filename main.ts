@@ -93,9 +93,30 @@ const createMainWindow = (port: number): void => {
   };
 
   /**
-   * If in developer mode, show a loading window while
-   * the app and developer server compile.
+   * Dismiss the splash loadingWindow once the renderer is ready.
+   *
+   * IMPORTANT: destroy() — not hide(). The 'window-all-closed' event
+   * only fires when every BrowserWindow is closed/destroyed; a merely
+   * hidden loadingWindow keeps Electron alive in the background, so
+   * when the user closes the main window, app.quit() never fires and
+   * the electron.exe process leaks.
+   *
+   * Order matters too: show() the main window BEFORE destroying the
+   * splash so the user never sees a flash of empty desktop between
+   * the two.
    */
+  const dismissSplash = (): void => {
+    mainWindow.show();
+    loadingWindow?.destroy();
+    browserWindows.loadingWindow = null;
+  };
+
+  /**
+   * Hide the main window until it's actually loaded — we surface the
+   * branded splash in front of it on every launch (dev + prod).
+   */
+  mainWindow.hide();
+
   if (isDevMode) {
 
     /**
@@ -104,7 +125,6 @@ const createMainWindow = (port: number): void => {
      * to ::1 (IPv6) and the connection is refused.
      */
     mainWindow.loadURL('http://127.0.0.1:3000');
-    mainWindow.hide();
 
     /**
      * Hide loading window and show main window
@@ -125,27 +145,8 @@ const createMainWindow = (port: number): void => {
         isLoadSuccess || Boolean(location.reload());
       `;
 
-      /**
-       * Updates windows if page is loaded
-       * @param {*} isLoaded
-       */
       const handleLoad = (isLoaded: unknown): void => {
-        if (isLoaded) {
-
-          /**
-           * Keep show() before destroy() in this order to prevent
-           * unresponsive behavior during page load.
-           *
-           * IMPORTANT: destroy() — not hide(). The 'window-all-closed'
-           * event only fires when every BrowserWindow is closed/destroyed.
-           * A merely hidden loadingWindow keeps Electron alive in the
-           * background, so when the user closes the main window, app.quit()
-           * never fires and the electron.exe process leaks.
-           */
-          mainWindow.show();
-          loadingWindow?.destroy();
-          browserWindows.loadingWindow = null;
-        }
+        if (isLoaded) dismissSplash();
       };
 
       /**
@@ -157,14 +158,17 @@ const createMainWindow = (port: number): void => {
   }
 
   /**
-   * If using in production, the built version of the
-   * React project will be used instead of localhost.
+   * Production renderer — load the packed build, dismiss the splash as
+   * soon as the renderer finishes its first paint.
    *
    * After Phase 5 of TS migration, this file lives at dist-electron/main.js
    * (one level deep from app root). Use app.getAppPath() — works in dev
    * (project root) and prod (asar root) — instead of __dirname.
    */
-  else mainWindow.loadFile(path.join(app.getAppPath(), 'build/index.html'));
+  else {
+    mainWindow.loadFile(path.join(app.getAppPath(), 'build/index.html'));
+    mainWindow.webContents.on('did-finish-load', dismissSplash);
+  }
 
 
   /**
@@ -211,10 +215,11 @@ const createLoadingWindow = (): Promise<void> => {
     }
 
     /**
-     * Path to the developer loading screen shown while CRA compiles.
+     * Path to the boot splash shown while the renderer + Flask spin up.
+     * Used on every launch (dev compile wait + prod renderer mount).
      * Add new variants under utilities/loaders/<name>/ if you want to swap.
      */
-    const loaderHtml = 'utilities/loaders/redux/index.html';
+    const loaderHtml = 'utilities/loaders/torque-pro-assistant/index.html';
 
     try {
       /**
@@ -324,22 +329,24 @@ app.whenReady().then(async () => {
   });
 
   /**
-   * If not using in production, use the loading window
-   * and run Flask in shell.
+   * Boot splash — shown on every launch, dev and prod. Sits in front
+   * of the main window while the renderer compiles (dev) or unpacks
+   * (prod); destroyed by `dismissSplash` inside `createMainWindow`
+   * once `did-finish-load` fires.
    */
+  browserWindows.loadingWindow = new BrowserWindow({ frame: false, height: 320, width: 480 });
+
   if (isDevMode) {
     await installExtensions(); // React, Redux devTools
-    browserWindows.loadingWindow = new BrowserWindow({ frame: false, height: 320, width: 480 });
     createLoadingWindow().then(() => createMainWindow(port));
     spawn(`python app.py ${port}`, { detached: true, shell: true, stdio: 'inherit' });
   }
 
   /**
-   * If using in production, use the main window
-   * and run bundled app (dmg, elf, or exe) file.
+   * Production: show the splash first, then load the bundled renderer.
    */
   else {
-    createMainWindow(port);
+    createLoadingWindow().then(() => createMainWindow(port));
 
     /**
      * Production Flask launch.

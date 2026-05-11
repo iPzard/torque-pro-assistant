@@ -157,6 +157,20 @@ Sidebar Vehicle row routes to `/vehicles/${ activeVehicleId }` when an active sa
 
 Files: `screens-vehicle.jsx` (new — `VehicleDetailScreen` + `DEFAULT_VEHICLES` mock catalog), `styles.css` (revised — `.tbl.cal-tbl` rules + `.cal-clickable` hover row + `.modal-f` foot), `app.jsx` (revised — `vehicles/:id` routing, Tweaks toggle, sidebar wiring), plus rest unchanged.
 
+### handoff-10 — Boot splash / loading overlay (`P8GyNAD-ruAR17Rt60IG8w`)
+
+Pre-renderer splash shown by Electron's `loadingWindow` on every launch (dev + prod) until the renderer's `did-finish-load` fires. Self-contained HTML/CSS/inline JS — no React, no bundler — so the first frame is branded even before the React bundle has compiled (dev) or unpacked (prod).
+
+Covers:
+
+- **Visual** — radial deep-neutral gradient surface, 84-px amber instrument-cluster mark with an animated rotating arc, app name + version line, 320-px gradient progress bar with shimmer, pulsing status dot + headline + mono meta, rolling 4-line log of completed stages, and a centered footer reading "Torque Pro Assistant boots locally — no telemetry."
+- **Animation** — scripted reel: Booting runtime · Loading vehicle profiles · Indexing local session library · Scanning for paired adapters · Connecting to backend · Hydrating UI · Ready. Each tick pushes the previous line into the log with a ✓ + percentage badge.
+- **Lifecycle** — `main.ts` always opens the `loadingWindow` first; `createMainWindow` hides the main window until `did-finish-load`, then calls a shared `dismissSplash` that shows the main window + destroys the splash. Order matters — show before destroy so the user never sees a flash of empty desktop. The dev path keeps the existing `isPageLoaded` reload check; the prod path wires the splash teardown to the same hook.
+
+Folder rename: `utilities/loaders/redux/` → `utilities/loaders/torque-pro-assistant/`. `scripts/package.ts`'s asar `--ignore` regex carves `utilities/loaders/` out of the previous blanket exclusion so the splash ships inside the packaged app — `utilities/{deb,dmg,msi}/` remain ignored.
+
+Files: `TorquePro Assistant.html` (revised — splash markup + script inline before the `#root` mount), `styles.css` (revised — `.splash-*` rules + keyframes `splashSpin` / `splashShimmer` / `splashPulse` / `splashLine`), `app.jsx` (revised — Tweaks "Replay splash screen" hook and the post-mount `__dismissSplash` call), plus rest unchanged.
+
 ## How to consume
 
 1. Read the handoff's own `README.md` first — Claude Design ships consumption instructions.

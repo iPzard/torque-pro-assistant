@@ -42,7 +42,7 @@ Top-level:
 - `scripts/{start,build,clean,package,dispatch}.ts` — dev/build orchestration.
 - `tests/test_app.py` — pytest for Flask routes.
 - `utilities/{deb,dmg,msi}/images/` — installer art (placeholder).
-- `utilities/loaders/redux/` — dev-mode loading screen HTML.
+- `utilities/loaders/torque-pro-assistant/` — boot splash HTML shown on every launch (dev + prod) by Electron's `loadingWindow`.
 
 Renderer (`src/`):
 
@@ -139,7 +139,7 @@ Sequenced feature plan to implement the design. Each item is roughly a commit-si
 
 ### H. Branding (Q8 + Q9 from the original audit, deferred to here)
 28. Real Torque Pro Assistant icon set — `public/favicon.ico`, `logo192.png`, `logo512.png`, plus installer art under `utilities/{deb,dmg,msi}/images/`.
-29. Branded loader HTML — replace "Starting React Development Server" w/ Torque Pro Assistant copy + logo at `utilities/loaders/redux/index.html`.
+29. ~~Branded loader HTML~~ — done in handoff-10 at `utilities/loaders/torque-pro-assistant/`. Shown on every launch (dev + prod) until the renderer's `did-finish-load` fires.
 30. Custom fonts — Geist + Geist Mono per design. Load locally; drop the system-stack fallback in `theme.fontFamily` / `theme.fontFamilyMonospace`.
 
 ### I. Migration (later — single dedicated branch)
