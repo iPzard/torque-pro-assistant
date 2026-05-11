@@ -35,13 +35,16 @@ const makeStore = (preferences: PreferencesState = INITIAL_PREFERENCES) => confi
   }
 });
 
+const openExternalMock = jest.fn();
+
 const ELECTRON_API: ElectronAPI = {
-  getPort:     () => 7842,
-  maximize:    () => undefined,
-  minimize:    () => undefined,
-  platform:    'darwin',
-  quit:        () => undefined,
-  unmaximize:  () => undefined
+  getPort:      () => 7842,
+  maximize:     () => undefined,
+  minimize:     () => undefined,
+  openExternal: openExternalMock,
+  platform:     'darwin',
+  quit:         () => undefined,
+  unmaximize:   () => undefined
 };
 
 function renderSettings(preferences?: PreferencesState) {
@@ -61,6 +64,8 @@ function renderSettings(preferences?: PreferencesState) {
 }
 
 describe('pages/settings', () => {
+  beforeEach(() => { openExternalMock.mockReset(); });
+
   it('renders the page wrapper', () => {
     renderSettings();
     expect(screen.getByTestId('settings-page')).toBeInTheDocument();
@@ -181,5 +186,40 @@ describe('pages/settings', () => {
     expect(button).toHaveTextContent('Copy');
     await user.click(button);
     expect(button).toHaveTextContent('Copied');
+  });
+
+  it('About → Check for updates opens the releases page', async () => {
+    const user = userEvent.setup();
+    renderSettings();
+    await user.click(screen.getByTestId('settings-about-check-updates'));
+    expect(openExternalMock).toHaveBeenCalledWith('https://github.com/iPzard/torque-pro-assistant/releases');
+  });
+
+  it('About → Documentation opens the GitHub Pages docs', async () => {
+    const user = userEvent.setup();
+    renderSettings();
+    await user.click(screen.getByTestId('settings-about-docs'));
+    expect(openExternalMock).toHaveBeenCalledWith('https://ipzard.github.io/torque-pro-assistant/');
+  });
+
+  it('About → Release notes opens the latest-release page', async () => {
+    const user = userEvent.setup();
+    renderSettings();
+    await user.click(screen.getByTestId('settings-about-release-notes'));
+    expect(openExternalMock).toHaveBeenCalledWith('https://github.com/iPzard/torque-pro-assistant/releases/latest');
+  });
+
+  it('About → Source · GitHub opens the repo root', async () => {
+    const user = userEvent.setup();
+    renderSettings();
+    await user.click(screen.getByTestId('settings-about-source'));
+    expect(openExternalMock).toHaveBeenCalledWith('https://github.com/iPzard/torque-pro-assistant');
+  });
+
+  it('About → Report a bug opens the issues page', async () => {
+    const user = userEvent.setup();
+    renderSettings();
+    await user.click(screen.getByTestId('settings-about-issues'));
+    expect(openExternalMock).toHaveBeenCalledWith('https://github.com/iPzard/torque-pro-assistant/issues');
   });
 });

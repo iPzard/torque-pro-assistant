@@ -14,6 +14,7 @@ describe('utils/requests', () => {
       getPort,
       maximize: jest.fn(),
       minimize: jest.fn(),
+      openExternal: jest.fn(),
       platform: 'win32',
       quit: jest.fn(),
       unmaximize: jest.fn()

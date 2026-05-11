@@ -19,6 +19,14 @@ export interface ElectronAPI {
 
   minimize: () => void;
   /**
+   * Hands a URL off to the host OS's default browser via Electron's
+   * `shell.openExternal`. Used by Settings → About to route to the
+   * repo / docs / issue tracker without spawning a new BrowserWindow.
+   * The renderer never sees the URL after dispatch — main.ts owns the
+   * `shell` module.
+   */
+  openExternal: (url: string) => void;
+  /**
    * Host platform string (`process.platform`) — 'win32' | 'darwin' | 'linux'
    * etc. Read once at preload time so the renderer can pick a platform-
    * appropriate chrome (e.g. native macOS traffic lights vs. custom Windows

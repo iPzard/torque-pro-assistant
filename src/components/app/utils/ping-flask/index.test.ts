@@ -18,6 +18,7 @@ describe('components/app/utils/ping-flask', () => {
       getPort: jest.fn(() => 3042),
       maximize: jest.fn(),
       minimize: jest.fn(),
+      openExternal: jest.fn(),
       platform: 'win32',
       quit: jest.fn(),
       unmaximize: jest.fn()

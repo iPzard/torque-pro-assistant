@@ -188,6 +188,25 @@ function Settings() {
   /** Mock port + upload URL — wired to the real electronAPI.getPort
    *  once the Phase J live-capture endpoint lands. */
   const port = window.electronAPI.getPort();
+
+  /** GitHub project URLs surfaced by the About card. Centralized here
+   *  so the same /releases /issues /pages targets line up with the
+   *  package.json `repository` + `homepage` fields if those ever drift. */
+  const REPO_URL = 'https://github.com/iPzard/torque-pro-assistant';
+  const ABOUT_LINKS = {
+    docs:     'https://ipzard.github.io/torque-pro-assistant/',
+    issues:   `${ REPO_URL }/issues`,
+    /** GitHub's `/releases/latest` 302-redirects to the newest release
+     *  tag, which doubles as the release-notes page for that build. */
+    releaseLatest: `${ REPO_URL }/releases/latest`,
+    
+    releases: `${ REPO_URL }/releases`,
+    repo:     REPO_URL
+  } as const;
+
+  const openExternal = (url: string): void => {
+    window.electronAPI.openExternal(url);
+  };
   const uploadHost = preferences.bindAddress === '127.0.0.1' ? '127.0.0.1' : '192.168.1.42';
   const uploadUrl = `http://${ uploadHost }:${ port }/torque/upload`;
 
@@ -647,16 +666,50 @@ function Settings() {
               </div>
             </div>
             <div className="row" style={ { gap: 6 } }>
-              <button className="btn ghost sm" type="button">Check for updates</button>
+              <button
+                className="btn ghost sm"
+                data-testid="settings-about-check-updates"
+                onClick={ () => openExternal(ABOUT_LINKS.releases) }
+                type="button"
+              >
+                Check for updates
+              </button>
             </div>
           </div>
           <div className="divider" />
           <div className="row" style={ { flexWrap: 'wrap', gap: 6 } }>
-            <button className="btn ghost sm" type="button">Documentation</button>
-            <button className="btn ghost sm" type="button">Release notes</button>
-            <button className="btn ghost sm" type="button">Source · GitHub</button>
-            <button className="btn ghost sm" type="button">Report a bug</button>
-            <button className="btn ghost sm" type="button">Open log folder</button>
+            <button
+              className="btn ghost sm"
+              data-testid="settings-about-docs"
+              onClick={ () => openExternal(ABOUT_LINKS.docs) }
+              type="button"
+            >
+              Documentation
+            </button>
+            <button
+              className="btn ghost sm"
+              data-testid="settings-about-release-notes"
+              onClick={ () => openExternal(ABOUT_LINKS.releaseLatest) }
+              type="button"
+            >
+              Release notes
+            </button>
+            <button
+              className="btn ghost sm"
+              data-testid="settings-about-source"
+              onClick={ () => openExternal(ABOUT_LINKS.repo) }
+              type="button"
+            >
+              Source · GitHub
+            </button>
+            <button
+              className="btn ghost sm"
+              data-testid="settings-about-issues"
+              onClick={ () => openExternal(ABOUT_LINKS.issues) }
+              type="button"
+            >
+              Report a bug
+            </button>
             <div className="right" />
             <span className="dim" style={ { fontSize: 11 } }>© 2026 TorquePro Assistant contributors</span>
           </div>

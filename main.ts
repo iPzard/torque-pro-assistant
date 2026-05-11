@@ -5,7 +5,8 @@ import {
   app,
   BrowserWindow,
   ipcMain,
-  type IpcMainEvent
+  type IpcMainEvent,
+  shell
 } from 'electron';
 import * as fs from 'fs';
 /**
@@ -199,6 +200,22 @@ const createMainWindow = (port: number): void => {
   ipcMain.on('app-unmaximize', () => mainWindow.unmaximize());
   ipcMain.on('get-port-number', (event: IpcMainEvent) => {
     event.returnValue = port;
+  });
+  /**
+   * Hand a URL to the OS's default browser. Whitelist the protocol so a
+   * compromised renderer can't redirect users to `file://` or other
+   * shell-handler-backed schemes — only public http(s) is allowed.
+   */
+  ipcMain.on('app-open-external', (_event: IpcMainEvent, url: unknown) => {
+    if (typeof url !== 'string') return;
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      return;
+    }
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return;
+    void shell.openExternal(parsed.toString());
   });
 };
 

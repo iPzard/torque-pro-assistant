@@ -45,6 +45,12 @@ const electronAPI: ElectronAPI = {
   maximize: (): void => { ipcRenderer.send('app-maximize'); },
   minimize: (): void => { ipcRenderer.send('app-minimize'); },
   /**
+   * Routes a URL through main.ts → `shell.openExternal`. Only the
+   * URL string crosses the bridge — main does the actual launch in
+   * the host OS's default browser. URL validation lives in main.
+   */
+  openExternal: (url: string): void => { ipcRenderer.send('app-open-external', url); },
+  /**
    * process.platform is available in the preload (sandbox: false). Frozen at
    * bridge-creation time so the renderer can branch on it synchronously.
    */
