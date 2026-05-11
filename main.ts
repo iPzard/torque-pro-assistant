@@ -334,7 +334,7 @@ app.whenReady().then(async () => {
    * (prod); destroyed by `dismissSplash` inside `createMainWindow`
    * once `did-finish-load` fires.
    */
-  browserWindows.loadingWindow = new BrowserWindow({ frame: false, height: 320, width: 480 });
+  browserWindows.loadingWindow = new BrowserWindow({ frame: false, height: 450, width: 720 });
 
   if (isDevMode) {
     await installExtensions(); // React, Redux devTools
