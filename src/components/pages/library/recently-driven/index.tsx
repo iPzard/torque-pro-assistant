@@ -5,7 +5,7 @@ import type { UnitsPreference } from 'state/preferences';
 import type { Session, SessionSummary } from 'types/session';
 import { convertDistance, convertSpeed } from 'utils';
 
-interface RecentlyDrivenProps {
+export interface RecentlyDrivenProps {
   /** Pre-computed (session, summary) pairs from the composer's
    *  `useMemo`. Sorted by `startedAt` descending; this strip slices
    *  the top three. */
@@ -14,7 +14,7 @@ interface RecentlyDrivenProps {
   readonly units: UnitsPreference;
 }
 
-interface KvProps {
+export interface KvProps {
   readonly label: string;
   readonly last?: boolean;
   readonly testId?: string;

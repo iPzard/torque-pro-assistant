@@ -11,7 +11,7 @@ import PowerTorqueChart from './power-torque-chart';
 import SpeedRpmChart from './speed-rpm-chart';
 import ThrottleLoadChart from './throttle-load-chart';
 
-interface OverviewProps {
+export interface OverviewProps {
   readonly session: Session;
   readonly summary: SessionSummary;
   readonly testId?: string;

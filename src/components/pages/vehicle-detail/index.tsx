@@ -656,7 +656,7 @@ function formatLastUsed(slice: string | null, sessions: readonly SessionSummaryE
   return `${ date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) } · ${ date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }`;
 }
 
-interface SettingRowProps {
+export interface SettingRowProps {
   readonly children: React.ReactNode;
   readonly detail?: string;
   readonly label: string;
@@ -690,7 +690,7 @@ function SettingRow({ children, detail, label, last = false }: SettingRowProps) 
   );
 }
 
-interface NumberInputProps {
+export interface NumberInputProps {
   readonly decimals?: number;
   readonly onChange: (value: number) => void;
   readonly suffix: string;
@@ -719,7 +719,7 @@ function NumberInput({ decimals = 0, onChange, suffix, testId, value }: NumberIn
   );
 }
 
-interface DrivetrainPickerProps {
+export interface DrivetrainPickerProps {
   readonly onChange: (value: Drivetrain) => void;
   readonly testId: string;
   readonly value: Drivetrain;

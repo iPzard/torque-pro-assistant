@@ -3,7 +3,7 @@ import type { ColumnDetection } from 'utils';
 
 import Card from 'components/primitives/card';
 
-interface DetectedColumnsProps {
+export interface DetectedColumnsProps {
   readonly columns: readonly ColumnDetection[];
   readonly testId?: string;
 }

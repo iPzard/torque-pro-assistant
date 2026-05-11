@@ -2,7 +2,7 @@ import { Icons } from 'components/app/icons';
 
 import styles from './index.module.scss';
 
-interface OfflineBannerProps {
+export interface OfflineBannerProps {
   /** Failure count, capped at the design's 10 max. */
   readonly attempts: number;
   /** Caller hides the banner without reconnecting — sticky until the

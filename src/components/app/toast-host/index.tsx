@@ -30,7 +30,7 @@ const LEAVE_MS = 180;
  *  wait their turn (the host keeps the newest three). */
 const MAX_VISIBLE = 3;
 
-interface ToastItemProps {
+export interface ToastItemProps {
   readonly entry: ToastEntry;
   readonly onClose: () => void;
 }
@@ -132,7 +132,7 @@ function ToastItem({ entry, onClose }: ToastItemProps) {
   );
 }
 
-interface ToastHostProps {
+export interface ToastHostProps {
   readonly testId?: string;
 }
 

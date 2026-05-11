@@ -24,7 +24,7 @@ export interface BackendStatus {
   readonly retry: () => void;
 }
 
-interface UseBackendStatusOptions {
+export interface UseBackendStatusOptions {
   /** Poll cadence between failed pings, in ms. Defaulted to the
    *  production 4s; tests override to keep runs fast. */
   readonly retryIntervalMs?: number;

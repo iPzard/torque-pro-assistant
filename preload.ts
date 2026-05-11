@@ -1,8 +1,15 @@
 /**
- * Preload script — runs with Node access in an isolated context, then exposes
- * a narrow API to the renderer via contextBridge. The renderer (with
- * contextIsolation: true and nodeIntegration: false) has no other path to
- * IPC, fs, or child_process.
+ * @packageDocumentation
+ *
+ * Electron preload script — runs with Node access in an isolated
+ * context, then exposes a narrow surface (`window.electronAPI`) to the
+ * renderer via `contextBridge`. The renderer (configured with
+ * `contextIsolation: true` and `nodeIntegration: false`) has no other
+ * path to IPC, the filesystem, or `child_process`.
+ *
+ * The exposed contract is defined in `src/types/electron-api.ts` —
+ * keep this file, the contract, and the renderer-side test stubs in
+ * lock-step when adding a new bridge method.
  */
 
 import { contextBridge, ipcRenderer } from 'electron';

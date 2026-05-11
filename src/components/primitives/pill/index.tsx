@@ -9,7 +9,7 @@ import styles from './index.module.scss';
  */
 export type PillStatus = 'amber' | 'err' | 'neutral' | 'ok' | 'warn';
 
-interface PillProps {
+export interface PillProps {
   readonly children: ReactNode;
   /** Hides the leading status dot. Useful for plain count / label pills. */
   readonly noDot?: boolean;

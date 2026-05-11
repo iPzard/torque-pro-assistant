@@ -9,7 +9,7 @@ import { convertDistance, summarize } from 'utils';
 
 import styles from './index.module.scss';
 
-interface PickStageProps {
+export interface PickStageProps {
   /** Hex / CSS var palette per chip color, indexed by selection order. */
   readonly colors: readonly string[];
   /** Hard cap on the number of sessions that can be picked. */
@@ -25,7 +25,7 @@ interface PickStageProps {
   readonly units: UnitsPreference;
 }
 
-interface FeatureProps {
+export interface FeatureProps {
   readonly body: string;
   readonly icon: React.ReactNode;
   readonly title: string;

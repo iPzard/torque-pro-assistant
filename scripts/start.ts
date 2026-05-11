@@ -1,3 +1,21 @@
+/**
+ * @packageDocumentation
+ *
+ * Dev-mode orchestrator: spins up the three concurrent processes that
+ * make up the local app (CRA dev server, Electron main, Flask service)
+ * and wires them so:
+ *
+ *   - CRA dev server binds to `127.0.0.1:3000` (IPv4 only, so Electron
+ *     can resolve it on Windows).
+ *   - Flask picks a free port in 3001–3999 + advertises it back to
+ *     Electron via the contextBridge.
+ *   - Electron's `main.ts` loads `http://127.0.0.1:3000` once CRA is
+ *     ready.
+ *
+ * Stdout/stderr from all three streams to the parent terminal with
+ * per-process prefixes. Known-noisy Electron warnings (Autofill.enable
+ * etc.) are filtered so real errors stay visible.
+ */
 import {
   type ChildProcess,
   spawn,

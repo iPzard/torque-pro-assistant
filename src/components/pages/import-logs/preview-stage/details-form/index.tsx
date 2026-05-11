@@ -3,7 +3,7 @@ import { NumberInput, SimpleGrid, Stack, Textarea, TextInput } from '@mantine/co
 import Card from 'components/primitives/card';
 import type { Vehicle } from 'types/session';
 
-interface DetailsFormProps {
+export interface DetailsFormProps {
   readonly name: string;
   readonly notes: string;
   readonly onNameChange: (next: string) => void;

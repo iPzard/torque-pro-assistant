@@ -46,7 +46,7 @@ export interface ToastEntry {
 }
 
 /** Subscriber callback signature. Receives a snapshot of the queue. */
-type ToastSubscriber = (queue: readonly ToastEntry[]) => void;
+export type ToastSubscriber = (queue: readonly ToastEntry[]) => void;
 
 const DEFAULT_DURATION_MS = 4000;
 
@@ -114,7 +114,7 @@ export const subscribeToToasts = (subscriber: ToastSubscriber): (() => void) => 
  *  need to subscribe + unsubscribe through the React layer. */
 export const peekToasts = (): readonly ToastEntry[] => queue.slice();
 
-interface ToastApi {
+export interface ToastApi {
   (opts: ToastOptions): number;
   readonly clear:   () => void;
   readonly dismiss: (id: number) => void;

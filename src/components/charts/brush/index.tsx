@@ -8,7 +8,7 @@ export type BrushDatum = Readonly<Record<string, number | undefined>>;
 /** Three drag modes: drag left edge, right edge, or pan the whole window. */
 type DragMode = 'left' | 'pan' | 'right';
 
-interface BrushProps {
+export interface BrushProps {
   readonly color?: string;
   readonly data: readonly BrushDatum[];
   /** Field name to render the silhouette of (typically `speed_mph`). */

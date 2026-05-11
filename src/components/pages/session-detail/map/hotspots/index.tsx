@@ -4,7 +4,7 @@ import type { Hotspot, HotspotKind } from 'components/pages/session-detail/map/u
 import Card from 'components/primitives/card';
 import { formatDuration } from 'utils';
 
-interface HotspotsProps {
+export interface HotspotsProps {
   readonly hotspots: readonly Hotspot[];
   readonly testId?: string;
 }

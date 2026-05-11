@@ -5,7 +5,7 @@ import type { SavedVehicle } from 'state/preferences';
 
 import styles from './index.module.scss';
 
-interface DeleteDialogProps {
+export interface DeleteDialogProps {
   /** Count of calibration overrides on the vehicle — surfaced in the
    *  copy so the user sees what additional state goes away. */
   readonly calibrationCount: number;

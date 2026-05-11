@@ -5,7 +5,7 @@ import Card from 'components/primitives/card';
 
 import styles from './index.module.scss';
 
-interface NoSessionsEmptyProps {
+export interface NoSessionsEmptyProps {
   readonly testId?: string;
 }
 

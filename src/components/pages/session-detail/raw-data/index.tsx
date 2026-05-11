@@ -5,7 +5,7 @@ import Card from 'components/primitives/card';
 import type { SessionDataRow } from 'types/session';
 import { formatDuration } from 'utils';
 
-interface RawDataProps {
+export interface RawDataProps {
   readonly data: readonly SessionDataRow[];
   readonly testId?: string;
 }

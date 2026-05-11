@@ -8,7 +8,7 @@ import styles from './index.module.scss';
  *  = recoverable issue (amber), `info` = neutral status (accent). */
 export type AlertVariant = 'danger' | 'info' | 'warn';
 
-interface AlertProps {
+export interface AlertProps {
   /** Right-aligned action row — typically a primary `Try again` plus
    *  a ghost `Cancel`. Renders only when supplied. */
   readonly actions?: ReactNode;

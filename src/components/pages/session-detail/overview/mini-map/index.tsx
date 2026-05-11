@@ -4,7 +4,7 @@ import { buildRoutePolyline } from 'components/pages/session-detail/utils';
 import Card from 'components/primitives/card';
 import type { SessionDataRow } from 'types/session';
 
-interface MiniMapProps {
+export interface MiniMapProps {
   readonly data: readonly SessionDataRow[];
   readonly testId?: string;
 }

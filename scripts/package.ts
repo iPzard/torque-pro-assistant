@@ -1,3 +1,16 @@
+/**
+ * @packageDocumentation
+ *
+ * Installer packager — wraps `electron-packager` (for the app bundle)
+ * and three platform-specific installer tools:
+ *   - Windows: `electron-wix-msi` (requires WiX Toolset 3.x on PATH)
+ *   - macOS:   `electron-installer-dmg`
+ *   - Linux:   `electron-installer-debian`
+ *
+ * Reads name / version / description / author from `package.json` so
+ * the installer metadata always tracks the source manifest. Output
+ * lands under `dist/<platform>/setup/`.
+ */
 import { spawnSync, type SpawnSyncOptions } from 'child_process';
 import { MSICreator } from 'electron-wix-msi';
 import * as nodePath from 'path';

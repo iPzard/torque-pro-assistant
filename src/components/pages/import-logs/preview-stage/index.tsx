@@ -15,7 +15,7 @@ import DetectedColumns from './detected-columns';
 import PreviewTable from './preview-table';
 import ValidationPanel from './validation-panel';
 
-interface PreviewStageProps {
+export interface PreviewStageProps {
   /** Fires when the user hits Cancel — composer should drop back to
    *  the drop stage and clear the parsed payload. */
   readonly onCancel: () => void;

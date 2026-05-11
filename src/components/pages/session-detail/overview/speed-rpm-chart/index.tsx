@@ -9,7 +9,7 @@ import { selectUnits } from 'state/preferences';
 import type { SessionDataRow } from 'types/session';
 import { resolvePidForUnits } from 'utils';
 
-interface SpeedRpmChartProps {
+export interface SpeedRpmChartProps {
   readonly data: readonly SessionDataRow[];
   /** Cross-chart cursor sync id. Pass the same value to sibling charts
    *  on the Overview tab so the hover cursor stays in lockstep. */

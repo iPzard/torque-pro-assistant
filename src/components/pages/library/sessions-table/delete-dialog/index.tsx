@@ -4,7 +4,7 @@ import { Icons } from 'components/app/icons';
 import type { SessionMeta } from 'types/session';
 import { formatDuration } from 'utils';
 
-interface DeleteDialogProps {
+export interface DeleteDialogProps {
   readonly meta: SessionMeta;
   readonly onCancel: () => void;
   readonly onConfirm: () => void;

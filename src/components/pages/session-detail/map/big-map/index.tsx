@@ -5,7 +5,7 @@ import type { SessionDataRow } from 'types/session';
 
 import NoGpsEmpty from './no-gps-empty';
 
-interface BigMapProps {
+export interface BigMapProps {
   readonly data: readonly SessionDataRow[];
   readonly hotspots: readonly Hotspot[];
   readonly testId?: string;

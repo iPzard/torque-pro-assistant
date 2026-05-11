@@ -1,3 +1,16 @@
+/**
+ * @packageDocumentation
+ *
+ * Build orchestrator for the three sub-projects: the CRA React
+ * renderer (`build/`), the Electron main + preload TypeScript
+ * (`dist-electron/`), and the PyInstaller-packed Flask binary
+ * (`resources/app/`). Each runs in its own child process via
+ * `spawnSync` and inherits stdio so progress streams to the parent
+ * terminal in real time.
+ *
+ * Invoked indirectly through `scripts/dispatch.ts` (`yarn build` etc.)
+ * — the dispatcher routes the CLI args here.
+ */
 import { spawnSync, type SpawnSyncOptions } from 'child_process';
 
 const spawnOptions: SpawnSyncOptions = {
@@ -6,7 +19,11 @@ const spawnOptions: SpawnSyncOptions = {
 };
 
 /**
- * Builds React & Python builds of project so Electron can be used.
+ * Build orchestrator for the React renderer, the Electron main /
+ * preload bundle, and the Python service. Each method shells out to
+ * the matching native build tool (`react-scripts build`, `tsc -p
+ * tsconfig.electron.json`, `pyinstaller`) so this class stays a thin
+ * coordinator.
  */
 export class Builder {
 

@@ -2,7 +2,7 @@ import { Icons } from 'components/app/icons';
 
 import styles from './index.module.scss';
 
-interface NoGpsEmptyProps {
+export interface NoGpsEmptyProps {
   /** Total row count for the session — surfaced in the bottom-most
    *  check line so the user sees how much data IS captured. */
   readonly rowCount: number;

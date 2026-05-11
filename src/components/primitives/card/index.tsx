@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import styles from './index.module.scss';
 
-interface CardProps {
+export interface CardProps {
   /** Right-aligned header content — buttons / kbd hints / status pills. */
   readonly actions?: ReactNode;
   readonly children: ReactNode;

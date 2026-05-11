@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-interface IconProps {
+export interface IconProps {
   readonly children: ReactNode;
   readonly fill?: string;
   readonly size?: number;

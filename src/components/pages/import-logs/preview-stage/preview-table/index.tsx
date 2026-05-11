@@ -4,7 +4,7 @@ import Card from 'components/primitives/card';
 import type { SessionDataRow } from 'types/session';
 import { formatDuration } from 'utils';
 
-interface PreviewTableProps {
+export interface PreviewTableProps {
   readonly rows: readonly SessionDataRow[];
   readonly testId?: string;
 }

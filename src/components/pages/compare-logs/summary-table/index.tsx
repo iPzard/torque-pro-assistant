@@ -13,7 +13,7 @@ import {
   summarize
 } from 'utils';
 
-interface SummaryTableProps {
+export interface SummaryTableProps {
   readonly sessions: readonly Session[];
   readonly testId?: string;
 }

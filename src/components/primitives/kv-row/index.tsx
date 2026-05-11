@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import styles from './index.module.scss';
 
-interface KvRowProps {
+export interface KvRowProps {
   /** Left-aligned label — dimmed by default. */
   readonly label: ReactNode;
   /** Drops the bottom border. Use on the last row of a stack. */

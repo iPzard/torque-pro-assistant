@@ -2,7 +2,7 @@ import { Stack, Text } from '@mantine/core';
 
 import styles from './index.module.scss';
 
-interface MetricProps {
+export interface MetricProps {
   /** Short label rendered above the value. Tracks the design's all-caps,
    *  10px label style. */
   readonly label: string;

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Icons } from 'components/app/icons';
 import type { SessionMeta } from 'types/session';
 
-interface RenameDialogProps {
+export interface RenameDialogProps {
   readonly meta: SessionMeta;
   readonly onCancel: () => void;
   readonly onSave: (nextName: string) => void;

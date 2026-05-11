@@ -1,7 +1,7 @@
 import { Group, Stack, Text } from '@mantine/core';
 import { Dropzone, type FileWithPath, MIME_TYPES } from '@mantine/dropzone';
 
-interface DropStageProps {
+export interface DropStageProps {
   readonly busy: boolean;
   readonly onDrop: (file: File) => void;
   readonly testId?: string;

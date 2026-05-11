@@ -6,7 +6,7 @@ import { selectUnits } from 'state/preferences';
 import type { SessionSummary } from 'types/session';
 import { convertBoost, convertDistance, convertSpeed, convertTemperature } from 'utils';
 
-interface MetricGridProps {
+export interface MetricGridProps {
   readonly summary: SessionSummary;
   readonly testId?: string;
 }

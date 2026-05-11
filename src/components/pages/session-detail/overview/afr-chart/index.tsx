@@ -2,7 +2,7 @@ import LineChart, { type LineChartSeries } from 'components/charts/line-chart';
 import Card from 'components/primitives/card';
 import type { SessionDataRow } from 'types/session';
 
-interface AfrChartProps {
+export interface AfrChartProps {
   readonly data: readonly SessionDataRow[];
   /** Cross-chart cursor sync id. Pair sibling Overview charts with the
    *  same value so the hover position stays in lockstep. */

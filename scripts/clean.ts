@@ -1,3 +1,14 @@
+/**
+ * @packageDocumentation
+ *
+ * Workspace cleaner — wipes the build artifacts each sub-project
+ * produces (`build/`, `dist/`, `dist-electron/`, `resources/`,
+ * `node_modules/.cache/`, PyInstaller's `.pyi-build/`) so a fresh
+ * `yarn install && yarn build` is deterministic.
+ *
+ * Invoked through `scripts/dispatch.ts` — see its `cleanProject()`
+ * for the full list of paths swept.
+ */
 import {
   existsSync,
   readdirSync,
@@ -7,8 +18,8 @@ import {
 } from 'fs';
 
 /**
- * Cleans project by removing several files & folders.
- * @see scripts\dispatch.ts cleanProject() for complete list
+ * Filesystem cleaner. Recursively removes a path (file or directory),
+ * tolerating non-existent paths so a clean step can be idempotent.
  */
 export class Cleaner {
   removePath = (pathToRemove: string): void => {

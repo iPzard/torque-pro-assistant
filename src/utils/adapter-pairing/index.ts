@@ -33,7 +33,7 @@ export type PairingState = null | {
   readonly stage: PairingStage;
 };
 
-type PairingSubscriber = (state: PairingState) => void;
+export type PairingSubscriber = (state: PairingState) => void;
 
 const subscribers = new Set<PairingSubscriber>();
 let current: PairingState = null;
@@ -59,7 +59,7 @@ const emit = (): void => {
   for (const subscriber of subscribers) subscriber(current);
 };
 
-interface PairingFacade {
+export interface PairingFacade {
   (stage?: PairingStage): number;
   /** Force-close the modal regardless of the underlying state. */
   readonly close: () => void;

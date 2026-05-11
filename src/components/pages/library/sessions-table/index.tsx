@@ -20,7 +20,7 @@ import RowMenu from './row-menu';
 
 import styles from './index.module.scss';
 
-interface SessionsTableProps {
+export interface SessionsTableProps {
   readonly onSelectionToggle: (id: string) => void;
   readonly onSortChange: (next: LibrarySort) => void;
   readonly rows: readonly { readonly session: Session; readonly summary: SessionSummary }[];

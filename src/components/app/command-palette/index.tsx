@@ -1,6 +1,6 @@
 import { Modal, Stack, Text } from '@mantine/core';
 
-interface CommandPaletteProps {
+export interface CommandPaletteProps {
   readonly onClose: () => void;
   readonly opened: boolean;
   readonly testId?: string;

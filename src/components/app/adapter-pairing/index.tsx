@@ -42,18 +42,18 @@ type ModalStage =
   | 'probe'
   | 'scan';
 
-interface Props {
+export interface AdapterPairingProps {
   readonly testId?: string;
 }
 
-interface Bars {
+interface RssiBarsProps {
   readonly count: number;
   readonly testId?: string;
 }
 
 /** Tiny 4-slot RSSI bar indicator. Slots fill from the bottom; signal
  *  strength buckets defined in `rssiBars`. */
-function RssiBars({ count, testId }: Bars) {
+function RssiBars({ count, testId }: RssiBarsProps) {
   return (
     <span className={ styles['rssi-bars'] } data-testid={ testId }>
       { [1, 2, 3, 4].map((slot) => (
@@ -86,7 +86,7 @@ function RssiBars({ count, testId }: Bars) {
  *
  * @returns A portal-rendered modal element, or `null` when closed.
  */
-function AdapterPairing({ testId }: Props) {
+function AdapterPairing({ testId }: AdapterPairingProps) {
   const [state, setState] = useState<PairingState>(null);
 
   useEffect(() => subscribeToAdapterPairing(setState), []);
@@ -111,7 +111,7 @@ function AdapterPairing({ testId }: Props) {
   );
 }
 
-interface ModalProps {
+export interface ModalProps {
   readonly initialStage: PairingStage;
   readonly onClose: () => void;
   readonly testId?: string;
@@ -329,7 +329,7 @@ function PairingModal({ initialStage, onClose, testId }: ModalProps) {
   );
 }
 
-interface ScanStageProps {
+export interface ScanStageProps {
   readonly onCancel: () => void;
   readonly onContinue: () => void;
   readonly onPick: (device: MockDevice) => void;
@@ -412,7 +412,7 @@ function ScanStage({ onCancel, onContinue, onPick, onStop, picked, progress, tes
   );
 }
 
-interface ScanFailProps {
+export interface ScanFailProps {
   readonly onCancel: () => void;
   readonly onRetry: () => void;
   readonly testId?: string;
@@ -453,7 +453,7 @@ function ScanFailStage({ onCancel, onRetry, testId }: ScanFailProps) {
   );
 }
 
-interface PairStageProps {
+export interface PairStageProps {
   readonly failed: boolean;
   readonly onBack: () => void;
   readonly onCancel: () => void;
@@ -561,7 +561,7 @@ function PairStage({ failed, onBack, onCancel, onConfirm, onRetry, onToggleTrust
   );
 }
 
-interface ProbeStageProps {
+export interface ProbeStageProps {
   readonly noProtocol: boolean;
   readonly onBack: () => void;
   readonly onCancel: () => void;
@@ -668,7 +668,7 @@ function ProbeStage({ noProtocol, onBack, onCancel, onContinue, onRetry, probeLi
   );
 }
 
-interface ProbeSummaryRowProps {
+export interface ProbeSummaryRowProps {
   readonly label: string;
   readonly mono?: boolean;
   readonly value: string;
@@ -684,7 +684,7 @@ function ProbeSummaryRow({ label, mono = false, value }: ProbeSummaryRowProps) {
   );
 }
 
-interface DoneStageProps {
+export interface DoneStageProps {
   readonly onClose: () => void;
   readonly onFinish: () => void;
   readonly picked: MockDevice;

@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 
 import { PID_CATEGORIES } from 'data/pids';
 
-interface PidPickerProps {
+export interface PidPickerProps {
   readonly onChange: (next: readonly string[]) => void;
   readonly onClose: () => void;
   readonly opened: boolean;

@@ -4,7 +4,7 @@ import { Icons } from 'components/app/icons';
 
 import styles from './index.module.scss';
 
-interface RowMenuProps {
+export interface RowMenuProps {
   readonly anchor: { readonly x: number; readonly y: number };
   readonly onClose: () => void;
   readonly onDelete: () => void;

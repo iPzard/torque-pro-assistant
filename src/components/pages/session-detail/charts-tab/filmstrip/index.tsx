@@ -5,7 +5,7 @@ import Card from 'components/primitives/card';
 import { PID_BY_KEY } from 'data/pids';
 import type { SessionDataRow } from 'types/session';
 
-interface FilmstripProps {
+export interface FilmstripProps {
   readonly data: readonly SessionDataRow[];
   readonly selectedPids: readonly string[];
   /** Cross-chart cursor sync id. Filmstrip charts all share it so

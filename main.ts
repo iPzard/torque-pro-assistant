@@ -1,3 +1,23 @@
+/**
+ * @packageDocumentation
+ *
+ * Electron main-process entry point. Boots the app, picks a free port
+ * in 3001–3999, spawns the bundled Flask service, opens the boot
+ * splash window, then the main `BrowserWindow`, and wires the IPC
+ * channels the renderer needs (`get-port-number`, `app-maximize`,
+ * `app-minimize`, `app-quit`, `app-unmaximize`, `app-open-external`).
+ *
+ * Lifecycle:
+ *   1. `app.whenReady()` → assign port → create main + splash windows.
+ *   2. Dev mode loads `http://127.0.0.1:3000`; prod mode loads the
+ *      packaged `build/index.html`. Either way the splash hides once
+ *      the renderer fires `did-finish-load`.
+ *   3. On `window-all-closed` the Flask service is shut down via
+ *      `GET /quit` and the app exits.
+ *
+ * Compiled to `dist-electron/main.js` by `tsc -p tsconfig.electron.json`.
+ */
+
 // Built-in modules
 import { spawn } from 'child_process';
 // Electron modules

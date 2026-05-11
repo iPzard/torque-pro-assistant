@@ -4,7 +4,7 @@ import { Icons } from 'components/app/icons';
 
 import styles from './index.module.scss';
 
-interface NotFoundProps {
+export interface NotFoundProps {
   /** Route id from the URL — embedded in the pseudo-stack-trace card so
    *  the user (or a screenshot they send us) can see exactly which id
    *  missed the index. */

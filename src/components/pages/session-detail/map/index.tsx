@@ -8,7 +8,7 @@ import Hotspots from './hotspots';
 import TripStats from './trip-stats';
 import { detectHotspots } from './utils';
 
-interface MapTabProps {
+export interface MapTabProps {
   readonly session: Session;
   readonly summary: SessionSummary;
   readonly testId?: string;

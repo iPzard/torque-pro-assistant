@@ -5,7 +5,7 @@ import { selectUnits } from 'state/preferences';
 import type { SessionDataRow } from 'types/session';
 import { resolvePidForUnits } from 'utils';
 
-interface BoostChartProps {
+export interface BoostChartProps {
   readonly data: readonly SessionDataRow[];
   /** Cross-chart cursor sync id. Pair sibling Overview charts with the
    *  same value so the hover position stays in lockstep. */

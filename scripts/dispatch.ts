@@ -1,3 +1,20 @@
+/**
+ * @packageDocumentation
+ *
+ * Single CLI entry point that all `yarn <task>` scripts route through.
+ * Reads `process.argv` for two positional args (`script` + `command`)
+ * and dispatches into the matching orchestrator class (`Builder`,
+ * `Cleaner`, `Packager`, `Starter`).
+ *
+ * Example invocations:
+ *   tsx scripts/dispatch.ts build react       → Builder#buildReact()
+ *   tsx scripts/dispatch.ts package windows   → Packager#buildWindowsMSI()
+ *   tsx scripts/dispatch.ts clean             → Cleaner#cleanProject()
+ *
+ * Keeping the dispatch table here means `package.json` scripts can
+ * stay terse + the orchestrator classes themselves don't need to
+ * worry about argv parsing.
+ */
 import { existsSync, readdirSync } from 'fs';
 import * as path from 'path';
 

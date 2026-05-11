@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { Icons } from 'components/app/icons';
 
-interface StepProps {
+export interface StepProps {
   readonly detail: string;
   readonly label: string;
   readonly n: number;

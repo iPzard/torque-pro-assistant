@@ -3,7 +3,7 @@ import type { OverlayRow, OverlaySeries } from 'components/pages/compare-logs/ut
 import Card from 'components/primitives/card';
 import { PID_BY_KEY } from 'data/pids';
 
-interface OverlayChartProps {
+export interface OverlayChartProps {
   readonly data: readonly OverlayRow[];
   /** Series filtered to a single PID — one per session contributing. */
   readonly series: readonly OverlaySeries[];

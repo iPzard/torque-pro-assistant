@@ -119,7 +119,7 @@ function CompareLogs() {
   );
 }
 
-interface OverlayViewProps {
+export interface OverlayViewProps {
   readonly onClearSelection: () => void;
   readonly onIdsChange: (ids: readonly string[]) => void;
   readonly selected: readonly Session[];

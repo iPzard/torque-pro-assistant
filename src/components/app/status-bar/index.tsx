@@ -37,7 +37,7 @@ const utcOffsetLabel = (): string => {
   return `UTC${ sign }${ hours }`;
 };
 
-interface StatusBarProps {
+export interface StatusBarProps {
   readonly testId?: string;
   /** Imperial / metric label for the units segment. Sourced from the
    *  preferences slice by the caller. */

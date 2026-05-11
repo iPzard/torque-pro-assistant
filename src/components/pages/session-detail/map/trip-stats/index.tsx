@@ -7,7 +7,7 @@ import { selectUnits } from 'state/preferences';
 import type { Session, SessionSummary } from 'types/session';
 import { formatDistance, formatDuration, formatSpeed } from 'utils';
 
-interface TripStatsProps {
+export interface TripStatsProps {
   readonly session: Session;
   readonly summary: SessionSummary;
   readonly testId?: string;

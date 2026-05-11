@@ -80,7 +80,7 @@ function SegBtn<T extends string>({ onChange, options, testId, value, wide = fal
   );
 }
 
-interface SettingRowProps {
+export interface SettingRowProps {
   readonly children: React.ReactNode;
   readonly detail?: string;
   readonly label: string;

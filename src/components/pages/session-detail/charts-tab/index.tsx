@@ -7,7 +7,7 @@ import Filmstrip from './filmstrip';
 import PidPicker from './pid-picker';
 import { DEFAULT_SELECTED_PIDS } from './utils';
 
-interface ChartsTabProps {
+export interface ChartsTabProps {
   readonly session: Session;
   readonly testId?: string;
 }

@@ -1,7 +1,16 @@
 /**
- * Mantine CSS bundles must be imported before MantineProvider mounts so the
- * CSS variables (--mantine-*) are in scope when components query them.
- * Order matches the dependency direction: core → dates → notifications → dropzone.
+ * @packageDocumentation
+ *
+ * Renderer entry point. Mounts the React tree into `#root` inside
+ * Mantine's `<MantineProvider>` (amber palette, dark default), the
+ * Redux `<Provider>`, and a `<HashRouter>` (chosen over BrowserRouter
+ * because Electron's prod build loads via `file://` — deep links
+ * would 404 under BrowserRouter).
+ *
+ * Mantine CSS bundles must be imported before MantineProvider mounts
+ * so the CSS variables (`--mantine-*`) are in scope when components
+ * query them. Order matches the dependency direction:
+ * core → dates → dropzone.
  */
 import { createTheme, type MantineColorsTuple, MantineProvider } from '@mantine/core';
 import React from 'react';

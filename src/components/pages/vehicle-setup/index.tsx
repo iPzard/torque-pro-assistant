@@ -35,7 +35,7 @@ const MAKE_OPTIONS: readonly string[] = [
   'Nissan', 'Porsche', 'Subaru', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo'
 ];
 
-interface BulletRowProps {
+export interface BulletRowProps {
   readonly detail: string;
   readonly label: string;
 }

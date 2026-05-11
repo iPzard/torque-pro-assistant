@@ -46,7 +46,7 @@ export interface LineChartSeries {
   readonly width?: number;
 }
 
-interface LineChartProps {
+export interface LineChartProps {
   readonly data: readonly LineChartDatum[];
   /** Chart height in pixels. Width fills the parent via `ResponsiveContainer`. */
   readonly height?: number;

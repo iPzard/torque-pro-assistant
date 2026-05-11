@@ -3,7 +3,7 @@ import { Stack, Text } from '@mantine/core';
 import type { ValidationFlag, ValidationLevel } from 'components/pages/import-logs/utils';
 import Card from 'components/primitives/card';
 
-interface ValidationPanelProps {
+export interface ValidationPanelProps {
   readonly flags: readonly ValidationFlag[];
   readonly testId?: string;
 }

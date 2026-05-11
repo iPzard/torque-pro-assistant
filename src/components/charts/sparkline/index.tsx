@@ -8,7 +8,7 @@ import { Area, AreaChart, Line, LineChart } from 'recharts';
  */
 export type SparklineDatum = Readonly<Record<string, number | undefined>>;
 
-interface SparklineProps {
+export interface SparklineProps {
   /** Line / fill color. Defaults to the brand amber via CSS variable. */
   readonly color?: string;
   readonly data: readonly SparklineDatum[];
