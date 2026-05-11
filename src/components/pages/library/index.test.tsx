@@ -104,10 +104,24 @@ describe('pages/library', () => {
     expect(screen.queryByTestId('library-empty-state')).not.toBeInTheDocument();
   });
 
-  it('clicking a row navigates to that session\'s detail route', async () => {
+  it('renders a checkbox on each row that toggles selection', async () => {
     const user = userEvent.setup();
     renderLibrary([makeSession('s_1_drive', 'drive')]);
-    await user.click(screen.getByTestId('library-sessions-table-row-s_1_drive'));
-    expect(screen.getByTestId('session-route-sentinel')).toBeInTheDocument();
+    await user.click(screen.getByTestId('library-sessions-table-checkbox-s_1_drive'));
+    /** Two-session minimum gates the Compare button; one selection
+     *  doesn't yet reveal it. The button should stay hidden after a
+     *  single toggle. */
+    expect(screen.queryByTestId('library-compare-button')).not.toBeInTheDocument();
+  });
+
+  it('selecting two sessions reveals the Compare button', async () => {
+    const user = userEvent.setup();
+    renderLibrary([
+      makeSession('s_1_drive', 'drive'),
+      makeSession('s_2_drive', 'second')
+    ]);
+    await user.click(screen.getByTestId('library-sessions-table-checkbox-s_1_drive'));
+    await user.click(screen.getByTestId('library-sessions-table-checkbox-s_2_drive'));
+    expect(screen.getByTestId('library-compare-button')).toBeInTheDocument();
   });
 });

@@ -45,8 +45,10 @@ const amber: MantineColorsTuple = [
 
 const theme = createTheme({
   colors: { amber },
-  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  fontFamilyMonospace: 'ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace',
+  defaultRadius: 'md',
+  fontFamily: '"Geist", ui-sans-serif, system-ui, -apple-system, sans-serif',
+  fontFamilyMonospace: '"Geist Mono", ui-monospace, "JetBrains Mono", Menlo, monospace',
+  fontSizes: { md: '13px', sm: '12px', xs: '11px' },
   primaryColor: 'amber',
   /**
    * Mantine 7 defaults to { light: 6, dark: 8 } for primaryShade, which would

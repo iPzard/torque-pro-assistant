@@ -1,12 +1,4 @@
-import {
-  ActionIcon,
-  AppShell,
-  Group,
-  NavLink,
-  Stack,
-  Text,
-  Title
-} from '@mantine/core';
+import { ActionIcon } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import {
   Link,
@@ -24,39 +16,37 @@ import SessionDetail from 'components/pages/session-detail';
 import Settings from 'components/pages/settings';
 import { useAppSelector } from 'state/hooks';
 import { selectUnits } from 'state/preferences';
+import { selectAllSessions } from 'state/sessions';
 import { windowControls } from 'utils';
 
 import CommandPalette from './command-palette';
+import { Icons } from './icons';
 import StatusBar from './status-bar';
 import { isActive, pingFlask } from './utils';
 
 import styles from './index.module.scss';
 
 /**
- * Single source of truth for sidebar entries. Top group renders inside the
- * "Workspace" label; bottom group is pinned to the floor. Adding a route is
- * a one-edit change against TOP_NAV / BOTTOM_NAV plus a matching <Route>.
+ * Top sidebar entries — "Workspace" group. Adding a route is a one-edit
+ * change here plus a matching <Route> below.
  */
 const TOP_NAV = [
-  { label: 'Library', path: '/library', testId: 'app-nav-link-library' },
-  { label: 'Compare', path: '/compare', testId: 'app-nav-link-compare' },
-  { label: 'Import',  path: '/import',  testId: 'app-nav-link-import' }
-] as const;
-
-const BOTTOM_NAV = [
-  { label: 'Settings', path: '/settings', testId: 'app-nav-link-settings' }
+  { icon: Icons.library, kbd: undefined,    label: 'Library', path: '/library', testId: 'app-nav-link-library' },
+  { icon: Icons.compare, kbd: undefined,    label: 'Compare', path: '/compare', testId: 'app-nav-link-compare' },
+  { icon: Icons.importArrow, kbd: '⌘O', label: 'Import',  path: '/import',  testId: 'app-nav-link-import' }
 ] as const;
 
 /**
- * Root shell of the renderer. Owns the Mantine `AppShell` (44px header,
- * 220px navbar, padded main) and the route switch for the placeholder
- * pages. Branches the window-chrome on platform — macOS lets the OS draw
+ * Root shell of the renderer. Matches the design handoff's `app-shell`
+ * grid (220px sidebar, 44px titlebar, padded main, 24px status bar).
+ *
+ * Branches the window-chrome on platform — macOS lets the OS draw
  * traffic lights via `titleBarStyle: 'hiddenInset'` (configured in
  * main.ts), Windows / Linux render Mantine `ActionIcon` min/max/close
  * controls on the right.
  *
- * Fires a one-shot `pingFlask` on mount to confirm the Electron ↔ Flask
- * bridge is alive before any feature work hits the backend.
+ * Fires a one-shot `pingFlask` on mount + listens for the global
+ * `⌘O` / `⌘K` shortcuts.
  *
  * @returns The full app shell React element.
  */
@@ -71,6 +61,7 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const units = useAppSelector((state) => selectUnits(state.preferences));
+  const sessions = useAppSelector((state) => selectAllSessions(state.sessions));
   const [paletteOpened, setPaletteOpened] = useState(false);
 
   useEffect(() => {
@@ -103,101 +94,128 @@ function App() {
     return () => window.removeEventListener('keydown', handler);
   }, [navigate]);
 
+  const totalRows = sessions.reduce((sum, session) => sum + session.data.length, 0);
+  const recentSessions = [...sessions]
+    .sort((sessionA, sessionB) => sessionB.meta.startedAt.localeCompare(sessionA.meta.startedAt))
+    .slice(0, 4);
+
   return (
-    <AppShell
-      footer={ { height: 24 } }
-      header={ { height: 44 } }
-      navbar={ { breakpoint: 'sm', width: 220 } }
-      padding="md"
-    >
-      <AppShell.Header className={ styles.header } data-testid="app-header">
-        {/* macOS reserves ~70px on the left for native traffic lights (inset
-            by trafficLightPosition in main.ts), so pl jumps to 86 there. */}
-        <Group
-          gap="sm"
-          h="100%"
-          justify="space-between"
-          pl={ isMac ? 86 : 'md' }
-          pr="md"
-          wrap="nowrap"
-        >
-          <Title className={ styles.appName } data-testid="app-name" fw={ 600 } order={ 5 }>
-            Torque
-            <Text c="amber.6" data-testid="app-name-pro" fw={ 600 } inherit span>Pro</Text>
-            <Text c="dimmed" data-testid="app-name-assistant" fw={ 500 } inherit span>
-              { ' · Assistant' }
-            </Text>
-          </Title>
+    <div className="app-shell" data-testid="app-shell">
+      {/* ── Titlebar ── */}
+      <div className="app-titlebar" data-testid="app-header" style={ isMac ? { paddingLeft: 86 } : undefined }>
+        <span className="tb-app-name" data-testid="app-name">
+          Torque<span className="accent" data-testid="app-name-pro">Pro</span>
+          <span className="dim" data-testid="app-name-assistant"> · Assistant</span>
+        </span>
+        <span className="dim mono" data-testid="app-version" style={ { fontSize: 11, marginLeft: 6 } }>v0.4.2</span>
+        <div className="tb-spacer" />
+        <span className="pill" data-testid="app-connection-pill">
+          <i className="dot ok" />
+          Connected
+        </span>
+        { totalRows > 0 && (
+          <span className="pill mono" data-testid="app-rows-indexed">
+            { totalRows.toLocaleString() } rows indexed
+          </span>
+        ) }
+        <span className="kbd" data-testid="app-command-hint">{ '⌘K' }</span>
 
-          { !isMac && (
-            <Group className={ styles.windowControls } data-testid="app-window-controls" gap={ 4 }>
-              <ActionIcon
-                aria-label="Minimize"
-                color="gray"
-                data-testid="app-window-control-minimize"
-                onClick={ windowControls.minimize }
-                size="sm"
-                variant="subtle"
-              >
-                <span aria-hidden style={ { borderTop: '1px solid currentColor', width: 10 } } />
-              </ActionIcon>
-              <ActionIcon
-                aria-label="Maximize"
-                color="gray"
-                data-testid="app-window-control-maximize"
-                onClick={ windowControls.maximize }
-                size="sm"
-                variant="subtle"
-              >
-                <span aria-hidden style={ { border: '1px solid currentColor', height: 10, width: 10 } } />
-              </ActionIcon>
-              <ActionIcon
-                aria-label="Close"
-                color="red"
-                data-testid="app-window-control-close"
-                onClick={ windowControls.quit }
-                size="sm"
-                variant="subtle"
-              >
-                <span aria-hidden>✕</span>
-              </ActionIcon>
-            </Group>
-          ) }
-        </Group>
-      </AppShell.Header>
+        { !isMac && (
+          <span className={ styles.windowControls } data-testid="app-window-controls">
+            <ActionIcon
+              aria-label="Minimize"
+              color="gray"
+              data-testid="app-window-control-minimize"
+              onClick={ windowControls.minimize }
+              size="sm"
+              variant="subtle"
+            >
+              <span aria-hidden style={ { borderTop: '1px solid currentColor', width: 10 } } />
+            </ActionIcon>
+            <ActionIcon
+              aria-label="Maximize"
+              color="gray"
+              data-testid="app-window-control-maximize"
+              onClick={ windowControls.maximize }
+              size="sm"
+              variant="subtle"
+            >
+              <span aria-hidden style={ { border: '1px solid currentColor', height: 10, width: 10 } } />
+            </ActionIcon>
+            <ActionIcon
+              aria-label="Close"
+              color="red"
+              data-testid="app-window-control-close"
+              onClick={ windowControls.quit }
+              size="sm"
+              variant="subtle"
+            >
+              <span aria-hidden>{ '✕' }</span>
+            </ActionIcon>
+          </span>
+        ) }
+      </div>
 
-      <AppShell.Navbar data-testid="app-navbar" p="sm">
-        <Stack gap={ 2 } h="100%">
-          <Text c="dimmed" data-testid="app-nav-workspace-label" fw={ 500 } pb={ 4 } pl="xs" size="xs" tt="uppercase">
-            Workspace
-          </Text>
-          { TOP_NAV.map((navItem) => (
-            <NavLink
-              key={ navItem.path }
-              active={ isActive(location.pathname, navItem.path) }
-              component={ Link }
-              data-testid={ navItem.testId }
-              label={ navItem.label }
-              to={ navItem.path }
-            />
-          )) }
+      {/* ── Sidebar ── */}
+      <nav className="app-nav" data-testid="app-navbar">
+        <div className="nav-group-label" data-testid="app-nav-workspace-label">Workspace</div>
+        { TOP_NAV.map((navItem) => (
+          <Link
+            key={ navItem.path }
+            className={ `nav-item${ isActive(location.pathname, navItem.path) ? ' active' : '' }` }
+            data-testid={ navItem.testId }
+            to={ navItem.path }
+          >
+            <span className="ico">{ navItem.icon }</span>
+            <span>{ navItem.label }</span>
+            { navItem.kbd !== undefined && <span className="kbd">{ navItem.kbd }</span> }
+          </Link>
+        )) }
 
-          <Stack gap={ 2 } mt="auto">
-            { BOTTOM_NAV.map((navItem) => (
-              <NavLink
-                key={ navItem.path }
-                active={ isActive(location.pathname, navItem.path) }
-                component={ Link }
-                data-testid={ navItem.testId }
-                label={ navItem.label }
-                to={ navItem.path }
-              />
+        { recentSessions.length > 0 && (
+          <>
+            <div className="nav-group-label" data-testid="app-nav-recent-label">Recent sessions</div>
+            { recentSessions.map((session) => (
+              <Link
+                key={ session.meta.id }
+                className={ `nav-item${ location.pathname === `/sessions/${ session.meta.id }` ? ' active' : '' }` }
+                data-testid={ `app-nav-recent-${ session.meta.id }` }
+                to={ `/sessions/${ session.meta.id }` }
+              >
+                <span className="ico dim">{ Icons.session }</span>
+                <span style={ { flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }>
+                  { session.meta.name }
+                </span>
+                <span className="badge mono">
+                  { new Date(session.meta.startedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'numeric' }) }
+                </span>
+              </Link>
             )) }
-          </Stack>
-        </Stack>
-      </AppShell.Navbar>
+          </>
+        ) }
 
-      <AppShell.Main data-testid="app-main">
+        <div style={ { flex: 1 } } />
+
+        <div className="nav-group-label">Vehicle</div>
+        <div className="nav-item" data-testid="app-nav-vehicle">
+          <span className="ico" style={ { color: 'var(--accent)' } }>{ Icons.vehicle }</span>
+          <span style={ { flex: 1, fontSize: 12 } }>2019 Mercedes-Benz AMG GT 53</span>
+          { Icons.chevDown }
+        </div>
+
+        <Link
+          className={ `nav-item${ isActive(location.pathname, '/settings') ? ' active' : '' }` }
+          data-testid="app-nav-link-settings"
+          to="/settings"
+        >
+          <span className="ico">{ Icons.settings }</span>
+          <span>Settings</span>
+          <span className="kbd">{ '⌘,' }</span>
+        </Link>
+      </nav>
+
+      {/* ── Main + Status bar ── */}
+      <div className="app-main" data-testid="app-main">
         <Routes>
           <Route element={ <Navigate replace to="/library" /> } path="/" />
           <Route element={ <Library /> } path="/library" />
@@ -206,18 +224,16 @@ function App() {
           <Route element={ <ImportLogs /> } path="/import" />
           <Route element={ <Settings /> } path="/settings" />
         </Routes>
-      </AppShell.Main>
 
-      <AppShell.Footer data-testid="app-footer">
         <StatusBar testId="app-status-bar" units={ units } />
-      </AppShell.Footer>
+      </div>
 
       <CommandPalette
         onClose={ () => setPaletteOpened(false) }
         opened={ paletteOpened }
         testId="app-command-palette"
       />
-    </AppShell>
+    </div>
   );
 }
 

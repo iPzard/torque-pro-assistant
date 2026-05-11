@@ -1,15 +1,17 @@
 /**
- * Frameless-window drag region. -webkit-app-region: drag turns the header
- * into the OS drag handle; interactive children flip back to no-drag so
- * clicks on the window-control buttons aren't swallowed.
+ * Frameless-window window-controls strip. The global `.app-titlebar`
+ * class sets `-webkit-app-region: drag`; this module flags the controls
+ * as no-drag so clicks land on the buttons instead of dragging the
+ * window.
  */
-.header {
-  -webkit-app-region: drag;
-  user-select: none;
+.windowControls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  -webkit-app-region: no-drag;
 }
 
-.windowControls,
-.windowControls button,
-.appName {
+.windowControls button {
   -webkit-app-region: no-drag;
 }

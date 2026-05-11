@@ -14,7 +14,7 @@ function renderStatusBar(node: React.ReactElement, initialPath = '/') {
 
 describe('components/app/status-bar', () => {
   it('renders READY / route / units segments', () => {
-    renderStatusBar(<StatusBar testId="status" />);
+    renderStatusBar(<StatusBar testId="status" units="imperial" />);
     expect(screen.getByTestId('status')).toBeInTheDocument();
     expect(screen.getByTestId('status-ready')).toBeInTheDocument();
     expect(screen.getByTestId('status-route')).toBeInTheDocument();
@@ -22,32 +22,47 @@ describe('components/app/status-bar', () => {
   });
 
   it('defaults the route label to Library on the root path', () => {
-    renderStatusBar(<StatusBar testId="status" />, '/');
+    renderStatusBar(<StatusBar testId="status" units="imperial" />, '/');
     expect(screen.getByTestId('status-route')).toHaveTextContent('Library');
   });
 
   it('shows the Compare label on /compare', () => {
-    renderStatusBar(<StatusBar testId="status" />, '/compare');
+    renderStatusBar(<StatusBar testId="status" units="imperial" />, '/compare');
     expect(screen.getByTestId('status-route')).toHaveTextContent('Compare');
   });
 
   it('shows the Import label on /import', () => {
-    renderStatusBar(<StatusBar testId="status" />, '/import');
+    renderStatusBar(<StatusBar testId="status" units="imperial" />, '/import');
     expect(screen.getByTestId('status-route')).toHaveTextContent('Import');
   });
 
-  it('defaults to Imperial units when no units prop is given', () => {
-    renderStatusBar(<StatusBar testId="status" />);
+  it('shows the Session label on /sessions/:id', () => {
+    renderStatusBar(<StatusBar testId="status" units="imperial" />, '/sessions/s_1_drive');
+    expect(screen.getByTestId('status-route')).toHaveTextContent('Session');
+  });
+
+  it('renders Imperial units when units prop is imperial', () => {
+    renderStatusBar(<StatusBar testId="status" units="imperial" />);
     expect(screen.getByTestId('status-units')).toHaveTextContent('Imperial units');
   });
 
-  it('renders Metric units when the units prop is set to metric', () => {
+  it('renders Metric units when units prop is metric', () => {
     renderStatusBar(<StatusBar testId="status" units="metric" />);
     expect(screen.getByTestId('status-units')).toHaveTextContent('Metric units');
   });
 
+  it('renders the UTC offset segment', () => {
+    renderStatusBar(<StatusBar testId="status" units="imperial" />);
+    expect(screen.getByTestId('status-utc')).toHaveTextContent(/UTC[+-]\d+/);
+  });
+
+  it('renders the fps sentinel segment', () => {
+    renderStatusBar(<StatusBar testId="status" units="imperial" />);
+    expect(screen.getByTestId('status-fps')).toHaveTextContent('120 fps');
+  });
+
   it('falls back to Library for an unknown route', () => {
-    renderStatusBar(<StatusBar testId="status" />, '/some-unknown-route');
+    renderStatusBar(<StatusBar testId="status" units="imperial" />, '/some-unknown-route');
     expect(screen.getByTestId('status-route')).toHaveTextContent('Library');
   });
 });
