@@ -41,20 +41,21 @@
 
   /**
    * Text scale tuned for comfortable reading on the dark surface
-   * stack — every step clears WCAG AA Large (3:1) and the bottom
-   * two steps clear AA body (4.5:1) with margin:
+   * stack — every step clears WCAG AAA Large (4.5:1) and the
+   * bottom two clear AAA body (7:1) so even 11px dim copy stays
+   * legible without squinting:
    *   --text-0 ≈ 16:1 on bg-0 (primary copy)
    *   --text-1 ≈ 11:1 on bg-0 (secondary copy)
-   *   --text-2 ≈ 7.5:1 on bg-0 (tertiary copy — labels, meta)
-   *   --text-3 ≈ 5.7:1 on bg-0 ("dim" hint copy)
+   *   --text-2 ≈ 9.5:1 on bg-0 (labels, meta)
+   *   --text-3 ≈ 7.2:1 on bg-0 ("dim" hint copy)
    *
-   * Bumped from #98a0aa / #767c86 after user feedback that the dim
-   * copy still read as light-grey-on-grey at the previous floor.
+   * `.dim` (which maps to --text-3) is paired with `font-weight: 500`
+   * further down so the small dim labels don't render as hairlines.
    */
   --text-0: #eef0f3;
   --text-1: #c1c6cf;
-  --text-2: #a0a5af;
-  --text-3: #8a909a;
+  --text-2: #b3b8c1;
+  --text-3: #9da3ac;
 
   /* Instrument-backlight amber accent + soft / line variants. */
   --accent: #ffb020;
@@ -453,8 +454,15 @@ body {
 .col { display: flex; flex-direction: column; gap: 8px; }
 .gap-12 { gap: 12px; }
 .gap-16 { gap: 16px; }
-.muted { color: var(--text-2); }
-.dim { color: var(--text-3); }
+.muted { color: var(--text-2); font-weight: 450; }
+/**
+ * Dim copy lives at the bottom of the type hierarchy — small labels,
+ * meta lines, hints. Geist Regular at 11px reads as visibly thin on
+ * the dark surface; bumping to weight 500 (Medium) thickens the
+ * strokes enough to stay legible without losing the "dim" intent
+ * the color is conveying.
+ */
+.dim { color: var(--text-3); font-weight: 500; }
 .right { margin-left: auto; }
 
 .section-title {
