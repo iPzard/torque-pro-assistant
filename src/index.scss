@@ -40,21 +40,21 @@
   --border-strong: #353a42;
 
   /**
-   * Text scale tuned for WCAG AA contrast (4.5:1 for body, 3:1 for
-   * large text + UI chrome) against the dark surface stack:
-   *   --text-0 ≈ 16:1 on bg-0  (primary copy)
-   *   --text-1 ≈ 10:1 on bg-0  (secondary copy)
-   *   --text-2 ≈ 6.5:1 on bg-0 (tertiary / "dim" copy)
-   *   --text-3 ≈ 4.7:1 on bg-0 (subtle hint copy — AA body floor)
+   * Text scale tuned for comfortable reading on the dark surface
+   * stack — every step clears WCAG AA Large (3:1) and the bottom
+   * two steps clear AA body (4.5:1) with margin:
+   *   --text-0 ≈ 16:1 on bg-0 (primary copy)
+   *   --text-1 ≈ 11:1 on bg-0 (secondary copy)
+   *   --text-2 ≈ 7.5:1 on bg-0 (tertiary copy — labels, meta)
+   *   --text-3 ≈ 5.7:1 on bg-0 ("dim" hint copy)
    *
-   * `--text-3` is intentionally just above the AA floor so it still
-   * reads as "dim" but stays legible. Don't darken further without
-   * re-checking contrast.
+   * Bumped from #98a0aa / #767c86 after user feedback that the dim
+   * copy still read as light-grey-on-grey at the previous floor.
    */
   --text-0: #eef0f3;
   --text-1: #c1c6cf;
-  --text-2: #98a0aa;
-  --text-3: #767c86;
+  --text-2: #a0a5af;
+  --text-3: #8a909a;
 
   /* Instrument-backlight amber accent + soft / line variants. */
   --accent: #ffb020;
