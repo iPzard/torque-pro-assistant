@@ -1,5 +1,7 @@
 import { useLocation } from 'react-router-dom';
 
+import styles from './index.module.scss';
+
 /** Display label for each top-level route. */
 const ROUTE_LABELS: Readonly<Record<string, string>> = {
   '/compare':  'Compare',
@@ -60,7 +62,7 @@ function StatusBar({ testId, units }: StatusBarProps) {
   const unitsLabel = units === 'metric' ? 'Metric units' : 'Imperial units';
 
   return (
-    <div className="status-bar" data-testid={ testId }>
+    <div className={ styles['status-bar'] } data-testid={ testId }>
       <span data-testid={ testId === undefined ? undefined : `${ testId }-ready` }>READY</span>
       <span>·</span>
       <span data-testid={ testId === undefined ? undefined : `${ testId }-route` }>{ routeLabel }</span>

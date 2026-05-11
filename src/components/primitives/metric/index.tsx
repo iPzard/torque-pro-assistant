@@ -39,7 +39,7 @@ function Metric({ label, peak = false, sub, testId, unit, value }: MetricProps) 
         { label }
       </Text>
       <Text
-        className={ peak ? styles.valuePeak : styles.value }
+        className={ peak ? styles['value-peak'] : styles.value }
         data-testid={ testId ? `${testId}-value` : undefined }
       >
         { value }

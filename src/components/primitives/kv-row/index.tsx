@@ -24,7 +24,7 @@ interface KvRowProps {
 function KvRow({ label, last = false, testId, value }: KvRowProps) {
   return (
     <Group
-      className={ last ? styles.rowLast : styles.row }
+      className={ last ? styles['row-last'] : styles.row }
       data-testid={ testId }
       gap="sm"
       justify="space-between"

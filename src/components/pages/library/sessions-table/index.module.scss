@@ -1,0 +1,31 @@
+/**
+ * Library sessions-table internals — the per-row selection checkbox.
+ * Other table styling (header, row, sort header) leans on the global
+ * `.tbl` utility since multiple tables across the app share it.
+ */
+
+.checkbox {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  background: var(--bg-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.checkbox-on {
+  composes: checkbox;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.checkbox-on::after {
+  content: '\2713';
+  color: #1a1200;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 700;
+}

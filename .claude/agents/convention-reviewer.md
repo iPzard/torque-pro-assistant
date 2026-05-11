@@ -26,6 +26,8 @@ If either file is missing, stop and report that as your single finding. Don't gu
 - **Sort order.** Object literal keys, JSX props, TS interface members, string-enum members, imports — all alphabetized (ESLint auto-fixes, so this should usually be a non-issue; flag if it slips through).
 - **TypeScript.** No `any` (use `unknown` and narrow). No unjustified non-null `!`. No `@ts-ignore`.
 - **No utils inside component / page files.** Named functions defined inside a component must be extracted.
+- **CSS class names are kebab-case.** Inside `index.module.scss`, classes like `.body-flush` (good) — not `.bodyFlush` (bad). Same rule as files / folders. JSX consumers reach them via bracket notation (`styles['body-flush']`) since CRA's `css-loader` defaults to `localsConvention: 'asIs'`.
+- **Component-scoped CSS lives in the component.** Styles that belong to one component (or its sub-tree) live in that component's `index.module.scss`. Only design-system tokens, typography / spacing utilities (`.mono`, `.dim`, `.row`, `.col`), and cross-cutting primitives used as raw HTML classes by many independent surfaces (`.btn`, `.pill`, `.tbl`, `.kbd`, `.card`, `.page`) earn a spot in the global `src/index.scss`. Flag rules in the global stylesheet that only one component uses — they should migrate to that component's module.
 
 ## Out of scope — do NOT comment on
 

@@ -12,6 +12,8 @@ import RecentlyDriven from './recently-driven';
 import SessionsTable from './sessions-table';
 import { filterAndSortSessions, type LibrarySort } from './utils';
 
+import styles from './index.module.scss';
+
 /** Format a bytes value the way the design's `fmtFileSize` does — MB
  *  with two decimals at the page-header level. */
 const formatTotalSize = (bytes: number): string => {
@@ -137,7 +139,7 @@ function Library() {
         </div>
       </div>
 
-      <div className="toolbar" data-testid="library-toolbar">
+      <div className={ styles.toolbar } data-testid="library-toolbar">
         <input
           className="input search"
           data-testid="library-toolbar-search"
@@ -146,7 +148,7 @@ function Library() {
           style={ { width: 260 } }
           value={ query }
         />
-        <div className="sep" />
+        <div className={ styles['toolbar-sep'] } />
         <button className="btn ghost sm" type="button">
           { Icons.filter }
           <span>Date range</span>
@@ -159,7 +161,7 @@ function Library() {
           <span className="dim">All</span>
           { Icons.chevDown }
         </button>
-        <div className="sep" />
+        <div className={ styles['toolbar-sep'] } />
         <span className="muted" style={ { fontSize: 11 } }>Sort by</span>
         <select
           className="select"

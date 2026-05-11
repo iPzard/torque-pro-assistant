@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 
 import { Icons } from 'components/app/icons';
 
+import styles from './index.module.scss';
+
 /** Toast severity — drives the leading icon + accent. */
 export type ToastKind = 'err' | 'ok';
 
@@ -29,8 +31,13 @@ function RowToast({ kind, onDismiss, testId, text }: RowToastProps) {
   }, [onDismiss]);
 
   return (
-    <div className={ `row-toast${ kind === 'err' ? ' err' : '' }` } data-testid={ testId }>
-      <span className="ico">{ kind === 'err' ? Icons.trash : Icons.check }</span>
+    <div
+      className={ kind === 'err' ? styles['row-toast-err'] : styles['row-toast'] }
+      data-testid={ testId }
+    >
+      <span className={ styles['row-toast-ico'] }>
+        { kind === 'err' ? Icons.trash : Icons.check }
+      </span>
       <span>{ text }</span>
     </div>
   );

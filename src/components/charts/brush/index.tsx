@@ -161,8 +161,8 @@ function Brush({ color, data, dataKey, height = 56, onChange, range, testId }: B
         <path d={ silhouette.area } fill={ stroke } opacity={ 0.18 } />
         <path d={ silhouette.line } fill="none" stroke={ stroke } strokeWidth={ 1 } />
       </svg>
-      <div className={ styles.maskLeft } style={ { width: `${leftPercent}%` } } />
-      <div className={ styles.maskRight } style={ { width: `${100 - rightPercent}%` } } />
+      <div className={ styles['mask-left'] } style={ { width: `${leftPercent}%` } } />
+      <div className={ styles['mask-right'] } style={ { width: `${100 - rightPercent}%` } } />
       <div
         className={ styles.window }
         data-testid={ testId ? `${testId}-window` : undefined }
@@ -170,13 +170,13 @@ function Brush({ color, data, dataKey, height = 56, onChange, range, testId }: B
         style={ { borderColor: stroke, left: `${leftPercent}%`, width: `${rightPercent - leftPercent}%` } }
       >
         <span
-          className={ styles.handleLeft }
+          className={ styles['handle-left'] }
           data-testid={ testId ? `${testId}-handle-left` : undefined }
           onPointerDown={ startDrag('left') }
           style={ { background: stroke } }
         />
         <span
-          className={ styles.handleRight }
+          className={ styles['handle-right'] }
           data-testid={ testId ? `${testId}-handle-right` : undefined }
           onPointerDown={ startDrag('right') }
           style={ { background: stroke } }

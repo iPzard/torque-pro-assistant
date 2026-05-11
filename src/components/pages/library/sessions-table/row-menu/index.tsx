@@ -2,6 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { Icons } from 'components/app/icons';
 
+import styles from './index.module.scss';
+
 interface RowMenuProps {
   readonly anchor: { readonly x: number; readonly y: number };
   readonly onClose: () => void;
@@ -85,7 +87,7 @@ function RowMenu({
   return (
     <div
       ref={ ref }
-      className="menu-pop"
+      className={ styles['menu-pop'] }
       data-testid={ testId }
       onClick={ (event) => event.stopPropagation() }
       role="menu"
@@ -95,7 +97,7 @@ function RowMenu({
         visibility: position.ready ? 'visible' : 'hidden'
       } }
     >
-      <div className="menu-label" style={ { alignItems: 'center', display: 'flex', gap: 8 } }>
+      <div className={ styles['menu-label'] } style={ { alignItems: 'center', display: 'flex', gap: 8 } }>
         <span
           style={ {
             color:        'var(--text-2)',
@@ -112,72 +114,72 @@ function RowMenu({
         </span>
       </div>
       <button
-        className="menu-item"
+        className={ styles['menu-item'] }
         data-testid={ testId === undefined ? undefined : `${ testId }-open` }
         onClick={ onOpen }
         role="menuitem"
         type="button"
       >
-        <span className="ico">{ Icons.ext }</span>
+        <span className={ styles['menu-ico'] }>{ Icons.ext }</span>
         <span>Open</span>
-        <span className="kbd">↵</span>
+        <span className={ `${ styles['menu-kbd'] } kbd` }>↵</span>
       </button>
       <button
-        className="menu-item"
+        className={ styles['menu-item'] }
         data-testid={ testId === undefined ? undefined : `${ testId }-rename` }
         onClick={ onRename }
         role="menuitem"
         type="button"
       >
-        <span className="ico">{ Icons.pencil }</span>
+        <span className={ styles['menu-ico'] }>{ Icons.pencil }</span>
         <span>Rename…</span>
-        <span className="kbd">R</span>
+        <span className={ `${ styles['menu-kbd'] } kbd` }>R</span>
       </button>
       <button
-        className="menu-item"
+        className={ styles['menu-item'] }
         data-testid={ testId === undefined ? undefined : `${ testId }-duplicate` }
         onClick={ onDuplicate }
         role="menuitem"
         type="button"
       >
-        <span className="ico">{ Icons.copy }</span>
+        <span className={ styles['menu-ico'] }>{ Icons.copy }</span>
         <span>Duplicate</span>
-        <span className="kbd">{ '⌘D' }</span>
+        <span className={ `${ styles['menu-kbd'] } kbd` }>{ '⌘D' }</span>
       </button>
-      <div className="menu-sep" />
+      <div className={ styles['menu-sep'] } />
       <button
-        className="menu-item"
+        className={ styles['menu-item'] }
         data-testid={ testId === undefined ? undefined : `${ testId }-export` }
         onClick={ onExport }
         role="menuitem"
         type="button"
       >
-        <span className="ico">{ Icons.upload }</span>
+        <span className={ styles['menu-ico'] }>{ Icons.upload }</span>
         <span>Export CSV</span>
       </button>
       <button
-        className="menu-item"
+        className={ styles['menu-item'] }
         data-testid={ testId === undefined ? undefined : `${ testId }-show-in-folder` }
         onClick={ onShowInFolder }
         role="menuitem"
         type="button"
       >
-        <span className="ico">{ Icons.folder }</span>
+        <span className={ styles['menu-ico'] }>{ Icons.folder }</span>
         <span>Show in folder</span>
-        <span className="kbd">{ '⌥⌘R' }</span>
+        <span className={ `${ styles['menu-kbd'] } kbd` }>{ '⌥⌘R' }</span>
       </button>
-      <div className="menu-sep" />
+      <div className={ styles['menu-sep'] } />
       <button
-        className="menu-item danger"
+        className={ styles['menu-item-danger'] }
         data-testid={ testId === undefined ? undefined : `${ testId }-delete` }
         onClick={ onDelete }
         role="menuitem"
         type="button"
       >
-        <span className="ico">{ Icons.trash }</span>
+        <span className={ styles['menu-ico'] }>{ Icons.trash }</span>
         <span>Delete…</span>
         <span
-          className="kbd"
+          className={ `${ styles['menu-kbd'] } kbd` }
           style={ { borderColor: 'rgba(255,90,90,.3)', color: 'var(--danger)' } }
         >
           { '⌫' }

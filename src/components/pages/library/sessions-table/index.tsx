@@ -19,6 +19,8 @@ import RenameDialog from './rename-dialog';
 import RowMenu from './row-menu';
 import RowToast, { type ToastKind } from './row-toast';
 
+import styles from './index.module.scss';
+
 interface SessionsTableProps {
   readonly onSelectionToggle: (id: string) => void;
   readonly onSortChange: (next: LibrarySort) => void;
@@ -223,7 +225,7 @@ function SessionsTable({
                   <button
                     aria-checked={ selected }
                     aria-label={ selected ? 'Deselect session' : 'Select session' }
-                    className={ `checkbox${ selected ? ' on' : '' }` }
+                    className={ selected ? styles['checkbox-on'] : styles.checkbox }
                     data-testid={ testId === undefined ? undefined : `${ testId }-checkbox-${ meta.id }` }
                     onClick={ () => onSelectionToggle(meta.id) }
                     role="checkbox"

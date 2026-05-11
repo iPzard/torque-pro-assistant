@@ -18,6 +18,10 @@ Hard rules for how files, folders, tests, identifiers, and comments are organize
 
 5. **CSS modules only for bespoke styling.** Mantine carries 95% via CSS variables / component props. For custom CSS, use a sibling `index.module.scss` imported as `import styles from './index.module.scss'`. No global selectors inside module files.
 
+   **Component-scoped vs. global CSS.** Styles that belong to a single component (the component's internal layout, its variants, its private animations) live in that component's `index.module.scss` — not in `src/index.scss`. Only styles that are *applied app-wide* — design-system tokens (CSS variables), typography / spacing utilities (`.mono`, `.dim`, `.row`, `.col`), and cross-cutting design-system primitives used by many independent surfaces as raw HTML classes (`.btn`, `.pill`, `.tbl`, `.kbd`, `.card`, `.page`) — earn a spot in the global stylesheet. When something is only used by one component (or its sub-components), keep it local. Audit `src/index.scss` periodically and migrate one-off rules into the owning component's module.
+
+   **CSS class names are kebab-case.** Same rule as files / folders. Bad: `.bodyFlush`, `.windowControls`. Good: `.body-flush`, `.window-controls`. Inside `index.module.scss` files, kebab-case the class then access via bracket notation in JSX (`styles['body-flush']`) — CRA's `css-loader` keeps the source name as-is by default.
+
 6. **Sub-components nest under their parent.** A sub-component used only by `componentA` lives at `component-a/sub-component/index.tsx` — not hoisted to the shared component pool. Sub-components carry their own `utils/` and barrel. Things sit only as high in the tree as they need to to feed the current directory + descendants.
 
 7. **No utils inside component / page files.** Any named function defined inside a component (event handlers, predicates, fetchers) gets extracted to a util folder with its own test. Anonymous one-line lambdas inline in JSX (`onClick={() => navigate(...)}`) are fine.

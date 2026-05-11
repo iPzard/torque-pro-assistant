@@ -22,7 +22,7 @@
   height: 100%;
 }
 
-.maskLeft {
+.mask-left {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -31,7 +31,7 @@
   pointer-events: none;
 }
 
-.maskRight {
+.mask-right {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -51,7 +51,7 @@
   touch-action: none;
 }
 
-.handleLeft {
+.handle-left {
   position: absolute;
   top: 50%;
   left: -2px;
@@ -62,7 +62,7 @@
   cursor: ew-resize;
 }
 
-.handleRight {
+.handle-right {
   position: absolute;
   top: 50%;
   right: -2px;

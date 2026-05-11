@@ -60,7 +60,7 @@ function Card({ actions, children, className, flush = false, subtitle, testId, t
         </Group>
       ) }
       <div
-        className={ flush ? styles.bodyFlush : styles.body }
+        className={ flush ? styles['body-flush'] : styles.body }
         data-testid={ testId ? `${testId}-body` : undefined }
       >
         { children }

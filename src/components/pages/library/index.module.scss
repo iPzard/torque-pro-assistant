@@ -1,0 +1,24 @@
+/**
+ * Library page internals — toolbar strip above the sessions table.
+ * Search input, date / vehicle ghost-buttons, sort + units selects,
+ * selection-count pill all sit inside it.
+ */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.toolbar-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  margin: 0 4px;
+}

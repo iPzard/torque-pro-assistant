@@ -1,0 +1,95 @@
+/**
+ * Popover menu — fixed-position row action menu opened by the Library
+ * sessions-table `…` button. Smart-placed by the component (right-edge
+ * aligned with the anchor, flips above when overflowing the viewport
+ * bottom).
+ */
+
+.menu-pop {
+  position: fixed;
+  min-width: 220px;
+  background: var(--bg-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(0, 0, 0, 0.3);
+  padding: 4px;
+  z-index: 80;
+  animation: menu-in 0.09s ease-out;
+  transform-origin: top right;
+}
+
+@keyframes menu-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+.menu-label {
+  padding: 8px 10px 4px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.menu-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 2px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  border-radius: 5px;
+  color: var(--text-1);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.menu-item:hover,
+.menu-item:focus-visible {
+  background: var(--bg-hover);
+  color: var(--text-0);
+  outline: none;
+}
+
+.menu-ico {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  color: var(--text-2);
+  display: inline-flex;
+}
+
+.menu-item:hover .menu-ico { color: var(--text-0); }
+
+.menu-kbd {
+  margin-left: auto;
+  font-size: 10px;
+  height: 16px;
+  padding: 0 4px;
+  min-width: 16px;
+}
+
+.menu-item-danger {
+  composes: menu-item;
+  color: var(--danger);
+}
+
+.menu-item-danger .menu-ico { color: var(--danger); }
+
+.menu-item-danger:hover {
+  background: rgba(255, 90, 90, 0.10);
+  color: var(--danger);
+}
+
+.menu-item-danger:hover .menu-ico { color: var(--danger); }

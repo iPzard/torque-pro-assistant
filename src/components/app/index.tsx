@@ -129,24 +129,32 @@ function App() {
 
   const navBadge = (item: NavItem): React.ReactNode => {
     if (item.path === '/library') {
-      return <span className="badge">{ sessions.length }</span>;
+      return <span className={ styles['nav-badge'] }>{ sessions.length }</span>;
     }
     if (item.path === '/compare') {
-      return <span className="badge">{ compareEnabled ? '' : '—' }</span>;
+      return <span className={ styles['nav-badge'] }>{ compareEnabled ? '' : '—' }</span>;
     }
     return null;
   };
 
+  const navItemClass = (active: boolean): string =>
+    active ? styles['nav-item-active'] : styles['nav-item'];
+
   return (
-    <div className="app-shell" data-testid="app-shell">
+    <div className={ styles['app-shell'] } data-testid="app-shell">
       {/* ── Titlebar ── */}
-      <div className="app-titlebar" data-testid="app-header" style={ isMac ? { paddingLeft: 86 } : undefined }>
-        <span className="tb-app-name" data-testid="app-name">
-          Torque<span className="accent" data-testid="app-name-pro">Pro</span>
+      <div
+        className={ styles['app-titlebar'] }
+        data-testid="app-header"
+        style={ isMac ? { paddingLeft: 86 } : undefined }
+      >
+        <span className={ styles['tb-app-name'] } data-testid="app-name">
+          Torque
+          <span className={ styles['tb-app-name-accent'] } data-testid="app-name-pro">Pro</span>
           <span className="dim" data-testid="app-name-assistant"> · Assistant</span>
         </span>
         <span className="dim mono" data-testid="app-version" style={ { fontSize: 11, marginLeft: 6 } }>v0.4.2</span>
-        <div className="tb-spacer" />
+        <div className={ styles['tb-spacer'] } />
         { vehicleConfigured
           ? (
             <span className="pill" data-testid="app-connection-pill">
@@ -166,7 +174,7 @@ function App() {
         <span className="kbd" data-testid="app-command-hint">{ '⌘K' }</span>
 
         { !isMac && (
-          <span className={ styles.windowControls } data-testid="app-window-controls">
+          <span className={ styles['window-controls'] } data-testid="app-window-controls">
             <ActionIcon
               aria-label="Minimize"
               color="gray"
@@ -202,14 +210,19 @@ function App() {
       </div>
 
       {/* ── Sidebar ── */}
-      <nav className="app-nav" data-testid="app-navbar">
-        <div className="nav-group-label" data-testid="app-nav-workspace-label">Workspace</div>
+      <nav className={ styles['app-nav'] } data-testid="app-navbar">
+        <div
+          className={ styles['nav-group-label'] }
+          data-testid="app-nav-workspace-label"
+        >
+          Workspace
+        </div>
         { TOP_NAV.map((navItem) => {
           const disabled = navItem.path === '/compare' && !compareEnabled;
-          const className = `nav-item${ isActive(location.pathname, navItem.path) ? ' active' : '' }`;
+          const className = navItemClass(isActive(location.pathname, navItem.path));
           const inner = (
             <>
-              <span className="ico">{ navItem.icon }</span>
+              <span className={ styles['nav-ico'] }>{ navItem.icon }</span>
               <span>{ navItem.label }</span>
               { navBadge(navItem) }
               { navItem.kbd !== undefined && <span className="kbd">{ navItem.kbd }</span> }
@@ -241,7 +254,12 @@ function App() {
             );
         }) }
 
-        <div className="nav-group-label" data-testid="app-nav-recent-label">Recent sessions</div>
+        <div
+          className={ styles['nav-group-label'] }
+          data-testid="app-nav-recent-label"
+        >
+          Recent sessions
+        </div>
         { recentSessions.length === 0
           ? (
             <div
@@ -264,15 +282,15 @@ function App() {
           : recentSessions.map((session) => (
             <Link
               key={ session.meta.id }
-              className={ `nav-item${ location.pathname === `/sessions/${ session.meta.id }` ? ' active' : '' }` }
+              className={ navItemClass(location.pathname === `/sessions/${ session.meta.id }`) }
               data-testid={ `app-nav-recent-${ session.meta.id }` }
               to={ `/sessions/${ session.meta.id }` }
             >
-              <span className="ico dim">{ Icons.session }</span>
+              <span className={ `${ styles['nav-ico'] } dim` }>{ Icons.session }</span>
               <span style={ { flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }>
                 { session.meta.name }
               </span>
-              <span className="badge mono">
+              <span className={ `${ styles['nav-badge'] } mono` }>
                 { new Date(session.meta.startedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'numeric' }) }
               </span>
             </Link>
@@ -280,15 +298,17 @@ function App() {
 
         <div style={ { flex: 1 } } />
 
-        <div className="nav-group-label">Vehicle</div>
+        <div className={ styles['nav-group-label'] }>Vehicle</div>
         { vehicleConfigured
           ? (
             <Link
-              className="nav-item"
+              className={ styles['nav-item'] }
               data-testid="app-nav-vehicle"
               to="/vehicle/setup"
             >
-              <span className="ico" style={ { color: 'var(--accent)' } }>{ Icons.vehicle }</span>
+              <span className={ styles['nav-ico'] } style={ { color: 'var(--accent)' } }>
+                { Icons.vehicle }
+              </span>
               <span
                 style={ {
                   flex:         1,
@@ -306,12 +326,12 @@ function App() {
           )
           : (
             <Link
-              className="nav-item"
+              className={ styles['nav-item'] }
               data-testid="app-nav-vehicle-empty"
               to="/vehicle/setup"
             >
               <span
-                className="ico"
+                className={ styles['nav-ico'] }
                 style={ {
                   alignItems:     'center',
                   border:         '1px dashed var(--border-strong)',
@@ -332,18 +352,18 @@ function App() {
           ) }
 
         <Link
-          className={ `nav-item${ isActive(location.pathname, '/settings') ? ' active' : '' }` }
+          className={ navItemClass(isActive(location.pathname, '/settings')) }
           data-testid="app-nav-link-settings"
           to="/settings"
         >
-          <span className="ico">{ Icons.settings }</span>
+          <span className={ styles['nav-ico'] }>{ Icons.settings }</span>
           <span>Settings</span>
           <span className="kbd">{ '⌘,' }</span>
         </Link>
       </nav>
 
       {/* ── Main + Status bar ── */}
-      <div className="app-main" data-testid="app-main">
+      <div className={ styles['app-main'] } data-testid="app-main">
         <Routes>
           <Route element={ <Navigate replace to="/library" /> } path="/" />
           <Route element={ <Library /> } path="/library" />

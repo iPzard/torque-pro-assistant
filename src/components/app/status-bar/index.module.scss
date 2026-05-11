@@ -1,15 +1,23 @@
 /**
- * Status bar — fixed-height monospace strip. Border-top separates it
- * from the AppShell.Main body; Mantine's `AppShell.Footer` handles
- * the bottom-anchored positioning.
+ * Status bar — 24-px footer pinned to the bottom of `app-main`.
+ * Absolute-positioned inside the relative-positioned main so it stays
+ * glued to the visible viewport edge while content scrolls behind it.
  */
 
-.bar {
-  background: var(--mantine-color-default);
-  border-top: 1px solid var(--mantine-color-default-border);
-}
-
-.text {
-  font-family: var(--mantine-font-family-monospace);
+.status-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg-1);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
   font-size: 11px;
+  color: var(--text-3);
+  z-index: 5;
 }

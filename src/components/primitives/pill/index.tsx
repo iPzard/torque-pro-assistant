@@ -28,7 +28,7 @@ interface PillProps {
 function Pill({ children, noDot = false, status = 'neutral', testId }: PillProps) {
   return (
     <Group
-      className={ status === 'amber' ? styles.pillAmber : styles.pill }
+      className={ status === 'amber' ? styles['pill-amber'] : styles.pill }
       data-testid={ testId }
       gap={ 5 }
       wrap="nowrap"
