@@ -77,9 +77,16 @@ Renderer (`src/`):
 
 ## Reference: design
 
-The visual target is the Claude Design handoff at `C:\Users\Daniel\Downloads\torque-pro-assistant-handoff.zip`. Open `project/TorquePro Assistant.html` to see the full prototype. Match the visuals, not the prototype's structure (it mounts every screen via Babel-in-the-browser; we don't replicate that).
+Visual + interaction source-of-truth lives in [`docs/design/`](docs/design/README.md). Each handoff from Claude Design is committed there as immutable reference (don't modify). The `docs/design/README.md` indexes every handoff by which screen states it covers + which files it touches.
 
-The current scaffold is intentionally minimal — placeholder pages, a stub `/import` Dropzone, and an AppShell shell. Real screens land via the TODO below.
+Current handoffs:
+
+- **handoff-1** — populated app (Library w/ sessions, Session Dashboard tabs, Compare overlay, Import flow stages, vehicle hardcoded).
+- **handoff-2** — first-run + no-vehicle states (Welcome, FirstRunNoVehicle, NoVehicleScreen, adaptive sidebar/titlebar).
+
+When the user supplies a new handoff URL, fetch it (`https://api.anthropic.com/v1/design/h/<id>` returns a gzip tarball), drop the contents at `docs/design/handoff-<N>/`, and add an index entry to `docs/design/README.md`. Cross-reference any superseded prior handoff. **Always read the handoff's `chats/chat1.md` first** — the chat transcript is where the user's brief lives; the HTML files are just the output.
+
+Match the visuals, not the prototype's structure — the prototypes mount every screen via Babel-in-the-browser; we recreate the visuals in React + Mantine + the design CSS variables under `src/index.scss`.
 
 ---
 
