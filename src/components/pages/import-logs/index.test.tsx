@@ -1,13 +1,27 @@
 import { MantineProvider } from '@mantine/core';
 import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
+
+import store from 'state/store';
 
 import ImportLogs from '.';
 
+/**
+ * ImportLogs reads `useAppDispatch` + `useNavigate`, so the render harness
+ * needs the Redux store + a router in scope. We mount the real app store
+ * here (rather than a stub) since the page never dispatches during render
+ * — only on `onDrop`, which these tests don't trigger.
+ */
 function renderImportLogs() {
   return render(
-    <MantineProvider>
-      <ImportLogs />
-    </MantineProvider>
+    <Provider store={ store }>
+      <MantineProvider>
+        <MemoryRouter initialEntries={ ['/import'] }>
+          <ImportLogs />
+        </MemoryRouter>
+      </MantineProvider>
+    </Provider>
   );
 }
 

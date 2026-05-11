@@ -3,3 +3,4 @@
  * as the three-stage import flow (drop → parsing → preview) lands.
  */
 export { handleDrop } from './handle-drop';
+export { ingestCsv } from './ingest-csv';
