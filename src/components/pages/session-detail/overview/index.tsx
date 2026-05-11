@@ -6,6 +6,7 @@ import AfrChart from './afr-chart';
 import BoostChart from './boost-chart';
 import EngineVitalsChart from './engine-vitals-chart';
 import MetricGrid from './metric-grid';
+import MiniMap from './mini-map';
 import PowerTorqueChart from './power-torque-chart';
 import SpeedRpmChart from './speed-rpm-chart';
 import ThrottleLoadChart from './throttle-load-chart';
@@ -31,7 +32,7 @@ const OVERVIEW_SYNC_ID = 'session-overview';
  *   2. `SpeedRpmChart` — dual-axis centerpiece with brush.
  *   3. 2-column grid of supporting charts: Throttle/Load, AFR,
  *      Boost, Engine Vitals, Power & Torque.
- *   4. (next) MiniMap with the route polyline.
+ *   4. `MiniMap` — compact GPS route preview.
  *
  * Every chart receives the shared `OVERVIEW_SYNC_ID` so the hover
  * cursor moves in lockstep across the entire tab.
@@ -75,6 +76,10 @@ function Overview({ session, summary, testId }: OverviewProps) {
           data={ session.data }
           syncId={ OVERVIEW_SYNC_ID }
           testId={ testId === undefined ? undefined : `${ testId }-power-torque` }
+        />
+        <MiniMap
+          data={ session.data }
+          testId={ testId === undefined ? undefined : `${ testId }-mini-map` }
         />
       </SimpleGrid>
     </Stack>

@@ -92,4 +92,9 @@ describe('pages/session-detail/overview', () => {
     renderOverview();
     expect(screen.getByTestId('overview-power-torque')).toBeInTheDocument();
   });
+
+  it('renders the mini-map', () => {
+    renderOverview();
+    expect(screen.getByTestId('overview-mini-map')).toBeInTheDocument();
+  });
 });
