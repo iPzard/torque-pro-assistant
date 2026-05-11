@@ -300,14 +300,27 @@ app.whenReady().then(async () => {
     }
     : { frame: false };
 
+  /**
+   * Default window size + minimums.
+   *
+   * The design handoff's Library screen targets a wide layout — the
+   * sessions table has 12 columns and the toolbar is densely packed.
+   * Electron's `BrowserWindow` default (800×600) cuts those off, so
+   * pick a 1440×900 starting size and a 1024×640 minimum that keeps
+   * the AppShell readable on a small laptop.
+   */
   browserWindows.mainWindow = new BrowserWindow({
     ...platformChrome,
+    height: 900,
+    minHeight: 640,
+    minWidth: 1024,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
       preload: path.join(__dirname, 'preload.js'),
       sandbox: false
-    }
+    },
+    width: 1440
   });
 
   /**
@@ -316,7 +329,7 @@ app.whenReady().then(async () => {
    */
   if (isDevMode) {
     await installExtensions(); // React, Redux devTools
-    browserWindows.loadingWindow = new BrowserWindow({ frame: false });
+    browserWindows.loadingWindow = new BrowserWindow({ frame: false, height: 320, width: 480 });
     createLoadingWindow().then(() => createMainWindow(port));
     spawn(`python app.py ${port}`, { detached: true, shell: true, stdio: 'inherit' });
   }
