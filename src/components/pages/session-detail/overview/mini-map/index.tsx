@@ -1,9 +1,8 @@
 import { Center, Text } from '@mantine/core';
 
+import { buildRoutePolyline } from 'components/pages/session-detail/utils';
 import Card from 'components/primitives/card';
 import type { SessionDataRow } from 'types/session';
-
-import { buildRoutePolyline } from './utils';
 
 interface MiniMapProps {
   readonly data: readonly SessionDataRow[];

@@ -6,6 +6,7 @@ import { useAppSelector } from 'state/hooks';
 import { selectSessionById } from 'state/sessions';
 import { formatDuration, summarize } from 'utils';
 
+import MapTab from './map';
 import Overview from './overview';
 import RawData from './raw-data';
 
@@ -130,9 +131,7 @@ function SessionDetail() {
           </Text>
         </Tabs.Panel>
         <Tabs.Panel data-testid="session-detail-panel-map" pt="md" value="map">
-          <Text c="dimmed" size="sm">
-            Map — BigMap polyline from GPS, hotspots, trip stats panel.
-          </Text>
+          <MapTab session={ session } summary={ summary } testId="session-detail-map" />
         </Tabs.Panel>
         <Tabs.Panel data-testid="session-detail-panel-raw" pt="md" value="raw">
           <RawData data={ session.data } testId="session-detail-raw-data" />

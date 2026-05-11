@@ -8,7 +8,7 @@ const makeRow = (overrides: Partial<SessionDataRow>): SessionDataRow => ({
   ...overrides
 });
 
-describe('pages/session-detail/overview/mini-map/utils/build-route-polyline', () => {
+describe('pages/session-detail/utils/build-route-polyline', () => {
   it('returns an empty path when no rows carry GPS', () => {
     const result = buildRoutePolyline(
       [makeRow({ rpm: 800 }), makeRow({ rpm: 900 })],
@@ -88,5 +88,45 @@ describe('pages/session-detail/overview/mini-map/utils/build-route-polyline', ()
     );
     expect(result.path).not.toContain('NaN');
     expect(result.pointCount).toBe(2);
+  });
+
+  it('returns an empty markers array when none are provided', () => {
+    const result = buildRoutePolyline(
+      [
+        makeRow({ lat: 45.60, lon: -122.40 }),
+        makeRow({ lat: 45.62, lon: -122.38 })
+      ],
+      200,
+      120
+    );
+    expect(result.markers).toEqual([]);
+  });
+
+  it('projects supplied markers using the route bbox', () => {
+    const result = buildRoutePolyline(
+      [
+        makeRow({ lat: 45.70, lon: -122.40 }),
+        makeRow({ lat: 45.60, lon: -122.30 })
+      ],
+      200,
+      120,
+      [
+        { id: 'top-left',     lat: 45.70, lon: -122.40 },
+        { id: 'bottom-right', lat: 45.60, lon: -122.30 }
+      ]
+    );
+    expect(result.markers).toHaveLength(2);
+    expect(result.markers[0]).toMatchObject({ id: 'top-left',     x: 6,   y: 6 });
+    expect(result.markers[1]).toMatchObject({ id: 'bottom-right', x: 194, y: 114 });
+  });
+
+  it('returns no projected markers when the route itself is empty', () => {
+    const result = buildRoutePolyline(
+      [makeRow({ rpm: 800 })],
+      200,
+      120,
+      [{ id: 'orphan', lat: 45.60, lon: -122.30 }]
+    );
+    expect(result.markers).toEqual([]);
   });
 });
