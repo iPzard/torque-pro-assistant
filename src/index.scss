@@ -62,7 +62,13 @@
   --accent-soft: rgba(255, 176, 32, 0.14);
   --accent-line: rgba(255, 176, 32, 0.55);
 
-  --danger: #ff5a5a;
+  /**
+   * Danger / destructive accent. Bumped from #ff5a5a so the small
+   * destructive icon buttons (delete X on a vehicle row, "remove
+   * row" in calibration tables) read clearly instead of fading into
+   * the surface — pure red at small sizes on dark looks soft.
+   */
+  --danger: #ff7a7a;
   --warn: #f9a825;
   --ok: #4ade80;
 

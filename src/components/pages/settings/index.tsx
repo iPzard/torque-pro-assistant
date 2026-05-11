@@ -399,7 +399,12 @@ function Settings() {
                             { isActive && (
                               <div
                                 className="mono"
-                                style={ { color: 'var(--accent)', fontSize: 10, letterSpacing: '.06em' } }
+                                style={ {
+                                  color:         'var(--accent)',
+                                  fontSize:      11,
+                                  fontWeight:    600,
+                                  letterSpacing: '.08em'
+                                } }
                               >
                                 ACTIVE PROFILE
                               </div>

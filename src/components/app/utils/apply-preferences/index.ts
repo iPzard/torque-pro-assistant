@@ -22,7 +22,15 @@ export interface AccentSwatch {
  *  stores one of these hex values verbatim). */
 export const ACCENT_SWATCHES: readonly AccentSwatch[] = [
   { dark: '#ffb020', light: '#a36400', name: 'Amber' },
-  { dark: '#ff5a1f', light: '#b73e10', name: 'Orange' },
+  /**
+   * Orange's previous dark hex (#ff5a1f) was a fully-saturated pure
+   * orange. At small text sizes (e.g. the "ACTIVE PROFILE" tag,
+   * 11px) the heavy red saturation read as a smudge on dark
+   * surfaces — user feedback flagged it as hard to see. Bumped to a
+   * lighter orange with more yellow + less red so it stays
+   * readable at small sizes.
+   */
+  { dark: '#ff8a3a', light: '#b73e10', name: 'Orange' },
   { dark: '#6fd3f7', light: '#0e6c8a', name: 'Cyan' },
   { dark: '#34d399', light: '#0f7757', name: 'Green' },
   { dark: '#c084fc', light: '#6d28d9', name: 'Violet' }
