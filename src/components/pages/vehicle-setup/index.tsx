@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router-dom';
 
 import { Icons } from 'components/app/icons';
 import { useAppDispatch, useAppSelector } from 'state/hooks';
-import { selectPreferences, setVehicleDefaults } from 'state/preferences';
+import {
+  addSavedVehicle,
+  selectPreferences,
+  setActiveVehicleId,
+  setVehicleDefaults
+} from 'state/preferences';
 
 /** Years offered in the year dropdown. Walks back 14 years from
  *  the current model year (matches the design's `2026 - i` loop). */
@@ -68,6 +73,19 @@ function VehicleSetup() {
 
   const handleSubmit = (): void => {
     if (!canSubmit) return;
+    /** Three dispatches so both the legacy `vehicleDefaults` pointer
+     *  and the new `savedVehicles` list stay in sync. The new vehicle
+     *  becomes the active one immediately. */
+    const id = `veh_${ Date.now() }`;
+    dispatch(addSavedVehicle({
+      addedAt: new Date().toISOString(),
+      id,
+      make,
+      model,
+      vin,
+      year
+    }));
+    dispatch(setActiveVehicleId(id));
     dispatch(setVehicleDefaults({ make, model, year }));
     navigate('/import');
   };

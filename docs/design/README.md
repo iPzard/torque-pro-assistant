@@ -38,6 +38,25 @@ Covers:
 
 Files: `app.jsx` (replaces handoff-1's), `screens-onboarding.jsx` (new), `screens-dash.jsx`, `screens-lib.jsx`, `data.jsx`, `ui.jsx`, `styles.css`, `tweaks-panel.jsx`, `TorquePro Assistant.html`.
 
+### handoff-3 — Settings page (`iKMoEMXvJ4UjUKTcQrSu9w`)
+
+Six-section Settings layout: Appearance / Units / Vehicles / Data / Network / About.
+
+Covers:
+
+- **Appearance** — Theme (dark / light) + Density (compact / regular / comfy) segmented controls + 5-swatch accent color picker (amber default, orange, cyan, green, violet).
+- **Units** — Imperial vs Metric wide segmented control; subtitle updates live.
+- **Vehicles** — Saved vehicles table with active-dot column, ACTIVE PROFILE label, per-row Set active / Edit / Delete actions; header buttons for Import .vprofile / Export all / Add vehicle. Empty state when no vehicles. Routes "Add vehicle" to the FirstRunNoVehicle screen.
+- **Data** — Read-only storage path code chip + reveal button, sessions-on-disk pill, Export .tplog button, destructive Clear sessions button (red border + red text).
+- **Network** — Phase J live-capture endpoint preview: backend port chip + listening pill, bind-address dropdown with contextual safety detail, read-only upload URL input + Copy → Copied confirmation button.
+- **About** — Logo + version/build/platform line, MIT license note, doc / repo / bug / log buttons, copyright line.
+
+Inline custom `SegBtn` + `SettingRow` primitives — design uses these per-page rather than reaching into Mantine, so the visual matches without the framework's defaults overriding.
+
+Bug fix captured in the chat: original Settings render was being intercepted by the first-run / no-vehicle gates. Final build opens Settings from any state — keep this in mind when reordering route gates.
+
+Files: `screens-settings.jsx` (new), `app.jsx` (revised — Settings route hoisted above the first-run / no-vehicle gates), plus the handoff-2 set unchanged.
+
 ## How to consume
 
 1. Read the handoff's own `README.md` first — Claude Design ships consumption instructions.

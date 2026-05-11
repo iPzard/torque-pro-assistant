@@ -80,6 +80,9 @@ describe('pages/vehicle-setup', () => {
 
     const state = store.getState();
     expect(state.preferences.vehicleDefaults).toEqual({ make: 'Ford', model: 'Mustang', year: 2018 });
+    expect(state.preferences.savedVehicles).toHaveLength(1);
+    expect(state.preferences.savedVehicles[0].make).toBe('Ford');
+    expect(state.preferences.activeVehicleId).toBe(state.preferences.savedVehicles[0].id);
     expect(screen.getByTestId('import-route-sentinel')).toBeInTheDocument();
   });
 
