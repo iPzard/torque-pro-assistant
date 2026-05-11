@@ -14,6 +14,7 @@ import ImportLogs from 'components/pages/import-logs';
 import Library from 'components/pages/library';
 import SessionDetail from 'components/pages/session-detail';
 import Settings from 'components/pages/settings';
+import VehicleSetup from 'components/pages/vehicle-setup';
 import { useAppSelector } from 'state/hooks';
 import { selectPreferences, selectUnits } from 'state/preferences';
 import { selectAllSessions } from 'state/sessions';
@@ -222,6 +223,7 @@ function App() {
                 data-testid={ navItem.testId }
                 disabled
                 style={ { cursor: 'not-allowed', opacity: 0.4 } }
+                title="Pick at least two sessions to compare"
                 type="button"
               >
                 { inner }
@@ -284,10 +286,21 @@ function App() {
             <Link
               className="nav-item"
               data-testid="app-nav-vehicle"
-              to="/settings"
+              to="/vehicle/setup"
             >
               <span className="ico" style={ { color: 'var(--accent)' } }>{ Icons.vehicle }</span>
-              <span style={ { flex: 1, fontSize: 12 } }>{ vehicleLabel }</span>
+              <span
+                style={ {
+                  flex:         1,
+                  fontSize:     12,
+                  overflow:     'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace:   'nowrap'
+                } }
+                title={ vehicleLabel }
+              >
+                { vehicleLabel }
+              </span>
               { Icons.chevDown }
             </Link>
           )
@@ -295,7 +308,7 @@ function App() {
             <Link
               className="nav-item"
               data-testid="app-nav-vehicle-empty"
-              to="/settings"
+              to="/vehicle/setup"
             >
               <span
                 className="ico"
@@ -338,6 +351,7 @@ function App() {
           <Route element={ <CompareLogs /> } path="/compare" />
           <Route element={ <ImportLogs /> } path="/import" />
           <Route element={ <Settings /> } path="/settings" />
+          <Route element={ <VehicleSetup /> } path="/vehicle/setup" />
         </Routes>
 
         <StatusBar testId="app-status-bar" units={ units } />

@@ -131,7 +131,7 @@ function Welcome() {
           <button
             className="btn primary"
             data-testid="welcome-add-vehicle-button"
-            onClick={ () => navigate('/settings') }
+            onClick={ () => navigate('/vehicle/setup') }
             type="button"
           >
             { Icons.plus }
@@ -162,13 +162,15 @@ function Welcome() {
         >
           <div className="row" style={ { justifyContent: 'space-between', marginBottom: 10 } }>
             <div style={ { fontSize: 12, fontWeight: 500 } }>Looking for a sample to play with?</div>
-            <button
+            <a
               className="btn ghost sm"
               data-testid="welcome-sample-download-button"
-              type="button"
+              download="sample-torque-export.csv"
+              href="./sample-torque-export.csv"
+              style={ { textDecoration: 'none' } }
             >
               <span>Download sample.csv</span>
-            </button>
+            </a>
           </div>
           <div className="dim" style={ { fontSize: 11, lineHeight: 1.55 } }>
             We can load a 12-minute demo session (city + highway, ~720 rows). It works without

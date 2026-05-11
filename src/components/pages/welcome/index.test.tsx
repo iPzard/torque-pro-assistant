@@ -9,7 +9,7 @@ function renderWelcome() {
     <MemoryRouter initialEntries={ ['/library'] }>
       <Routes>
         <Route element={ <Welcome /> } path="/library" />
-        <Route element={ <div data-testid="settings-route-sentinel" /> } path="/settings" />
+        <Route element={ <div data-testid="vehicle-setup-route-sentinel" /> } path="/vehicle/setup" />
         <Route element={ <div data-testid="import-route-sentinel" /> } path="/import" />
       </Routes>
     </MemoryRouter>
@@ -44,11 +44,18 @@ describe('pages/welcome', () => {
     expect(screen.getByTestId('welcome-footer-meta')).toHaveTextContent('v0.4.2');
   });
 
-  it('the primary CTA routes to /settings', async () => {
+  it('the primary CTA routes to /vehicle/setup', async () => {
     const user = userEvent.setup();
     renderWelcome();
     await user.click(screen.getByTestId('welcome-add-vehicle-button'));
-    expect(screen.getByTestId('settings-route-sentinel')).toBeInTheDocument();
+    expect(screen.getByTestId('vehicle-setup-route-sentinel')).toBeInTheDocument();
+  });
+
+  it('the sample.csv download anchor points at the bundled fixture', () => {
+    renderWelcome();
+    const anchor = screen.getByTestId('welcome-sample-download-button');
+    expect(anchor).toHaveAttribute('href', './sample-torque-export.csv');
+    expect(anchor).toHaveAttribute('download', 'sample-torque-export.csv');
   });
 
   it('the ghost CTA routes to /import', async () => {
