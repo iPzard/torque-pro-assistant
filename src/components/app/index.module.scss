@@ -133,16 +133,28 @@
 }
 
 .app-main {
-  overflow: auto;
+  /* Flex column so the status bar + toast host sit as direct children
+   * pinned to the bottom of the visible main area while the page
+   * content scrolls inside its own wrapper (`.app-main-scroll`).
+   * Without this split, the status bar was absolutely positioned
+   * inside a scrolling container and drifted up with the content. */
+  display: flex;
+  flex-direction: column;
   background: var(--bg-0);
   position: relative;
-  /* Top + horizontal padding match the design's `.page` rule so every
-   * route gets the same breathing room — Library wraps its content in
-   * `.page` for semantics, but pages built around Mantine `Stack`s
-   * don't, and they'd otherwise butt up against the sidebar / right
-   * edge. The trailing 64px clears the 24px status bar plus a comfy
-   * gap. */
-  padding: 22px 28px 64px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.app-main-scroll {
+  /* The actual scroll viewport. Top + horizontal padding match the
+   * design's `.page` rule so every route gets the same breathing
+   * room — Library wraps its content in `.page` for semantics, but
+   * pages built around Mantine `Stack`s don't, and they'd otherwise
+   * butt up against the sidebar / right edge. */
+  flex: 1;
+  overflow: auto;
+  padding: 22px 28px 28px;
 }
 
 /**

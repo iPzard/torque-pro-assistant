@@ -369,16 +369,18 @@ function App() {
 
       {/* ── Main + Status bar ── */}
       <div className={ styles['app-main'] } data-testid="app-main">
-        <Routes>
-          <Route element={ <Navigate replace to="/library" /> } path="/" />
-          <Route element={ <Library /> } path="/library" />
-          <Route element={ <SessionDetail /> } path="/sessions/:id" />
-          <Route element={ <CompareLogs /> } path="/compare" />
-          <Route element={ <ImportLogs /> } path="/import" />
-          <Route element={ <Settings /> } path="/settings" />
-          <Route element={ <VehicleSetup /> } path="/vehicle/setup" />
-          <Route element={ <VehicleDetail /> } path="/vehicles/:id" />
-        </Routes>
+        <div className={ styles['app-main-scroll'] } data-testid="app-main-scroll">
+          <Routes>
+            <Route element={ <Navigate replace to="/library" /> } path="/" />
+            <Route element={ <Library /> } path="/library" />
+            <Route element={ <SessionDetail /> } path="/sessions/:id" />
+            <Route element={ <CompareLogs /> } path="/compare" />
+            <Route element={ <ImportLogs /> } path="/import" />
+            <Route element={ <Settings /> } path="/settings" />
+            <Route element={ <VehicleSetup /> } path="/vehicle/setup" />
+            <Route element={ <VehicleDetail /> } path="/vehicles/:id" />
+          </Routes>
+        </div>
 
         <StatusBar testId="app-status-bar" units={ units } />
 
