@@ -9,35 +9,28 @@ import type { SessionDataRow } from 'types/session';
  * parentheses, e.g. `"Speed (OBD)(mph)"`, `"Coolant Temperature(°F)"`,
  * `"Engine RPM(rpm)"`. The user's chosen PID set determines which
  * columns the export contains, so the adapter has to be tolerant —
- * unknown columns are ignored, missing values become `undefined`.
+ * unknown columns are reported but otherwise ignored, missing values
+ * become `undefined`.
+ *
+ * Sampling rate is variable in real exports (sub-second early on,
+ * ~1 Hz once the OBD-II adapter settles), so the row's `t` field is
+ * elapsed seconds from the first parseable timestamp — not the sample
+ * index. `ts` is the wall-clock millisecond timestamp.
  *
  * `parseCsv` returns:
  *   - `rows`             — one `SessionDataRow` per non-header CSV row.
- *                          `t` is the zero-based sample index; `ts` is
- *                          parsed from the time column if present,
- *                          otherwise reconstructed as `t * 1000`.
  *   - `detectedColumns`  — original CSV header order plus which
  *                          `SessionDataRow` field each one mapped to
- *                          (or `null` if the column was ignored). The
- *                          Import-flow validation panel reads this.
+ *                          (or `null` if the column was unrecognized).
+ *                          The Import-flow validation panel reads this.
  *
- * This module covers the most common ~25 PIDs the Torque Pro UI offers
- * out of the box. Less-common headers can be added to
- * `COLUMN_MAPPINGS` without touching the rest of the pipeline.
+ * Disambiguation policy: SPECIFIC matchers come before GENERIC ones.
+ * Real Torque exports have many columns that share substrings (multiple
+ * boost columns, multiple voltage columns, multiple MAF columns). The
+ * mapping table is ordered so that, e.g. `Voltage (OBD Adapter)` matches
+ * `voltage_obd` first and never falls through to the generic `voltage`
+ * pattern.
  */
-
-/** Fields the CSV adapter writes into; `t` and `ts` are managed separately. */
-type CsvField = Exclude<keyof SessionDataRow, 't' | 'ts'>;
-
-/**
- * One column-recognition rule. `matcher` runs against the lower-cased
- * header text; the first rule whose `matcher` returns true claims the
- * column.
- */
-interface ColumnMapping {
-  readonly field: CsvField;
-  readonly matcher: (lowerHeader: string) => boolean;
-}
 
 /** Returns true when `haystack` contains every needle (caller lower-cases first). */
 const containsAll = (haystack: string, needles: readonly string[]): boolean =>
@@ -53,86 +46,169 @@ const hasCelsius = (header: string): boolean =>
 
 /** Returns true when the header references AFR in either common spelling. */
 const isAfrHeader = (header: string): boolean =>
-  header.includes('afr') || containsAll(header, ['air/fuel', 'ratio']) || containsAll(header, ['air fuel', 'ratio']);
+  header.includes('afr')
+  || containsAll(header, ['air/fuel', 'ratio'])
+  || containsAll(header, ['air fuel', 'ratio']);
 
 /**
- * Header-to-field mapping table. Patterns target substrings of the
- * lower-cased header so the rules survive minor Torque Pro labelling
- * differences (`"Coolant Temperature(°F)"` vs `"Coolant Temp(F)"`).
- *
- * Order matters: more-specific patterns must come before more-general
- * ones (e.g. `engine load (absolute)` before plain `engine load`).
+ * Recognizes a Torque suffix-letter variant of a header — `' a('`
+ * appears in `Boost Pressure Sensor A(psi)`, `' b('` in `B`, etc. Using
+ * the leading space + opening paren as the marker avoids false positives
+ * like the standalone 'b' in `absolute` or the 'a' in `air`.
+ */
+const hasVariantLetter = (header: string, letter: 'a' | 'b'): boolean =>
+  header.includes(` ${letter}(`);
+
+/**
+ * One column-recognition rule. `matcher` runs against the lower-cased
+ * header text; the first rule whose `matcher` returns true claims the
+ * column. Specific matchers come before generic ones.
+ */
+interface ColumnMapping {
+  readonly field: string;
+  readonly matcher: (lowerHeader: string) => boolean;
+}
+
+/**
+ * Header-to-field mapping table. Each entry's matcher runs against the
+ * lower-cased header; first match wins. Order matters: more-specific
+ * patterns must come before more-general ones (e.g. `relative throttle
+ * position` before plain `throttle position`).
  */
 const COLUMN_MAPPINGS: readonly ColumnMapping[] = [
-  // Speed
-  { field: 'speed_mph', matcher: (h) => containsAll(h, ['speed', 'mph']) },
-  { field: 'speed_kph', matcher: (h) => h.includes('speed') && (h.includes('km/h') || h.includes('kph')) },
+  /**
+   * Trip-average speed — must precede generic speed_mph because both
+   * `Average trip speed(...)(mph)` and `Speed (OBD)(mph)` contain
+   * `speed` and `mph`.
+   */
+  /**
+   * Two Torque average-speed columns share substrings (both contain
+   * `average trip speed` and `moving`). Disambiguate via "moving only"
+   * vs "stopped or moving" before falling back to the generic matcher.
+   */
+  { field: 'avg_speed_moving_mph', matcher: (h) => containsAll(h, ['average', 'trip', 'speed', 'moving only']) && h.includes('mph') },
+  { field: 'avg_speed_total_mph',  matcher: (h) => containsAll(h, ['average', 'trip', 'speed', 'stopped or moving']) && h.includes('mph') },
+
+  // Speed (instantaneous, OBD or GPS)
+  { field: 'speed_mph', matcher: (h) => containsAll(h, ['speed', '(obd)']) && h.includes('mph') },
+  { field: 'speed_kph', matcher: (h) => h.includes('speed') && (h.includes('km/h') || h.includes('kph')) && !h.includes('average') },
   { field: 'speed_ms',  matcher: (h) => h.includes('speed') && (h.includes('m/s') || containsAll(h, ['meters', 'second'])) },
 
-  // Throttle / load / VE
-  { field: 'throttle', matcher: (h) => containsAll(h, ['throttle', 'position']) },
+  // Throttle family — relative & absolute-B variants precede generic throttle
+  { field: 'throttle_rel',   matcher: (h) => containsAll(h, ['relative', 'throttle', 'position']) },
+  { field: 'throttle_b_abs', matcher: (h) => containsAll(h, ['absolute', 'throttle', 'position']) && hasVariantLetter(h, 'b') },
+  { field: 'throttle',       matcher: (h) => containsAll(h, ['throttle', 'position']) },
+
+  // Pedal / load / VE
   { field: 'pedal',    matcher: (h) => containsAll(h, ['accelerator', 'pedal']) || containsAll(h, ['pedal', 'position']) },
   { field: 'load_abs', matcher: (h) => containsAll(h, ['engine', 'load', 'absolute']) || containsAll(h, ['load', 'absolute']) },
   { field: 'load',     matcher: (h) => containsAll(h, ['engine', 'load']) || containsAll(h, ['calculated', 'load']) },
   { field: 've',       matcher: (h) => containsAll(h, ['volumetric', 'eff']) },
 
-  // RPM (after speed so "Engine Speed (rpm)" style still routes correctly)
-  { field: 'rpm', matcher: (h) => h.includes('rpm') || (containsAll(h, ['engine', 'speed']) && !h.includes('mph') && !h.includes('kph')) },
+  // RPM — `engine rpm` is the canonical phrasing; `reference torque` also contains `engine` but not `rpm`
+  { field: 'rpm', matcher: (h) => h.includes('engine rpm') || (h.includes('rpm') && !h.includes('reference')) },
 
-  // Boost
-  { field: 'boost_psi', matcher: (h) => h.includes('boost') && h.includes('psi') },
-  { field: 'boost_kpa', matcher: (h) => h.includes('boost') && h.includes('kpa') },
+  // Torque family — reference / actual%/ demand% precede plain torque
+  { field: 'tq_reference_nm', matcher: (h) => containsAll(h, ['reference', 'torque']) && h.includes('nm') },
+  { field: 'tq_actual_pct',   matcher: (h) => containsAll(h, ['actual', 'torque']) && h.includes('%') },
+  { field: 'tq_demand_pct',   matcher: (h) => (containsAll(h, ['demand', 'torque']) || containsAll(h, ['demanded', 'torque'])) && h.includes('%') },
+  { field: 'tq_lbft',         matcher: (h) => h.includes('torque') && (h.includes('lb') || h.includes('ft-lb') || h.includes('lbft')) },
+  { field: 'tq_nm',           matcher: (h) => h.includes('torque') && h.includes('nm') && !h.includes('reference') },
+
+  // Boost family — variant matchers (commanded / sensor + A/B) precede generic
+  { field: 'boost_cmd_a_psi',    matcher: (h) => containsAll(h, ['boost', 'commanded']) && hasVariantLetter(h, 'a') && h.includes('psi') },
+  { field: 'boost_cmd_b_psi',    matcher: (h) => containsAll(h, ['boost', 'commanded']) && hasVariantLetter(h, 'b') && h.includes('psi') },
+  { field: 'boost_sensor_a_psi', matcher: (h) => containsAll(h, ['boost', 'sensor']) && hasVariantLetter(h, 'a') && h.includes('psi') },
+  { field: 'boost_sensor_b_psi', matcher: (h) => containsAll(h, ['boost', 'sensor']) && hasVariantLetter(h, 'b') && h.includes('psi') },
+  { field: 'boost_psi',          matcher: (h) => containsAll(h, ['turbo', 'boost']) && h.includes('psi') },
+  { field: 'boost_kpa',          matcher: (h) => containsAll(h, ['turbo', 'boost']) && h.includes('kpa') },
+
+  // Backward-compat boost (Library-side tests pass `Turbo Boost(psi)` without `Vacuum Gauge`)
+  { field: 'boost_psi', matcher: (h) => h.includes('boost') && h.includes('psi') && !h.includes('commanded') && !h.includes('sensor') },
+  { field: 'boost_kpa', matcher: (h) => h.includes('boost') && h.includes('kpa') && !h.includes('commanded') && !h.includes('sensor') },
 
   // AFR / lambda
   { field: 'afr_cmd',  matcher: (h) => isAfrHeader(h) && h.includes('commanded') },
   { field: 'afr_meas', matcher: (h) => isAfrHeader(h) && (h.includes('measured') || h.includes('actual')) },
   { field: 'lambda',   matcher: (h) => h.includes('lambda') || containsAll(h, ['equivalence', 'ratio']) },
 
-  // Air & fuel
-  { field: 'maf',            matcher: (h) => containsAll(h, ['mass', 'air', 'flow']) },
-  { field: 'manifold_kpa',   matcher: (h) => h.includes('manifold') && (h.includes('pressure') || h.includes('kpa')) },
-  { field: 'fuel_rate',      matcher: (h) => containsAll(h, ['fuel', 'rate']) || containsAll(h, ['instant', 'fuel']) },
-  { field: 'fuel_rail_abs',  matcher: (h) => containsAll(h, ['fuel', 'rail', 'absolute']) },
-  { field: 'fuel_rail_rel',  matcher: (h) => containsAll(h, ['fuel', 'rail']) },
-  { field: 'fuel_pressure',  matcher: (h) => containsAll(h, ['fuel', 'pressure']) && !h.includes('rail') },
+  // MAF — sensor variants precede generic rate
+  { field: 'maf_sensor_a', matcher: (h) => containsAll(h, ['mass air flow sensor']) && hasVariantLetter(h, 'a') },
+  { field: 'maf_sensor_b', matcher: (h) => containsAll(h, ['mass air flow sensor']) && hasVariantLetter(h, 'b') },
+  { field: 'maf',          matcher: (h) => containsAll(h, ['mass air flow rate']) || (containsAll(h, ['mass', 'air', 'flow']) && !h.includes('sensor')) },
 
-  // Power / torque
-  { field: 'hp',             matcher: (h) => h.includes('horsepower') || containsAll(h, ['power', 'wheels']) },
-  { field: 'kw',             matcher: (h) => h.includes('kw') && h.includes('engine') },
-  { field: 'tq_actual_pct',  matcher: (h) => containsAll(h, ['actual', 'torque']) && h.includes('%') },
-  { field: 'tq_demand_pct',  matcher: (h) => (containsAll(h, ['demand', 'torque']) || containsAll(h, ['demanded', 'torque'])) && h.includes('%') },
-  { field: 'tq_lbft',        matcher: (h) => h.includes('torque') && (h.includes('lb') || h.includes('ft-lb') || h.includes('lbft')) },
-  { field: 'tq_nm',          matcher: (h) => h.includes('torque') && h.includes('nm') },
+  /**
+   * Manifold pressure — Torque ships a typo here in some firmware
+   * ("Manfold" instead of "Manifold"). Variant matchers for the typo'd
+   * absolute-pressure columns AND the correctly-spelled generic, in
+   * both psi and kPa.
+   */
+  { field: 'manifold_abs_a_psi', matcher: (h) => containsAll(h, ['intake', 'abs', 'pressure']) && hasVariantLetter(h, 'a') && h.includes('psi') },
+  { field: 'manifold_abs_b_psi', matcher: (h) => containsAll(h, ['intake', 'abs', 'pressure']) && hasVariantLetter(h, 'b') && h.includes('psi') },
+  { field: 'manifold_psi',       matcher: (h) => containsAll(h, ['intake', 'manifold', 'pressure']) && h.includes('psi') },
+  { field: 'manifold_kpa',       matcher: (h) => containsAll(h, ['intake', 'manifold', 'pressure']) && h.includes('kpa') },
 
-  // Vitals — temperatures (°F vs °C)
+  // Fuel — rail-relative precedes rail-abs because both contain "fuel rail pressure"
+  { field: 'fuel_rail_rel',  matcher: (h) => containsAll(h, ['fuel rail pressure', 'relative']) },
+  { field: 'fuel_rail_abs',  matcher: (h) => containsAll(h, ['fuel rail pressure']) && !h.includes('relative') },
+  { field: 'fuel_flow_gpm',  matcher: (h) => containsAll(h, ['fuel flow rate']) && h.includes('gal/min') },
+  { field: 'fuel_rate',      matcher: (h) => containsAll(h, ['fuel', 'rate']) && !h.includes('flow') },
+  { field: 'fuel_pressure',  matcher: (h) => containsAll(h, ['fuel pressure']) && !h.includes('rail') },
+  { field: 'fuel_level_pct', matcher: (h) => containsAll(h, ['fuel level']) && h.includes('%') },
+  { field: 'alcohol_pct',    matcher: (h) => containsAll(h, ['alcohol', 'fuel']) && h.includes('%') },
+
+  // Power
+  { field: 'hp', matcher: (h) => h.includes('horsepower') || containsAll(h, ['power', 'wheels']) },
+  { field: 'kw', matcher: (h) => h.includes('kw') && (h.includes('engine') || h.includes('wheels')) },
+
+  // Voltage — OBD-adapter variant precedes generic
+  { field: 'voltage_obd', matcher: (h) => h.includes('voltage') && (h.includes('obd') || h.includes('adapter')) },
+  { field: 'voltage',     matcher: (h) => h.includes('voltage') && h.includes('control') },
+
+  // Temperatures (°F / °C variants for each thermometer)
   { field: 'coolant_f', matcher: (h) => h.includes('coolant') && hasFahrenheit(h) },
   { field: 'coolant_c', matcher: (h) => h.includes('coolant') && hasCelsius(h) },
   { field: 'oil_f',     matcher: (h) => containsAll(h, ['oil', 'temp']) && hasFahrenheit(h) },
   { field: 'oil_c',     matcher: (h) => containsAll(h, ['oil', 'temp']) && hasCelsius(h) },
   { field: 'trans_f',   matcher: (h) => containsAll(h, ['trans', 'temp']) && hasFahrenheit(h) },
   { field: 'trans_c',   matcher: (h) => containsAll(h, ['trans', 'temp']) && hasCelsius(h) },
-  { field: 'iat_f',     matcher: (h) => (containsAll(h, ['intake', 'air']) || h.includes('iat')) && hasFahrenheit(h) },
-  { field: 'iat_c',     matcher: (h) => (containsAll(h, ['intake', 'air']) || h.includes('iat')) && hasCelsius(h) },
+  { field: 'iat_f',     matcher: (h) => (containsAll(h, ['intake', 'air', 'temp']) || h.includes('iat')) && hasFahrenheit(h) },
+  { field: 'iat_c',     matcher: (h) => (containsAll(h, ['intake', 'air', 'temp']) || h.includes('iat')) && hasCelsius(h) },
+  { field: 'ambient_f', matcher: (h) => containsAll(h, ['ambient', 'air', 'temp']) && hasFahrenheit(h) },
+  { field: 'ambient_c', matcher: (h) => containsAll(h, ['ambient', 'air', 'temp']) && hasCelsius(h) },
+  { field: 'cact_f',    matcher: (h) => (containsAll(h, ['charge', 'air', 'cooler']) || h.includes('cact')) && hasFahrenheit(h) },
+  { field: 'cact_c',    matcher: (h) => (containsAll(h, ['charge', 'air', 'cooler']) || h.includes('cact')) && hasCelsius(h) },
 
-  // Misc vitals
-  { field: 'voltage', matcher: (h) => h.includes('voltage') || containsAll(h, ['control', 'module']) },
-  { field: 'timing',  matcher: (h) => containsAll(h, ['timing', 'advance']) },
+  // Timing
+  { field: 'timing', matcher: (h) => containsAll(h, ['timing', 'advance']) },
 
-  // Economy
-  { field: 'mpg', matcher: (h) => h.includes('mpg') },
-  { field: 'co2', matcher: (h) => h.includes('co2') || h.includes('co₂') },
+  // Economy — average variant precedes generic
+  { field: 'co2_avg', matcher: (h) => (h.includes('co2') || h.includes('co₂')) && h.includes('average') },
+  { field: 'co2',     matcher: (h) => (h.includes('co2') || h.includes('co₂')) && !h.includes('average') },
+  { field: 'mpg',     matcher: (h) => h.includes('mpg') },
 
-  // GPS / motion
-  { field: 'odo',      matcher: (h) => h.includes('odometer') || containsAll(h, ['trip', 'distance']) },
+  // Driving profile
+  { field: 'pct_city',    matcher: (h) => containsAll(h, ['percentage', 'city']) && h.includes('%') },
+  { field: 'pct_highway', matcher: (h) => containsAll(h, ['percentage', 'highway']) && h.includes('%') },
+  { field: 'pct_idle',    matcher: (h) => containsAll(h, ['percentage', 'idle']) && h.includes('%') },
+
+  // G-forces — Torque emits literal `G(x)` etc.; design uses `Accel X` / `G-force X`
+  { field: 'accel_total_g', matcher: (h) => containsAll(h, ['acceleration', 'sensor', 'total']) },
+  { field: 'gx',   matcher: (h) => h === 'g(x)' || containsAll(h, ['g-force', 'x']) || containsAll(h, ['accel', 'x']) },
+  { field: 'gy',   matcher: (h) => h === 'g(y)' || containsAll(h, ['g-force', 'y']) || containsAll(h, ['accel', 'y']) },
+  { field: 'gz',   matcher: (h) => h === 'g(z)' || containsAll(h, ['g-force', 'z']) || containsAll(h, ['accel', 'z']) },
+  { field: 'gcal', matcher: (h) => h === 'g(calibrated)' || containsAll(h, ['g', 'calibrated']) },
+
+  // Misc
+  { field: 'time_0_to_60_s', matcher: (h) => h.includes('0-60') && h.includes('time') },
+  { field: 'odo',            matcher: (h) => h.includes('odometer') || containsAll(h, ['trip', 'distance']) },
+
+  // GPS
   { field: 'lat',      matcher: (h) => h === 'latitude' || h.startsWith('latitude') || h === 'lat' },
   { field: 'lon',      matcher: (h) => h === 'longitude' || h.startsWith('longitude') || h === 'lon' },
   { field: 'altitude', matcher: (h) => h.includes('altitude') },
   { field: 'bearing',  matcher: (h) => h.includes('bearing') || h.includes('heading') },
-  { field: 'hdop',     matcher: (h) => h.includes('hdop') },
-  { field: 'gx',       matcher: (h) => containsAll(h, ['accel', 'x']) || containsAll(h, ['g-force', 'x']) },
-  { field: 'gy',       matcher: (h) => containsAll(h, ['accel', 'y']) || containsAll(h, ['g-force', 'y']) },
-  { field: 'gz',       matcher: (h) => containsAll(h, ['accel', 'z']) || containsAll(h, ['g-force', 'z']) },
-  { field: 'gcal',     matcher: (h) => containsAll(h, ['g', 'calibrated']) || h.includes('g(calibrated)') }
+  { field: 'hdop',     matcher: (h) => h.includes('hdop') || containsAll(h, ['horizontal', 'dilution', 'precision']) }
 ];
 
 /**
@@ -141,7 +217,7 @@ const COLUMN_MAPPINGS: readonly ColumnMapping[] = [
  * Device Time) map to the sentinel `'time'` so the row builder knows
  * to parse a timestamp instead of a number.
  */
-const detectColumn = (header: string): CsvField | 'time' | null => {
+const detectColumn = (header: string): string | null => {
   const lower = header.toLowerCase().trim();
   if (lower.includes('gps time') || lower.includes('device time') || lower === 'time') return 'time';
   for (const mapping of COLUMN_MAPPINGS) {
@@ -165,9 +241,13 @@ const parseNumber = (raw: string | undefined): number | undefined => {
 
 /**
  * Parse a Torque Pro time cell into a milliseconds-since-epoch number.
- * The Torque Pro export uses dates like `"10-May-2026 09:34:12.345"`,
- * which `Date.parse` chokes on; we reformat to ISO-like before passing.
- * Falls back to `Date.parse` for already-ISO inputs.
+ * Handles two formats:
+ *   - Device Time:  `"28-Oct-2024 13:50:51.185"` — reformatted before
+ *                   handing to `Date.parse` (the dash separators
+ *                   between day / month-name / year choke the parser).
+ *   - GPS Time:     ISO 8601 or the verbose Java `Date.toString()`
+ *                   form Torque uses (`"Mon Oct 28 15:46:36 PDT 2024"`)
+ *                   — both go through `Date.parse` directly.
  */
 const parseTimestamp = (raw: string | undefined): number | undefined => {
   if (raw === undefined || raw.trim() === '') return undefined;
@@ -188,7 +268,7 @@ export interface ColumnDetection {
   /** Original header text from the CSV. */
   readonly header: string;
   /** Canonical field this column maps to, or `null` if unrecognized. */
-  readonly mappedTo: CsvField | 'time' | null;
+  readonly mappedTo: string | null;
 }
 
 /** Parsed CSV output. */
@@ -218,34 +298,55 @@ export const parseCsv = (csvText: string): ParsedCsv => {
     mappedTo: detectColumn(header)
   }));
 
-  const fieldByHeader = new Map<string, CsvField | 'time'>();
+  const fieldByHeader = new Map<string, string>();
   for (const detection of detectedColumns) {
     if (detection.mappedTo !== null) {
       fieldByHeader.set(detection.header, detection.mappedTo);
     }
   }
 
-  const rows: SessionDataRow[] = parsed.data.map((rawRow, sampleIndex) => {
-    const row: Record<string, number> = { t: sampleIndex, ts: sampleIndex * 1000 };
+  /**
+   * First pass: build per-row `{ data, parsedTs }`. Time-column writes
+   * happen via the time sentinel ('time'); numeric columns write their
+   * canonical field. Multiple time columns (GPS Time + Device Time) are
+   * processed in header order — the last parseable value wins.
+   */
+  interface Intermediate { readonly data: Record<string, number>; readonly parsedTs: number | undefined }
+  const intermediates: Intermediate[] = parsed.data.map((rawRow) => {
+    const data: Record<string, number> = {};
+    let parsedTs: number | undefined;
     for (const [header, value] of Object.entries(rawRow)) {
       const field = fieldByHeader.get(header);
       if (field === undefined) continue;
       if (field === 'time') {
-        const parsedTs = parseTimestamp(value);
-        if (parsedTs !== undefined) row.ts = parsedTs;
+        const parsed = parseTimestamp(value);
+        if (parsed !== undefined) parsedTs = parsed;
         continue;
       }
       const numericValue = parseNumber(value);
-      if (numericValue !== undefined) row[field] = numericValue;
+      if (numericValue !== undefined) data[field] = numericValue;
     }
+    return { data, parsedTs };
+  });
+
+  /**
+   * Second pass: anchor `t` against the first parseable timestamp.
+   * When NO row has a parseable timestamp, `t` falls back to the sample
+   * index and `ts` synthesizes from `t * 1000` for chart compatibility.
+   */
+  const firstParsedTs = intermediates.find((row) => row.parsedTs !== undefined)?.parsedTs;
+  const rows: SessionDataRow[] = intermediates.map((intermediate, sampleIndex) => {
+    const ts = intermediate.parsedTs ?? sampleIndex * 1000;
+    const t = firstParsedTs !== undefined && intermediate.parsedTs !== undefined
+      ? (intermediate.parsedTs - firstParsedTs) / 1000
+      : sampleIndex;
     /**
      * Dynamic key assignment requires the builder to use an
      * index-signature type (`Record<string, number>`). `t` and `ts`
      * are initialized above and every other `SessionDataRow` field is
-     * optional, so the cast is structurally sound — there's no narrower
-     * path that satisfies both the index access and the final type.
+     * optional, so the cast is structurally sound.
      */
-    return row as unknown as SessionDataRow;
+    return { t, ts, ...intermediate.data } as unknown as SessionDataRow;
   });
 
   return { detectedColumns, rows };

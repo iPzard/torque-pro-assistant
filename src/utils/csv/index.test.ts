@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
 import { parseCsv } from '.';
 
 /**
@@ -102,7 +105,7 @@ describe('utils/csv', () => {
     expect(rows[1].throttle).toBeUndefined();
   });
 
-  it('builds t from the zero-based sample index', () => {
+  it('falls back to t = sample index when no time column is present', () => {
     const csv = 'Speed (OBD)(mph)\n10\n20\n30\n';
     const { rows } = parseCsv(csv);
     expect(rows.map((row) => row.t)).toEqual([0, 1, 2]);
@@ -118,6 +121,22 @@ describe('utils/csv', () => {
     expect(rows[0].ts).toBeGreaterThan(0);
     // Two samples one second apart should produce ts values 1000 ms apart.
     expect(rows[1].ts - rows[0].ts).toBe(1000);
+  });
+
+  it('builds t as elapsed seconds from the first parsed timestamp (variable sample rate)', () => {
+    // Three rows at non-uniform 100 ms / 900 ms / 1500 ms offsets.
+    const csv = [
+      'GPS Time,Speed (OBD)(mph)',
+      '10-May-2026 09:34:12.000,0',
+      '10-May-2026 09:34:12.100,3',
+      '10-May-2026 09:34:13.000,9',
+      '10-May-2026 09:34:14.500,20'
+    ].join('\n');
+    const { rows } = parseCsv(csv);
+    expect(rows[0].t).toBeCloseTo(0,   3);
+    expect(rows[1].t).toBeCloseTo(0.1, 3);
+    expect(rows[2].t).toBeCloseTo(1.0, 3);
+    expect(rows[3].t).toBeCloseTo(2.5, 3);
   });
 
   it('parses ts from an ISO-8601 time column', () => {
@@ -159,5 +178,251 @@ describe('utils/csv', () => {
     expect(detectedColumns[1].mappedTo).toBe('lon');
     expect(rows[0].lat).toBeCloseTo(37.4419);
     expect(rows[0].lon).toBeCloseTo(-122.1430);
+  });
+
+  /**
+   * Disambiguation tests — each cluster of Torque Pro headers that
+   * share substrings was previously mis-routing to a single canonical
+   * field. These guard the specific-before-generic rule that prevents
+   * the collisions.
+   */
+  describe('disambiguation', () => {
+    it('routes Relative / Absolute-B / Manifold throttle columns to distinct fields', () => {
+      const csv = [
+        'Relative Throttle Position(%),Absolute Throttle Position B(%),Throttle Position(Manifold)(%)',
+        '4,15,7'
+      ].join('\n');
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual([
+        'throttle_rel',
+        'throttle_b_abs',
+        'throttle'
+      ]);
+      expect(rows[0].throttle_rel).toBe(4);
+      expect(rows[0].throttle_b_abs).toBe(15);
+      expect(rows[0].throttle).toBe(7);
+    });
+
+    it('routes Control Module / OBD Adapter voltage columns to distinct fields', () => {
+      const csv = 'Voltage (Control Module)(V),Voltage (OBD Adapter)(V)\n14.5,12.3\n';
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual(['voltage', 'voltage_obd']);
+      expect(rows[0].voltage).toBe(14.5);
+      expect(rows[0].voltage_obd).toBe(12.3);
+    });
+
+    it('routes Turbo Boost / Commanded A-B / Sensor A-B boost columns to distinct fields', () => {
+      const csv = [
+        'Turbo Boost & Vacuum Gauge(psi),Boost Pressure Commanded A(psi),Boost Pressure Commanded B(psi),Boost Pressure Sensor A(psi),Boost Pressure Sensor B(psi)',
+        '12,11,11,11.5,11.5'
+      ].join('\n');
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual([
+        'boost_psi',
+        'boost_cmd_a_psi',
+        'boost_cmd_b_psi',
+        'boost_sensor_a_psi',
+        'boost_sensor_b_psi'
+      ]);
+      expect(rows[0].boost_psi).toBe(12);
+      expect(rows[0].boost_cmd_a_psi).toBe(11);
+      expect(rows[0].boost_sensor_a_psi).toBe(11.5);
+    });
+
+    it('routes Mass Air Flow Rate / sensor A / sensor B to distinct fields', () => {
+      const csv = [
+        'Mass Air Flow Rate(g/s),Mass air flow sensor A(g/s),Mass air flow sensor B(g/s)',
+        '12,6,6'
+      ].join('\n');
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual([
+        'maf',
+        'maf_sensor_a',
+        'maf_sensor_b'
+      ]);
+      expect(rows[0].maf).toBe(12);
+      expect(rows[0].maf_sensor_a).toBe(6);
+    });
+
+    it('routes Fuel Rail Pressure absolute vs relative variants to distinct fields', () => {
+      const csv = [
+        'Fuel Rail Pressure(psi),Fuel Rail Pressure (relative to manifold vacuum)(psi)',
+        '2887,580'
+      ].join('\n');
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual(['fuel_rail_abs', 'fuel_rail_rel']);
+      expect(rows[0].fuel_rail_abs).toBe(2887);
+      expect(rows[0].fuel_rail_rel).toBe(580);
+    });
+
+    it('routes Engine reference torque vs Torque to distinct fields', () => {
+      const csv = 'Engine reference torque(Nm),Torque(Nm)\n520,326\n';
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual(['tq_reference_nm', 'tq_nm']);
+      expect(rows[0].tq_reference_nm).toBe(520);
+      expect(rows[0].tq_nm).toBe(326);
+    });
+
+    it('does not confuse "Average trip speed(...)(mph)" with vehicle speed', () => {
+      const csv = [
+        'Average trip speed(whilst moving only)(mph),Average trip speed(whilst stopped or moving)(mph),Speed (OBD)(mph)',
+        '27,23,60'
+      ].join('\n');
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual([
+        'avg_speed_moving_mph',
+        'avg_speed_total_mph',
+        'speed_mph'
+      ]);
+      expect(rows[0].speed_mph).toBe(60);
+      expect(rows[0].avg_speed_moving_mph).toBe(27);
+    });
+
+    it('routes CO₂ Average / Instantaneous variants to distinct fields', () => {
+      const csv = 'CO₂ in g/km (Average)(g/km),CO₂ in g/km (Instantaneous)(g/km)\n1115,180\n';
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual(['co2_avg', 'co2']);
+      expect(rows[0].co2_avg).toBe(1115);
+      expect(rows[0].co2).toBe(180);
+    });
+
+    it('routes Intake Manifold Pressure (psi/kPa) + Manfold Abs A/B (typo, psi) to distinct fields', () => {
+      const csv = [
+        'Intake Manifold Pressure(psi),Intake Manfold Abs Pressure A(psi),Intake Manfold Abs Pressure B(psi)',
+        '8,12,13'
+      ].join('\n');
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual([
+        'manifold_psi',
+        'manifold_abs_a_psi',
+        'manifold_abs_b_psi'
+      ]);
+      expect(rows[0].manifold_psi).toBe(8);
+      expect(rows[0].manifold_abs_a_psi).toBe(12);
+    });
+  });
+
+  /**
+   * New PIDs introduced from real-export inspection. None of these
+   * existed in the design's simplified catalog.
+   */
+  describe('new PIDs from real Torque Pro exports', () => {
+    it('recognizes G(x) / G(y) / G(z) / G(calibrated) Torque-style g-force headers', () => {
+      const csv = 'G(x),G(y),G(z),G(calibrated)\n0.05,3.17,-10.31,0.12\n';
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual(['gx', 'gy', 'gz', 'gcal']);
+      expect(rows[0].gx).toBeCloseTo(0.05);
+    });
+
+    it('recognizes the spelled-out "Horizontal Dilution of Precision" header as hdop', () => {
+      const { detectedColumns } = parseCsv('Horizontal Dilution of Precision\n0.9\n');
+      expect(detectedColumns[0].mappedTo).toBe('hdop');
+    });
+
+    it('recognizes Ambient air temp / Charge Air Cooler / 0-60 time / Fuel Level / Alcohol headers', () => {
+      const csv = [
+        'Ambient air temp(°F),Charge air cooler temperature (CACT)(°F),0-60mph Time(s),Fuel Level (From Engine ECU)(%),Alcohol Fuel Percentage(%)',
+        '78,90,4.8,55,10'
+      ].join('\n');
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual([
+        'ambient_f',
+        'cact_f',
+        'time_0_to_60_s',
+        'fuel_level_pct',
+        'alcohol_pct'
+      ]);
+      expect(rows[0].ambient_f).toBe(78);
+      expect(rows[0].cact_f).toBe(90);
+      expect(rows[0].time_0_to_60_s).toBe(4.8);
+    });
+
+    it('recognizes Percentage of City / Highway / Idle driving headers', () => {
+      const csv = [
+        'Percentage of City driving(%),Percentage of Highway driving(%),Percentage of Idle driving(%)',
+        '63.66,20.98,15.37'
+      ].join('\n');
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual(['pct_city', 'pct_highway', 'pct_idle']);
+      expect(rows[0].pct_city).toBeCloseTo(63.66);
+    });
+
+    it('recognizes Acceleration Sensor (Total) as accel_total_g', () => {
+      const { rows, detectedColumns } = parseCsv('Acceleration Sensor(Total)(g)\n0.13\n');
+      expect(detectedColumns[0].mappedTo).toBe('accel_total_g');
+      expect(rows[0].accel_total_g).toBeCloseTo(0.13);
+    });
+
+    it('recognizes Fuel flow rate/minute(gal/min) as fuel_flow_gpm distinct from fuel_rate', () => {
+      const csv = 'Fuel flow rate/minute(gal/min),Fuel Rate (direct from ECU)(L/m)\n0.01,2.5\n';
+      const { rows, detectedColumns } = parseCsv(csv);
+      expect(detectedColumns.map((column) => column.mappedTo)).toEqual(['fuel_flow_gpm', 'fuel_rate']);
+      expect(rows[0].fuel_flow_gpm).toBeCloseTo(0.01);
+      expect(rows[0].fuel_rate).toBeCloseTo(2.5);
+    });
+  });
+
+  /**
+   * Real-file fixture sanity check. The fixture is a 83-sample slice of
+   * a Torque Pro export (Mercedes AMG, 81 columns), with GPS lat/lon
+   * rounded to 2 decimal places for repo privacy. The slice spans early
+   * "no GPS lock" rows, mid-session driving with GPS, and end-of-trip
+   * rows so the test exercises every detection path.
+   */
+  describe('real Torque Pro export fixture', () => {
+    const fixtureText = fs.readFileSync(
+      path.join(__dirname, 'fixtures', 'sample-torque-export.csv'),
+      'utf-8'
+    );
+
+    it('parses 83 rows from the fixture', () => {
+      const { rows } = parseCsv(fixtureText);
+      expect(rows).toHaveLength(83);
+    });
+
+    it('detects most columns in the real-fixture (rest are catalyst / exhaust / hybrid — null)', () => {
+      const { detectedColumns } = parseCsv(fixtureText);
+      const recognized = detectedColumns.filter((column) => column.mappedTo !== null);
+      // Real Torque export has 84 columns (incl. 2 time columns).
+      expect(detectedColumns).toHaveLength(84);
+      // 14 columns are intentionally left unrecognized (catalyst ×4 +
+      // exhaust gas temp ×8 + exhaust pressure ×2 + hybrid ×4 = 18) —
+      // remaining 66 should map.
+      expect(recognized.length).toBeGreaterThan(60);
+    });
+
+    it('has no duplicate canonical fields across detected columns', () => {
+      const { detectedColumns } = parseCsv(fixtureText);
+      const recognized = detectedColumns
+        .map((column) => column.mappedTo)
+        .filter((mapped): mapped is string => mapped !== null && mapped !== 'time');
+      const seen = new Set<string>();
+      for (const field of recognized) {
+        expect(seen.has(field)).toBe(false);
+        seen.add(field);
+      }
+    });
+
+    it('parses real timestamps from Device Time into ts + builds elapsed t', () => {
+      const { rows } = parseCsv(fixtureText);
+      const firstTs = rows[0].ts;
+      const lastTs = rows[rows.length - 1].ts;
+      expect(firstTs).toBeGreaterThan(0);
+      expect(lastTs).toBeGreaterThan(firstTs);
+      expect(rows[0].t).toBeCloseTo(0, 3);
+      expect(rows[rows.length - 1].t).toBeGreaterThan(0);
+    });
+
+    it('captures real values for the actively-populated PIDs in the fixture', () => {
+      const { rows } = parseCsv(fixtureText);
+      const sample = rows[rows.length - 30];
+      // Spot-check fields that this real session reliably populates.
+      expect(sample.coolant_f).toBeDefined();
+      expect(sample.rpm).toBeDefined();
+      expect(sample.throttle).toBeDefined();
+      expect(sample.voltage).toBeDefined();
+      expect(sample.voltage_obd).toBeDefined();
+      expect(sample.tq_reference_nm).toBeDefined();
+    });
   });
 });

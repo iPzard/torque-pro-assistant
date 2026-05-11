@@ -42,26 +42,70 @@ export interface SessionMeta {
 }
 
 /**
- * One sample from a Torque Pro CSV at one-second resolution. Field
- * naming mirrors Torque Pro's own column headers — `speed_mph`,
- * `coolant_f`, `afr_meas` — so the CSV adapter can do a straight
- * column-to-field map.
+ * One sample from a Torque Pro CSV. Field naming mirrors Torque Pro's
+ * own column header conventions — `speed_mph`, `coolant_f`, `afr_meas` —
+ * so the CSV adapter can do a straight column-to-field map.
  *
- * Only `t` (sample index from start) and `ts` (wall-clock timestamp
- * milliseconds) are guaranteed; the user's chosen Torque Pro PID set
- * determines which other fields are present. Consumers must handle
+ * Sampling is variable rate in real Torque Pro exports (the adapter
+ * sees gaps from sub-second up to several seconds depending on the
+ * vehicle's OBD-II responsiveness). `t` is elapsed wall-clock seconds
+ * from the first row's parsed timestamp — NOT the sample index.
+ *
+ * Only `t` and `ts` are guaranteed; the user's chosen Torque Pro PID
+ * set determines which other fields are present. Consumers must handle
  * missing fields.
+ *
+ * The index signature catches CSV columns the adapter recognizes by key
+ * but that don't yet have a typed entry on this interface — promote
+ * them when chart code starts consuming them.
  */
 export interface SessionDataRow {
+  /**
+   * Catch-all for CSV columns the adapter recognizes by key but that
+   * don't yet have a typed entry on this interface (catalyst temps,
+   * exhaust gas temps, hybrid battery PIDs, etc.). Promote a field to
+   * the typed list when chart or table code starts consuming it.
+   */
+  readonly [field: string]: number | undefined;
+  /** Acceleration sensor total magnitude (g). */
+  readonly accel_total_g?: number;
   readonly afr_cmd?: number;
   readonly afr_meas?: number;
+  /** Alcohol fuel percentage. */
+  readonly alcohol_pct?: number;
   readonly altitude?: number;
+  /** Ambient air temperature (°C). */
+  readonly ambient_c?: number;
+  /** Ambient air temperature (°F). */
+  readonly ambient_f?: number;
+  /** Average trip speed across moving samples (mph). */
+  readonly avg_speed_moving_mph?: number;
+  /** Average trip speed across all samples (mph). */
+  readonly avg_speed_total_mph?: number;
   readonly bearing?: number;
+  /** Boost pressure — commanded, manifold A (psi). */
+  readonly boost_cmd_a_psi?: number;
+  /** Boost pressure — commanded, manifold B (psi). */
+  readonly boost_cmd_b_psi?: number;
   readonly boost_kpa?: number;
   readonly boost_psi?: number;
+  /** Boost pressure — sensor A (psi). */
+  readonly boost_sensor_a_psi?: number;
+  /** Boost pressure — sensor B (psi). */
+  readonly boost_sensor_b_psi?: number;
+  /** Charge air cooler temperature (°C). */
+  readonly cact_c?: number;
+  /** Charge air cooler temperature (°F). */
+  readonly cact_f?: number;
   readonly co2?: number;
+  /** CO₂ average across the session (g/km). */
+  readonly co2_avg?: number;
   readonly coolant_c?: number;
   readonly coolant_f?: number;
+  /** Fuel flow rate (gal/min) — distinct from `fuel_rate` (L/min). */
+  readonly fuel_flow_gpm?: number;
+  /** Fuel level in tank (%). */
+  readonly fuel_level_pct?: number;
   readonly fuel_pressure?: number;
   readonly fuel_rail_abs?: number;
   readonly fuel_rail_rel?: number;
@@ -81,30 +125,58 @@ export interface SessionDataRow {
   readonly load_abs?: number;
   readonly lon?: number;
   readonly maf?: number;
+  /** Mass air flow — sensor A (g/s). */
+  readonly maf_sensor_a?: number;
+  /** Mass air flow — sensor B (g/s). */
+  readonly maf_sensor_b?: number;
+  /** Intake manifold absolute pressure, sensor A (psi). */
+  readonly manifold_abs_a_psi?: number;
+  /** Intake manifold absolute pressure, sensor B (psi). */
+  readonly manifold_abs_b_psi?: number;
   readonly manifold_kpa?: number;
+  /** Intake manifold pressure (psi) — same physical quantity as
+   *  `manifold_kpa`, different source unit. */
+  readonly manifold_psi?: number;
   readonly mpg?: number;
   readonly odo?: number;
   readonly oil_c?: number;
   readonly oil_f?: number;
+  /** Percentage of session classified as city driving. */
+  readonly pct_city?: number;
+  /** Percentage of session classified as highway driving. */
+  readonly pct_highway?: number;
+  /** Percentage of session classified as idle. */
+  readonly pct_idle?: number;
   readonly pedal?: number;
   readonly rpm?: number;
   readonly speed_kph?: number;
   readonly speed_mph?: number;
   readonly speed_ms?: number;
-  /** Sample index — seconds from session start. */
+  /** Elapsed seconds from the first parsed timestamp in the session. */
   readonly t: number;
   readonly throttle?: number;
+  /** Absolute Throttle Position B (%). */
+  readonly throttle_b_abs?: number;
+  /** Relative Throttle Position (%). */
+  readonly throttle_rel?: number;
+  /** Vehicle's last-reported 0-to-60-mph time (seconds). */
+  readonly time_0_to_60_s?: number;
   readonly timing?: number;
   readonly tq_actual_pct?: number;
   readonly tq_demand_pct?: number;
   readonly tq_lbft?: number;
   readonly tq_nm?: number;
+  /** Engine reference torque — vehicle-published nominal max (Nm). */
+  readonly tq_reference_nm?: number;
   readonly trans_c?: number;
   readonly trans_f?: number;
   /** Wall-clock timestamp in milliseconds since epoch. */
   readonly ts: number;
   readonly ve?: number;
   readonly voltage?: number;
+  /** Voltage at the OBD-II adapter (V) — distinct from `voltage`
+   *  (control module). */
+  readonly voltage_obd?: number;
 }
 
 /**
