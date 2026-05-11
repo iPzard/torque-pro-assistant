@@ -7,13 +7,14 @@ import {
   Text,
   Title
 } from '@mantine/core';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Link,
   Navigate,
   Route,
   Routes,
-  useLocation
+  useLocation,
+  useNavigate
 } from 'react-router-dom';
 
 import CompareLogs from 'components/pages/compare-logs';
@@ -25,6 +26,7 @@ import { useAppSelector } from 'state/hooks';
 import { selectUnits } from 'state/preferences';
 import { windowControls } from 'utils';
 
+import CommandPalette from './command-palette';
 import StatusBar from './status-bar';
 import { isActive, pingFlask } from './utils';
 
@@ -67,11 +69,39 @@ function App() {
    */
   const isMac = window.electronAPI.platform === 'darwin';
   const location = useLocation();
+  const navigate = useNavigate();
   const units = useAppSelector((state) => selectUnits(state.preferences));
+  const [paletteOpened, setPaletteOpened] = useState(false);
 
   useEffect(() => {
     pingFlask();
   }, []);
+
+  /**
+   * Global keyboard shortcuts (CLAUDE.md TODO §27):
+   *   - `⌘O` / `Ctrl+O` → Import page.
+   *   - `⌘K` / `Ctrl+K` → command palette modal (placeholder until
+   *     the fuzzy-search lands).
+   *
+   * Both call `preventDefault` so the browser / Electron host don't
+   * fall through to the native Open File dialog / search.
+   */
+  useEffect(() => {
+    const handler = (event: KeyboardEvent): void => {
+      const modKey = event.metaKey || event.ctrlKey;
+      if (!modKey) return;
+      const key = event.key.toLowerCase();
+      if (key === 'o') {
+        event.preventDefault();
+        navigate('/import');
+      } else if (key === 'k') {
+        event.preventDefault();
+        setPaletteOpened(true);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [navigate]);
 
   return (
     <AppShell
@@ -181,6 +211,12 @@ function App() {
       <AppShell.Footer data-testid="app-footer">
         <StatusBar testId="app-status-bar" units={ units } />
       </AppShell.Footer>
+
+      <CommandPalette
+        onClose={ () => setPaletteOpened(false) }
+        opened={ paletteOpened }
+        testId="app-command-palette"
+      />
     </AppShell>
   );
 }

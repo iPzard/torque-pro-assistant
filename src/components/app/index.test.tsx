@@ -1,5 +1,5 @@
 import { MantineProvider } from '@mantine/core';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
@@ -162,5 +162,23 @@ describe('components/app', () => {
   it('fires pingFlask once on mount', () => {
     renderApp();
     expect(pingFlask).toHaveBeenCalledTimes(1);
+  });
+
+  it('Ctrl+O navigates to the Import Logs route', () => {
+    renderApp(makeApi(), '/library');
+    fireEvent.keyDown(window, { ctrlKey: true, key: 'o' });
+    expect(screen.getByTestId('import-logs-route-sentinel')).toBeInTheDocument();
+  });
+
+  it('Cmd+O navigates to the Import Logs route', () => {
+    renderApp(makeApi(), '/library');
+    fireEvent.keyDown(window, { key: 'o', metaKey: true });
+    expect(screen.getByTestId('import-logs-route-sentinel')).toBeInTheDocument();
+  });
+
+  it('Ctrl+K opens the command palette modal', () => {
+    renderApp(makeApi(), '/library');
+    fireEvent.keyDown(window, { ctrlKey: true, key: 'k' });
+    expect(screen.getByTestId('app-command-palette')).toBeInTheDocument();
   });
 });
