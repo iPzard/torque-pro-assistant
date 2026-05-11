@@ -38,16 +38,17 @@ jest.mock('components/pages/settings', () => ({
 }));
 
 /**
- * pingFlask fires inside App's mount effect via utils/requests; mock it out
- * so tests don't trigger fetchWithRetry timers.
+ * pingFlask fires inside `useBackendStatus`, which the App shell mounts
+ * to drive the offline-banner. Mock the source-of-truth module so the
+ * deepest dependency stays under test control regardless of how the
+ * call traverses the barrel.
  */
-jest.mock('./utils', () => ({
-  ...jest.requireActual('./utils'),
-  pingFlask: jest.fn()
+jest.mock('./utils/ping-flask', () => ({
+  pingFlask: jest.fn(() => Promise.resolve(true))
 }));
 
 import App from '.';
-import { pingFlask } from './utils';
+import { pingFlask } from './utils/ping-flask';
 
 /** Build a session shell — most App tests don't care about contents,
  *  only the count for badge / Compare-enabled gating. */

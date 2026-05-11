@@ -1,4 +1,4 @@
-import { Group, Stack, Text } from '@mantine/core';
+import { Stack, Text } from '@mantine/core';
 
 import type { ValidationFlag, ValidationLevel } from 'components/pages/import-logs/utils';
 import Card from 'components/primitives/card';
@@ -18,36 +18,49 @@ const LEVEL_COLOR: Record<ValidationLevel, string> = {
 
 /**
  * Validation checklist for the Import preview stage. Renders one row
- * per flag in `validateParsed`'s output. Composer above blocks the
- * Save action when any flag is `error`-level; lower levels are
- * informational and don't gate the import.
+ * per flag in `validateParsed`'s output, with the level dot + message +
+ * optional secondary `detail` line (e.g. "23 rows jump backwards…").
+ * The composer above blocks the Save action when any flag is
+ * `error`-level; lower levels are informational and don't gate the
+ * import.
  *
  * @returns A card listing the validation flags.
  */
 function ValidationPanel({ flags, testId }: ValidationPanelProps) {
   return (
     <Card subtitle="checks against the parsed file" testId={ testId } title="Validation">
-      <Stack gap="xs">
+      <Stack gap="sm">
         { flags.map((flag) => (
-          <Group
+          <Stack
             key={ flag.id }
             data-testid={ testId === undefined ? undefined : `${ testId }-row-${ flag.id }` }
-            gap="sm"
-            wrap="nowrap"
+            gap={ 2 }
           >
-            <span
-              aria-hidden
-              data-testid={ testId === undefined ? undefined : `${ testId }-dot-${ flag.id }` }
-              style={ {
-                background:   LEVEL_COLOR[flag.level],
-                borderRadius: '50%',
-                flex:         'none',
-                height:       10,
-                width:        10
-              } }
-            />
-            <Text size="sm">{ flag.message }</Text>
-          </Group>
+            <div style={ { alignItems: 'center', display: 'flex', gap: 10 } }>
+              <span
+                aria-hidden
+                data-testid={ testId === undefined ? undefined : `${ testId }-dot-${ flag.id }` }
+                style={ {
+                  background:   LEVEL_COLOR[flag.level],
+                  borderRadius: '50%',
+                  flex:         'none',
+                  height:       10,
+                  width:        10
+                } }
+              />
+              <Text size="sm">{ flag.message }</Text>
+            </div>
+            { flag.detail !== undefined && (
+              <Text
+                c="dimmed"
+                data-testid={ testId === undefined ? undefined : `${ testId }-detail-${ flag.id }` }
+                size="xs"
+                style={ { paddingLeft: 20 } }
+              >
+                { flag.detail }
+              </Text>
+            ) }
+          </Stack>
         )) }
       </Stack>
     </Card>

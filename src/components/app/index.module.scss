@@ -17,6 +17,18 @@
   background: var(--bg-0);
 }
 
+/**
+ * When the backend-offline banner is visible the grid grows a third
+ * row at the top — 28px for the banner, 44px for the titlebar, then
+ * the main area. The titlebar + sidebar + main only need their
+ * implicit grid position; they shift down by virtue of the banner
+ * occupying row 1 first.
+ */
+.app-shell-with-banner {
+  composes: app-shell;
+  grid-template-rows: 28px 44px 1fr;
+}
+
 .app-titlebar {
   grid-column: 1 / -1;
   display: flex;

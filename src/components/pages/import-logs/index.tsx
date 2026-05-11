@@ -1,7 +1,8 @@
-import { Alert, Stack, Text, Title } from '@mantine/core';
+import { Stack, Text, Title } from '@mantine/core';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import Alert from 'components/primitives/alert';
 import { useAppDispatch } from 'state/hooks';
 import { addSession } from 'state/sessions';
 import type { Session } from 'types/session';
@@ -26,13 +27,20 @@ import { type ParsedFile, parseFile } from './utils';
  *
  * @returns The Import Logs page React element.
  */
+/** Captured parse failure — keeps the original file reference so the
+ *  user can hit "Try again" without re-picking it. */
+interface ImportError {
+  readonly file: File;
+  readonly message: string;
+}
+
 function ImportLogs() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [parsedFile, setParsedFile] = useState<ParsedFile | null>(null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ImportError | null>(null);
 
   const handleDrop = async (file: File): Promise<void> => {
     setBusy(true);
@@ -42,7 +50,7 @@ function ImportLogs() {
       setParsedFile(result);
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : 'Failed to parse CSV.';
-      setError(message);
+      setError({ file, message });
     } finally {
       setBusy(false);
     }
@@ -72,13 +80,37 @@ function ImportLogs() {
 
       { error !== null && (
         <Alert
-          color="red"
-          data-testid="import-logs-error"
-          title="Import failed"
-          variant="light"
-        >
-          { error }
-        </Alert>
+          actions={
+            <>
+              <button
+                className="btn primary sm"
+                data-testid="import-logs-error-retry"
+                onClick={ () => { void handleDrop(error.file); } }
+                type="button"
+              >
+                Try again
+              </button>
+              <button
+                className="btn ghost sm"
+                data-testid="import-logs-error-dismiss"
+                onClick={ () => setError(null) }
+                type="button"
+              >
+                Cancel
+              </button>
+            </>
+          }
+          detail={ error.message }
+          subtitle={
+            <>
+              <span className="mono" style={ { color: 'var(--text-0)' } }>{ error.file.name }</span>
+              { ' ' }couldn&apos;t be parsed. This usually means the export was interrupted, or the file was concatenated.
+            </>
+          }
+          testId="import-logs-error"
+          title={ <>Couldn&apos;t parse this CSV<span className="pill err" style={ { marginLeft: 4 } }><i className="dot" />parse failed</span></> }
+          variant="danger"
+        />
       ) }
 
       { parsedFile === null

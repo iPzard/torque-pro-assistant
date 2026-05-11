@@ -1,0 +1,68 @@
+/**
+ * Rich "no GPS data" empty state for the session-detail Map tab — a
+ * dashed-bordered icon, headline, soft copy, and a mono 2-column
+ * checklist showing which signals ARE present so the user understands
+ * what they can still chart. Scoped to BigMap because it's the only
+ * surface large enough to host the full layout; MiniMap keeps its
+ * compact "No GPS data" line.
+ */
+
+.empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28px 24px;
+  color: var(--text-2);
+  position: relative;
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--bg-2);
+  border: 1px dashed var(--border-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  margin-bottom: 14px;
+}
+
+.icon svg { width: 22px; height: 22px; }
+
+.headline {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.sub {
+  font-size: 12px;
+  margin-top: 4px;
+  max-width: 280px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.checks {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 10px;
+  row-gap: 4px;
+  font-size: 11px;
+  text-align: left;
+  font-family: var(--font-mono);
+  color: var(--text-2);
+}
+
+.check-ok { color: var(--ok); }
+
+.check-bad { color: var(--danger); }
+
+.check-neutral { color: var(--text-3); }

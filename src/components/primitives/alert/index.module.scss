@@ -1,0 +1,150 @@
+/**
+ * Inline alert card — title + optional subtitle + optional code detail +
+ * optional action row. Used by the Import flow for parse failures and
+ * permission-denied banners, and reusable across other pages. Three
+ * severity variants (danger, warn, info) tint the icon-circle background
+ * and the title. `composes:` keeps each variant inheriting the base shape.
+ */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-2);
+}
+
+.icon {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon svg { width: 16px; height: 16px; }
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-0);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sub {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.detail {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--bg-0);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--text-1);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.close {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: var(--text-3);
+  cursor: pointer;
+  flex: 0 0 22px;
+  margin: -2px -2px 0 0;
+  transition: background .12s, color .12s;
+}
+
+.close:hover {
+  background: var(--bg-hover);
+  color: var(--text-0);
+}
+
+.close svg { width: 14px; height: 14px; }
+
+/* ── Severity variants ────────────────────────────────────────────── */
+
+.danger {
+  composes: alert;
+  border-color: rgba(255, 90, 90, .45);
+  background: linear-gradient(180deg, rgba(255, 90, 90, .06), rgba(255, 90, 90, .02));
+}
+
+.danger .icon {
+  background: rgba(255, 90, 90, .14);
+  color: var(--danger);
+}
+
+.danger .title { color: #ffb4b4; }
+
+.warn {
+  composes: alert;
+  border-color: rgba(249, 168, 37, .45);
+  background: linear-gradient(180deg, rgba(249, 168, 37, .06), rgba(249, 168, 37, .02));
+}
+
+.warn .icon {
+  background: rgba(249, 168, 37, .14);
+  color: var(--warn);
+}
+
+.warn .title { color: #ffd884; }
+
+.info {
+  composes: alert;
+}
+
+.info .icon {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ── Compact density ─────────────────────────────────────────────── */
+
+.compact {
+  padding: 10px 12px;
+  gap: 10px;
+}
+
+.compact .icon {
+  flex-basis: 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+
+.compact .icon svg { width: 13px; height: 13px; }
+
+.compact .title { font-size: 12px; }
+
+.compact .sub { font-size: 11px; margin-top: 2px; }

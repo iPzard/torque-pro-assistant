@@ -9,6 +9,7 @@ import { formatDistance, formatDuration, summarize } from 'utils';
 
 import ChartsTab from './charts-tab';
 import MapTab from './map';
+import NotFound from './not-found';
 import Overview from './overview';
 import RawData from './raw-data';
 
@@ -50,20 +51,10 @@ function SessionDetail() {
 
   if (session === undefined || summary === null) {
     return (
-      <Stack align="flex-start" data-testid="session-detail-not-found" gap="md">
-        <Title data-testid="session-detail-not-found-title" order={ 2 }>
-          Session not found
-        </Title>
-        <Text c="dimmed" data-testid="session-detail-not-found-description" size="sm">
-          No imported session matches this URL.
-        </Text>
-        <Button
-          data-testid="session-detail-not-found-back-button"
-          onClick={ () => navigate('/library') }
-        >
-          Back to Library
-        </Button>
-      </Stack>
+      <NotFound
+        routeId={ id ?? '—' }
+        testId="session-detail-not-found"
+      />
     );
   }
 

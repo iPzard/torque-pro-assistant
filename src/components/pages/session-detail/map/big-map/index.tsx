@@ -1,9 +1,9 @@
-import { Center, Text } from '@mantine/core';
-
 import type { Hotspot, HotspotKind } from 'components/pages/session-detail/map/utils';
 import { buildRoutePolyline } from 'components/pages/session-detail/utils';
 import Card from 'components/primitives/card';
 import type { SessionDataRow } from 'types/session';
+
+import NoGpsEmpty from './no-gps-empty';
 
 interface BigMapProps {
   readonly data: readonly SessionDataRow[];
@@ -50,12 +50,12 @@ function BigMap({ data, hotspots, testId }: BigMapProps) {
   if (route.start === null || route.end === null) {
     return (
       <Card subtitle="GPS route + hotspots" testId={ testId } title="Route">
-        <Center
-          data-testid={ testId === undefined ? undefined : `${ testId }-empty` }
-          h={ VIEW_HEIGHT }
-        >
-          <Text c="dimmed" size="sm">No GPS data in this session</Text>
-        </Center>
+        <div style={ { height: VIEW_HEIGHT } }>
+          <NoGpsEmpty
+            rowCount={ data.length }
+            testId={ testId === undefined ? undefined : `${ testId }-empty` }
+          />
+        </div>
       </Card>
     );
   }

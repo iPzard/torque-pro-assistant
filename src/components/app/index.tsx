@@ -22,9 +22,10 @@ import { windowControls } from 'utils';
 
 import CommandPalette from './command-palette';
 import { Icons } from './icons';
+import OfflineBanner from './offline-banner';
 import StatusBar from './status-bar';
 import ToastHost from './toast-host';
-import { isActive, pingFlask } from './utils';
+import { isActive, useBackendStatus } from './utils';
 
 import styles from './index.module.scss';
 
@@ -78,10 +79,8 @@ function App() {
   const preferences = useAppSelector((state) => selectPreferences(state.preferences));
   const sessions = useAppSelector((state) => selectAllSessions(state.sessions));
   const [paletteOpened, setPaletteOpened] = useState(false);
-
-  useEffect(() => {
-    pingFlask();
-  }, []);
+  const backendStatus = useBackendStatus();
+  const bannerVisible = backendStatus.offline && !backendStatus.dismissed;
 
   /**
    * Global keyboard shortcuts (CLAUDE.md TODO §27):
@@ -142,7 +141,20 @@ function App() {
     active ? styles['nav-item-active'] : styles['nav-item'];
 
   return (
-    <div className={ styles['app-shell'] } data-testid="app-shell">
+    <div
+      className={ bannerVisible ? styles['app-shell-with-banner'] : styles['app-shell'] }
+      data-testid="app-shell"
+    >
+      {/* ── Backend offline banner (28px row above the titlebar) ── */}
+      { bannerVisible && (
+        <OfflineBanner
+          attempts={ backendStatus.attempts }
+          onDismiss={ backendStatus.dismiss }
+          onRetry={ backendStatus.retry }
+          testId="app-offline-banner"
+        />
+      ) }
+
       {/* ── Titlebar ── */}
       <div
         className={ styles['app-titlebar'] }

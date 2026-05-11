@@ -1,0 +1,83 @@
+/**
+ * 404 takeover styles for the session-detail route. Hand-rolled to match
+ * the handoff's instrument-cluster aesthetic — a giant ghosted "404"
+ * numeral, an uppercase mono tag, headline, copy block, and a mono
+ * pseudo-stack-trace card. Scoped here because no other route shows a
+ * full-page not-found yet.
+ */
+
+.notfound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 44px - 80px);
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 96px;
+  font-weight: 500;
+  letter-spacing: -.04em;
+  line-height: 1;
+  margin-bottom: 6px;
+  background: linear-gradient(180deg, var(--text-2), var(--text-3) 60%, transparent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--text-3);
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-3);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.headline {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--text-0);
+}
+
+.copy {
+  margin: 0;
+  max-width: 460px;
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.trace {
+  margin-top: 24px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-3);
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.trace-path { color: var(--text-1); }
+
+.trace-status { color: var(--danger); }
+
+.trace-aside { margin-left: 10px; color: var(--text-3); }
+
+.trace-db {
+  font-family: var(--font-mono);
+  color: var(--text-2);
+}
+
+.actions {
+  display: inline-flex;
+  gap: 8px;
+  margin-top: 22px;
+}

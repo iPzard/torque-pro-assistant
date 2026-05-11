@@ -142,7 +142,7 @@ describe('pages/session-detail', () => {
   it('back button on the not-found state navigates to /library', async () => {
     const user = userEvent.setup();
     renderSessionDetail('/sessions/s_does_not_exist');
-    await user.click(screen.getByTestId('session-detail-not-found-back-button'));
+    await user.click(screen.getByTestId('session-detail-not-found-back'));
     expect(screen.getByTestId('library-route-sentinel')).toBeInTheDocument();
   });
 

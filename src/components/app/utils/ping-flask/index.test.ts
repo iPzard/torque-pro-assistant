@@ -47,24 +47,22 @@ describe('components/app/utils/ping-flask', () => {
 
   it('issues a GET against /ping at the bridge-supplied port', async () => {
     fetchMock.mockResolvedValue({ json: () => Promise.resolve('pong') });
-    pingFlask();
-    await new Promise<void>((resolve) => { setTimeout(resolve, 0); });
+    await pingFlask();
     expect(fetchMock).toHaveBeenCalledWith('http://127.0.0.1:3042/ping');
   });
 
-  it('logs the response on success', async () => {
+  it('logs the response on success + resolves true', async () => {
     fetchMock.mockResolvedValue({ json: () => Promise.resolve('pong') });
-    pingFlask();
-    await new Promise<void>((resolve) => { setTimeout(resolve, 0); });
+    const result = await pingFlask();
     expect(consoleLogSpy).toHaveBeenCalledWith('Flask /ping:', 'pong');
+    expect(result).toBe(true);
   });
 
-  it('logs to console.error when fetch rejects', async () => {
+  it('logs to console.error + resolves false when fetch rejects', async () => {
     const networkError = new Error('refused');
     fetchMock.mockRejectedValue(networkError);
-    pingFlask();
-    // Wait long enough for fetchWithRetry to give up (6 attempts w/ backoff).
-    await new Promise<void>((resolve) => { setTimeout(resolve, 4000); });
+    const result = await pingFlask();
     expect(consoleErrorSpy).toHaveBeenCalledWith('Flask /ping failed:', networkError);
+    expect(result).toBe(false);
   }, 10000);
 });

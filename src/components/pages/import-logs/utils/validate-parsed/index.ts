@@ -11,8 +11,10 @@ const HYBRID_PID_HINTS: readonly string[] = ['hybrid_battery_pct', 'state_of_cha
  *  `error`-level flags. */
 export type ValidationLevel = 'error' | 'info' | 'warn';
 
-/** One validation result — id + level + human-readable message. */
+/** One validation result — id + level + human-readable message +
+ *  optional secondary detail (e.g. a row count or a unit hint). */
 export interface ValidationFlag {
+  readonly detail?: string;
   readonly id: string;
   readonly level: ValidationLevel;
   readonly message: string;
@@ -55,19 +57,22 @@ export const validateParsed = (parsed: ParsedCsv): readonly ValidationFlag[] => 
       : 'No GPS samples — Map tab will fall back to placeholder.'
   });
 
-  let monotonic = true;
+  let backwardsCount = 0;
   for (let index = 1; index < parsed.rows.length; index += 1) {
     if (parsed.rows[index].ts < parsed.rows[index - 1].ts) {
-      monotonic = false;
-      break;
+      backwardsCount += 1;
     }
   }
+  const monotonic = backwardsCount === 0;
   flags.push({
-    id:      'monotonic',
-    level:   monotonic ? 'info' : 'warn',
+    detail: monotonic
+      ? 'No backwards jumps'
+      : `${ backwardsCount.toLocaleString() } row${ backwardsCount === 1 ? '' : 's' } jump backwards in time — likely a clock drift during recording. They will be re-sorted on import.`,
+    id:    'monotonic',
+    level: monotonic ? 'info' : 'warn',
     message: monotonic
-      ? 'Timestamps are monotonic.'
-      : 'Some rows go backward in time — chart cursors may glitch.'
+      ? 'Time series is monotonic'
+      : 'Non-monotonic timestamps'
   });
 
   const hybridHit = parsed.rows.some((row) =>

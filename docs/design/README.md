@@ -85,6 +85,23 @@ Covers:
 
 Files: `toasts.jsx` (new — `ToastsHost` + `useToasts` hook + the imperative `toast` facade), `styles.css` (revised — `.toast-host` + `.toast` + `.toast-dot` + `.toast-progress` + `.toast-action` + `.toast-close` rules; keyframes `toast-in` / `toast-out` / `toast-prog`), plus rest unchanged.
 
+### handoff-6 — Error / failure states (`0NYzcWUP6SDy1wF_i_FGaA`)
+
+Six error states across the app, all severity-coded (amber = warn / recoverable, red = error / blocking).
+
+Covers:
+
+- **CSV parse failure** — `.alert.danger` card in the Import flow replacing the parsing card when `parseFile` throws. Title + monospace filename + raw-line `detail` block + `Try again` / `Cancel` actions. Driven by the existing `error` state in `ImportLogs`; the file reference now sticks so retry doesn't need a re-pick.
+- **Malformed-row inline indicator** — preview-stage validation panel grows a secondary `detail` line beneath the message, e.g. "23 rows jump backwards in time — likely a clock drift during recording…". Backed by a new `detail?: string` field on `ValidationFlag`.
+- **Backend offline banner** — 28-px amber-tinted top strip above the titlebar. Pulsing dot + "Backend unreachable" headline + mono "(N/10)" retry counter + `Retry now` button + close. Polling lives in `useBackendStatus`; the App shell switches its grid template (`app-shell-with-banner`) to grow the extra row.
+- **No-GPS empty state** — replaces the BigMap one-line "No GPS data" placeholder with a dashed-icon card, headline, soft copy, and a 2-column mono checklist showing which signals ARE present (RPM / speed / throttle / boost / AFR / temps + the row count). MiniMap keeps its compact placeholder.
+- **Session not found** — full-page 404 takeover for the `/sessions/:id` route when the id doesn't resolve. Gradient "404" numeral + uppercase mono tag + headline + copy + a mono pseudo-stack-trace card showing the missing path + 404 status, plus `Back to Library` and `Import a CSV` actions.
+- **Permission denied** — `.alert.warn` compact variant lives in the new shared `<Alert>` primitive for future wiring once Electron's file-picker permission errors are exposed over the contextBridge. No live trigger yet.
+
+CSS / structure additions: shared `<Alert>` primitive at `components/primitives/alert/` (variants `danger` / `warn` / `info`; optional `compact` density; optional `detail` block + `onClose` dismiss). `not-found/` sub-component under `session-detail/`. `no-gps-empty/` sub-component under `session-detail/map/big-map/`. `offline-banner/` sub-component + `use-backend-status/` hook under `app/`. `pingFlask` refactored to return `Promise<boolean>` so the banner can observe reachability.
+
+Files: `styles.css` (revised — `.alert` + `.alert.danger` / `.warn` / `.info` + `.alert.compact`; `.top-banner` + `pulse` / `bannerIn` keyframes; `.notfound` + `.nf-code` / `.nf-tag` / `.nf-trace` / `.nf-actions`; `.map-empty` + `.me-icon` / `.me-checks`; `.link-btn`), `app.jsx` (revised — banner + `NotFoundScreen` + error tweaks plumbing), `screens-lib.jsx` (revised — parse-failure card + permission alert + malformed-row val row), `screens-dash.jsx` (revised — MiniMap empty state grows the rich checklist), plus rest unchanged.
+
 ## How to consume
 
 1. Read the handoff's own `README.md` first — Claude Design ships consumption instructions.
