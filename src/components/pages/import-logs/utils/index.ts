@@ -1,6 +1,10 @@
 /**
- * Barrel for utils consumed only by the Import page. Add re-exports here
- * as the three-stage import flow (drop → parsing → preview) lands.
+ * Barrel for utils consumed only by the Import page. Composed by the
+ * three-stage flow: drop → parse → preview → save.
  */
-export { handleDrop } from './handle-drop';
-export { ingestCsv } from './ingest-csv';
+export type { BuildSessionInput } from './build-session';
+export { buildSession } from './build-session';
+export type { ParsedFile } from './parse-file';
+export { parseFile } from './parse-file';
+export type { ValidationFlag, ValidationLevel } from './validate-parsed';
+export { validateParsed } from './validate-parsed';

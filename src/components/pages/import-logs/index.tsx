@@ -1,29 +1,64 @@
-import { Group, Stack, Text, Title } from '@mantine/core';
-import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
+import { Alert, Stack, Text, Title } from '@mantine/core';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppDispatch } from 'state/hooks';
+import { addSession } from 'state/sessions';
+import type { Session } from 'types/session';
 
-import { handleDrop } from './utils';
+import DropStage from './drop-stage';
+import PreviewStage from './preview-stage';
+import { type ParsedFile, parseFile } from './utils';
 
 /**
- * Renders the Import Logs page — a full-page Mantine `Dropzone` shell
- * the user lands on from the sidebar nav or the Library page's "Import
- * CSV" button. Drops are parsed on the renderer, dispatched into the
- * sessions slice, and the user is routed to `/library` where the new
- * session shows up at the top.
+ * Renders the Import Logs page — the design's three-stage Drop →
+ * Parse → Preview flow.
  *
- * Currently a minimum-viable drop surface; the design's full three-stage
- * flow (drop → parsing-progress → validated-preview → details form)
- * lands in CLAUDE.md TODO §D. The util used here (`handleDrop`) is
- * already the right boundary for that expansion — only the page-level
- * UX around it changes.
+ * State machine (held in local state, not Redux):
+ *   - `parsedFile === null && error === null && !busy` — drop stage.
+ *   - `busy` — parse in flight; drop stage shows the loading shell.
+ *   - `parsedFile !== null` — preview stage.
+ *   - `error !== null` — Alert above the drop stage; user can retry.
+ *
+ * Save lifts the form-derived `Session` up here so the page can
+ * dispatch `addSession` + navigate to `/library` without each stage
+ * sub-component knowing about Redux / routing.
  *
  * @returns The Import Logs page React element.
  */
 function ImportLogs() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const [parsedFile, setParsedFile] = useState<ParsedFile | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleDrop = async (file: File): Promise<void> => {
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await parseFile(file);
+      setParsedFile(result);
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : 'Failed to parse CSV.';
+      setError(message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleCancel = (): void => {
+    setParsedFile(null);
+    setError(null);
+  };
+
+  const handleSaved = (session: Session): void => {
+    dispatch(addSession(session));
+    setParsedFile(null);
+    setError(null);
+    navigate('/library');
+  };
 
   return (
     <Stack data-testid="import-logs-page" gap="md">
@@ -35,24 +70,33 @@ function ImportLogs() {
         </Text>
       </Stack>
 
-      {/* `accept` covers both the canonical text/csv mime and the
-          application/vnd.ms-excel spelling some OSes report for .csv. */}
-      <Dropzone
-        accept={ [MIME_TYPES.csv, 'application/vnd.ms-excel'] }
-        data-testid="import-logs-dropzone"
-        maxSize={ 200 * 1024 * 1024 }
-        multiple={ false }
-        onDrop={ (files) => { void handleDrop(files, { dispatch, navigate }); } }
-      >
-        <Group gap="xl" justify="center" mih={ 280 } style={ { pointerEvents: 'none' } }>
-          <Stack align="center" gap={ 4 }>
-            <Text data-testid="import-logs-dropzone-headline" fw={ 500 } size="lg">Drop CSV here</Text>
-            <Text c="dimmed" data-testid="import-logs-dropzone-hint" size="xs">
-              or click to browse — up to 200 MB
-            </Text>
-          </Stack>
-        </Group>
-      </Dropzone>
+      { error !== null && (
+        <Alert
+          color="red"
+          data-testid="import-logs-error"
+          title="Import failed"
+          variant="light"
+        >
+          { error }
+        </Alert>
+      ) }
+
+      { parsedFile === null
+        ? (
+          <DropStage
+            busy={ busy }
+            onDrop={ (file) => { void handleDrop(file); } }
+            testId="import-logs-dropzone"
+          />
+        )
+        : (
+          <PreviewStage
+            onCancel={ handleCancel }
+            onSaved={ handleSaved }
+            parsedFile={ parsedFile }
+            testId="import-logs-preview"
+          />
+        ) }
     </Stack>
   );
 }
