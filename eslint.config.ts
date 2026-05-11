@@ -181,7 +181,7 @@ export default tseslint.config(
        * imports; auto-fixable so save reformats. Five groups in order:
        *   1. side-effect (e.g. `import 'foo.css'`)
        *   2. node-builtins + external packages
-       *   3. absolute imports rooted at src/ (components, state, types, utils)
+       *   3. absolute imports rooted at src/ (components, data, state, types, utils)
        *   4. relative same-folder imports (`./foo`, `.`)
        *   5. style / asset imports
        */
@@ -190,7 +190,7 @@ export default tseslint.config(
         groups: [
           ['^\\u0000'],
           ['^node:', '^@?\\w'],
-          ['^(components|state|types|utils)(/|$)'],
+          ['^(components|data|state|types|utils)(/|$)'],
           ['^\\.'],
           ['^.+\\.s?css$']
         ]

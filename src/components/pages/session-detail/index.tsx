@@ -6,6 +6,7 @@ import { useAppSelector } from 'state/hooks';
 import { selectSessionById } from 'state/sessions';
 import { formatDuration, summarize } from 'utils';
 
+import ChartsTab from './charts-tab';
 import MapTab from './map';
 import Overview from './overview';
 import RawData from './raw-data';
@@ -126,9 +127,7 @@ function SessionDetail() {
           <Overview session={ session } summary={ summary } testId="session-detail-overview" />
         </Tabs.Panel>
         <Tabs.Panel data-testid="session-detail-panel-charts" pt="md" value="charts">
-          <Text c="dimmed" size="sm">
-            Charts — filmstrip stack driven by selected PIDs, PID picker drawer.
-          </Text>
+          <ChartsTab session={ session } testId="session-detail-charts" />
         </Tabs.Panel>
         <Tabs.Panel data-testid="session-detail-panel-map" pt="md" value="map">
           <MapTab session={ session } summary={ summary } testId="session-detail-map" />

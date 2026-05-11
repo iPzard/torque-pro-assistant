@@ -80,8 +80,8 @@
   "homepage": "./",
   "jest": {
     "moduleNameMapper": {
-      "^(components|state|types|utils)$": "<rootDir>/src/$1",
-      "^(components|state|types|utils)/(.+)$": "<rootDir>/src/$1/$2"
+      "^(components|data|state|types|utils)$": "<rootDir>/src/$1",
+      "^(components|data|state|types|utils)/(.+)$": "<rootDir>/src/$1/$2"
     }
   },
   "license": "MIT",
