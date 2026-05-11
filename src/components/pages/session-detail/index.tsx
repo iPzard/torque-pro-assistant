@@ -6,6 +6,8 @@ import { useAppSelector } from 'state/hooks';
 import { selectSessionById } from 'state/sessions';
 import { formatDuration, summarize } from 'utils';
 
+import Overview from './overview';
+
 /**
  * Renders the Session Detail screen — `/sessions/:id`. Resolves the URL
  * id against the sessions slice, computes the session's summary, and
@@ -119,10 +121,7 @@ function SessionDetail() {
         </Tabs.List>
 
         <Tabs.Panel data-testid="session-detail-panel-overview" pt="md" value="overview">
-          <Text c="dimmed" size="sm">
-            Overview — Metric grid, Speed &amp; RPM dual-axis, Throttle / Load,
-            AFR cmd vs measured, Boost, Engine Vitals, Power &amp; Torque, MiniMap.
-          </Text>
+          <Overview session={ session } summary={ summary } testId="session-detail-overview" />
         </Tabs.Panel>
         <Tabs.Panel data-testid="session-detail-panel-charts" pt="md" value="charts">
           <Text c="dimmed" size="sm">
