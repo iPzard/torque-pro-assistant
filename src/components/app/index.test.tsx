@@ -25,6 +25,10 @@ jest.mock('components/pages/import-logs', () => ({
   __esModule: true,
   default: () => <div data-testid="import-logs-route-sentinel" />
 }));
+jest.mock('components/pages/session-detail', () => ({
+  __esModule: true,
+  default: () => <div data-testid="session-detail-route-sentinel" />
+}));
 jest.mock('components/pages/settings', () => ({
   __esModule: true,
   default: () => <div data-testid="settings-route-sentinel" />
@@ -97,6 +101,11 @@ describe('components/app', () => {
   it('initial path /import renders the Import Logs route', () => {
     renderApp(makeApi(), '/import');
     expect(screen.getByTestId('import-logs-route-sentinel')).toBeInTheDocument();
+  });
+
+  it('initial path /sessions/:id renders the Session Detail route', () => {
+    renderApp(makeApi(), '/sessions/s_1_drive');
+    expect(screen.getByTestId('session-detail-route-sentinel')).toBeInTheDocument();
   });
 
   it('initial path /settings renders the Settings route', () => {

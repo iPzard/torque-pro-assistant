@@ -19,6 +19,7 @@ import {
 import CompareLogs from 'components/pages/compare-logs';
 import ImportLogs from 'components/pages/import-logs';
 import Library from 'components/pages/library';
+import SessionDetail from 'components/pages/session-detail';
 import Settings from 'components/pages/settings';
 import { windowControls } from 'utils';
 
@@ -167,6 +168,7 @@ function App() {
         <Routes>
           <Route element={ <Navigate replace to="/library" /> } path="/" />
           <Route element={ <Library /> } path="/library" />
+          <Route element={ <SessionDetail /> } path="/sessions/:id" />
           <Route element={ <CompareLogs /> } path="/compare" />
           <Route element={ <ImportLogs /> } path="/import" />
           <Route element={ <Settings /> } path="/settings" />

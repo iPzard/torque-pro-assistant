@@ -51,6 +51,10 @@ function renderLibrary(sessions: readonly Session[] = []) {
           <Routes>
             <Route element={ <Library /> } path="/library" />
             <Route element={ <div data-testid="import-route-sentinel" /> } path="/import" />
+            <Route
+              element={ <div data-testid="session-route-sentinel" /> }
+              path="/sessions/:id"
+            />
           </Routes>
         </MemoryRouter>
       </MantineProvider>
@@ -103,5 +107,12 @@ describe('pages/library', () => {
   it('hides the empty-state copy once sessions are present', () => {
     renderLibrary([makeSession('s_1_drive', 'drive')]);
     expect(screen.queryByTestId('library-empty-state')).not.toBeInTheDocument();
+  });
+
+  it('clicking a row navigates to that session\'s detail route', async () => {
+    const user = userEvent.setup();
+    renderLibrary([makeSession('s_1_drive', 'drive')]);
+    await user.click(screen.getByTestId('library-sessions-row-s_1_drive'));
+    expect(screen.getByTestId('session-route-sentinel')).toBeInTheDocument();
   });
 });

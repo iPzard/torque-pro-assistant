@@ -5,6 +5,7 @@
  */
 export type { ColumnDetection, ParsedCsv } from './csv';
 export { parseCsv } from './csv';
+export { formatDuration } from './format-duration';
 export { get, post } from './requests';
 export { windowControls } from './services';
 export { summarize } from './summarize';

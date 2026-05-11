@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useAppSelector } from 'state/hooks';
 import { selectAllSessionMeta } from 'state/sessions';
-
-import { formatDuration } from './utils';
+import { formatDuration } from 'utils';
 
 /**
  * Renders the Library page — the design's home view, listing every
@@ -59,6 +58,8 @@ function Library() {
                 <Table.Tr
                   key={ sessionMeta.id }
                   data-testid={ `library-sessions-row-${ sessionMeta.id }` }
+                  onClick={ () => navigate(`/sessions/${ sessionMeta.id }`) }
+                  style={ { cursor: 'pointer' } }
                 >
                   <Table.Td>{ sessionMeta.name }</Table.Td>
                   <Table.Td>{ new Date(sessionMeta.startedAt).toLocaleString() }</Table.Td>
