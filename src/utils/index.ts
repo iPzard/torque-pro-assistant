@@ -18,5 +18,7 @@ export {
   formatTemperature
 } from './format-units';
 export { get, post } from './requests';
+export type { ResolvedPid } from './resolve-pid-for-units';
+export { resolvePidForUnits } from './resolve-pid-for-units';
 export { windowControls } from './services';
 export { summarize } from './summarize';

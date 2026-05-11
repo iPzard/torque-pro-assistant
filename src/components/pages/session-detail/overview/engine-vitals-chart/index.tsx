@@ -1,6 +1,9 @@
 import LineChart, { type LineChartSeries } from 'components/charts/line-chart';
 import Card from 'components/primitives/card';
+import { useAppSelector } from 'state/hooks';
+import { selectUnits } from 'state/preferences';
 import type { SessionDataRow } from 'types/session';
+import { resolvePidForUnits } from 'utils';
 
 interface EngineVitalsChartProps {
   readonly data: readonly SessionDataRow[];
@@ -10,31 +13,11 @@ interface EngineVitalsChartProps {
   readonly testId?: string;
 }
 
-const COOLANT_SERIES: LineChartSeries = {
-  color: 'var(--mantine-color-red-5)',
-  key:   'coolant_f',
-  label: 'Coolant',
-  unit:  '°F'
-};
-
-const OIL_SERIES: LineChartSeries = {
-  color: 'var(--mantine-color-amber-6)',
-  key:   'oil_f',
-  label: 'Oil',
-  unit:  '°F'
-};
-
-const IAT_SERIES: LineChartSeries = {
-  color: 'var(--mantine-color-cyan-4)',
-  key:   'iat_f',
-  label: 'Intake Air',
-  unit:  '°F'
-};
-
 /**
  * Engine vitals chart — coolant, oil, and intake-air temps on the
- * same axis (°F). Hot-day analysis at a glance: coolant climbing
- * vs. oil holding steady, IAT-soak after spirited driving, etc.
+ * same axis. Three series resolve their key + unit through the PID
+ * catalog so every line swaps to °C when the units preference is
+ * metric.
  *
  * Drops any series whose PID wasn't logged via Recharts'
  * undefined-value handling. If none of the three were logged, the
@@ -43,12 +26,22 @@ const IAT_SERIES: LineChartSeries = {
  * @returns A card containing the vitals chart.
  */
 function EngineVitalsChart({ data, syncId, testId }: EngineVitalsChartProps) {
+  const units = useAppSelector((state) => selectUnits(state.preferences));
+  const coolant = resolvePidForUnits('coolant_f', units);
+  const oil = resolvePidForUnits('oil_f', units);
+  const iat = resolvePidForUnits('iat_f', units);
+  const series: LineChartSeries[] = [
+    { color: 'var(--mantine-color-red-5)',   key: coolant.key, label: 'Coolant',    unit: coolant.unit },
+    { color: 'var(--mantine-color-amber-6)', key: oil.key,     label: 'Oil',        unit: oil.unit },
+    { color: 'var(--mantine-color-cyan-4)',  key: iat.key,     label: 'Intake Air', unit: iat.unit }
+  ];
+
   return (
-    <Card subtitle="coolant · oil · IAT" testId={ testId } title="Engine Vitals">
+    <Card subtitle={ `coolant · oil · IAT (${ coolant.unit })` } testId={ testId } title="Engine Vitals">
       <LineChart
         data={ data }
         height={ 180 }
-        series={ [COOLANT_SERIES, OIL_SERIES, IAT_SERIES] }
+        series={ series }
         syncId={ syncId }
         testId={ testId === undefined ? undefined : `${ testId }-chart` }
       />

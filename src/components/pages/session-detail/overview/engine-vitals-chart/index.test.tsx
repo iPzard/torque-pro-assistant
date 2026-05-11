@@ -1,6 +1,9 @@
 import { MantineProvider } from '@mantine/core';
+import { configureStore } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
 
+import preferencesReducer, { INITIAL_PREFERENCES } from 'state/preferences';
 import type { SessionDataRow } from 'types/session';
 
 import EngineVitalsChart from '.';
@@ -14,11 +17,18 @@ const makeRows = (count: number): SessionDataRow[] =>
     ts:        index * 1000
   }));
 
+const makeStore = () => configureStore({
+  preloadedState: { preferences: INITIAL_PREFERENCES },
+  reducer:        { preferences: preferencesReducer }
+});
+
 function renderChart(data: readonly SessionDataRow[] = makeRows(10)) {
   return render(
-    <MantineProvider>
-      <EngineVitalsChart data={ data } testId="engine-vitals" />
-    </MantineProvider>
+    <Provider store={ makeStore() }>
+      <MantineProvider>
+        <EngineVitalsChart data={ data } testId="engine-vitals" />
+      </MantineProvider>
+    </Provider>
   );
 }
 
