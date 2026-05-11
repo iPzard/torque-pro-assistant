@@ -73,7 +73,7 @@ describe('pages/vehicle-setup', () => {
     const store = renderVehicleSetup();
     const user = userEvent.setup();
 
-    await user.selectOptions(screen.getByTestId('vehicle-setup-year'), '2018');
+    await user.type(screen.getByTestId('vehicle-setup-year'), '2018');
     await user.selectOptions(screen.getByTestId('vehicle-setup-make'), 'Ford');
     await user.type(screen.getByTestId('vehicle-setup-model'), 'Mustang');
     await user.click(screen.getByTestId('vehicle-setup-submit-button'));

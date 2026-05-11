@@ -10,12 +10,23 @@ import {
   setVehicleDefaults
 } from 'state/preferences';
 
-/** Years offered in the year dropdown. Walks back 14 years from
- *  the current model year (matches the design's `2026 - i` loop). */
-const YEAR_OPTIONS: readonly number[] = Array.from(
-  { length: 14 },
-  (_, index) => 2026 - index
-);
+/** Earliest model year that could plausibly carry an OBD port. OBD-I
+ *  was federally mandated in 1991 (CARB-only from 1988); OBD-II didn't
+ *  become mandatory until 1996. We anchor at 1991 to cover any
+ *  OBD-equipped vehicle Torque Pro could conceivably read, including
+ *  early-adopter OBD-I cars hooked up via converter cables. */
+const EARLIEST_OBD_YEAR = 1991;
+
+/** Years offered in the dropdown: most-recent first, down to the
+ *  earliest OBD year. Includes next model year (current + 1) since
+ *  manufacturers ship next-year models in Q4 of the prior calendar
+ *  year. Recomputed at module load — fine for a long-running renderer
+ *  since a single calendar tick doesn't change the displayed list. */
+const YEAR_OPTIONS: readonly number[] = (() => {
+  const max = new Date().getUTCFullYear() + 1;
+  const length = max - EARLIEST_OBD_YEAR + 1;
+  return Array.from({ length }, (_, index) => max - index);
+})();
 
 /** Make options pulled from the design handoff's selects list. */
 const MAKE_OPTIONS: readonly string[] = [
@@ -127,16 +138,27 @@ function VehicleSetup() {
               <div style={ { display: 'grid', gap: 10, gridTemplateColumns: 'repeat(3, 1fr)' } }>
                 <div>
                   <div className="dim" style={ { fontSize: 10, letterSpacing: '.08em', marginBottom: 4, textTransform: 'uppercase' } }>Year</div>
-                  <select
-                    className="select"
+                  <input
+                    className="input mono"
                     data-testid="vehicle-setup-year"
-                    onChange={ (event) => setYear(Number(event.currentTarget.value) || 0) }
+                    inputMode="numeric"
+                    list="vehicle-setup-year-options"
+                    onChange={ (event) => {
+                      const raw = event.currentTarget.value.trim();
+                      if (raw === '') {
+                        setYear(0);
+                        return;
+                      }
+                      const parsed = Number(raw);
+                      setYear(Number.isFinite(parsed) ? parsed : 0);
+                    } }
+                    placeholder="Year…"
                     style={ { width: '100%' } }
-                    value={ year === 0 ? '' : year }
-                  >
-                    <option value="">Year…</option>
-                    { YEAR_OPTIONS.map((option) => <option key={ option } value={ option }>{ option }</option>) }
-                  </select>
+                    value={ year === 0 ? '' : String(year) }
+                  />
+                  <datalist id="vehicle-setup-year-options">
+                    { YEAR_OPTIONS.map((option) => <option key={ option } value={ option } />) }
+                  </datalist>
                 </div>
                 <div>
                   <div className="dim" style={ { fontSize: 10, letterSpacing: '.08em', marginBottom: 4, textTransform: 'uppercase' } }>Make</div>
