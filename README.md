@@ -5,7 +5,10 @@
 
 > Desktop log viewer for [Torque Pro](https://torque-bhp.com/) OBD-II driving sessions. Drop in a CSV export, explore the data with charts, and compare historic trips side-by-side.
 
+<!-- TODO: replace with the LiceCap GIF capture of the first-run flow.
 ![First-time user flow — Welcome → Add vehicle → Import → Library](assets/screenshots/first-run.svg)
+-->
+
 ## 🛠️ Setup
 
 > These setup steps are for **developers** working on the app. End users who install a packaged build (MSI / DMG / DEB) need none of this — the installer ships everything.
