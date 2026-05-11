@@ -55,6 +55,12 @@ describe('pages/session-detail/charts-tab', () => {
     const user = userEvent.setup();
     renderChartsTab();
     await user.click(screen.getByTestId('charts-tab-picker-trigger'));
-    expect(screen.getByTestId('charts-tab-picker-search')).toBeInTheDocument();
+    /**
+     * `findByTestId` polls until the assertion passes — Mantine's
+     * `Drawer` mounts its body after a CSS animation tick, so a
+     * synchronous `getByTestId` races and fails intermittently
+     * (consistently on the Ubuntu CI runner, occasionally locally).
+     */
+    expect(await screen.findByTestId('charts-tab-picker-search')).toBeInTheDocument();
   });
 });
