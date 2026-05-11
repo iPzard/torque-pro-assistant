@@ -1,0 +1,198 @@
+/**
+ * Toast host + item — bottom-right stack of notifications anchored to
+ * `app-main`. Max three visible at once; older queue items wait in
+ * `utils/toast` until earlier ones auto-dismiss.
+ *
+ * Animations:
+ *   - `toast-in`   slide-in from the right (220 ms ease-out).
+ *   - `toast-out`  reverse slide-out (180 ms).
+ *   - `toast-prog` width transition driving the bottom progress bar.
+ */
+
+.toast-host {
+  position: absolute;
+  right: 20px;
+  bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 360px;
+  max-width: calc(100% - 40px);
+  pointer-events: none;
+  z-index: 75;
+}
+
+.toast {
+  position: relative;
+  pointer-events: auto;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  padding: 12px 10px 12px 14px;
+  background: var(--bg-1);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  color: var(--text-0);
+  font-size: 13px;
+  overflow: hidden;
+  animation: toast-in 0.22s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+.toast-leaving {
+  composes: toast;
+  animation: toast-out 0.18s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(110%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(110%); }
+}
+
+.toast-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  background: var(--text-3);
+  box-shadow: 0 0 0 3px rgba(139, 145, 155, 0.18);
+}
+
+.toast-dot-success {
+  composes: toast-dot;
+  background: var(--ok);
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.18);
+}
+
+.toast-dot-info {
+  composes: toast-dot;
+  background: var(--text-2);
+  box-shadow: 0 0 0 3px rgba(139, 145, 155, 0.18);
+}
+
+.toast-dot-warning {
+  composes: toast-dot;
+  background: var(--warn);
+  box-shadow: 0 0 0 3px rgba(249, 168, 37, 0.22);
+}
+
+.toast-dot-error {
+  composes: toast-dot;
+  background: var(--danger);
+  box-shadow: 0 0 0 3px rgba(255, 90, 90, 0.20);
+}
+
+.toast-body { min-width: 0; }
+
+.toast-title {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--text-0);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toast-sub {
+  font-size: 12px;
+  color: var(--text-2);
+  margin-top: 3px;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.toast-actions {
+  margin-top: 9px;
+  display: flex;
+  gap: 6px;
+}
+
+.toast-action {
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 5px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.toast-action:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+}
+
+.toast-action-error {
+  composes: toast-action;
+  color: var(--danger);
+}
+
+.toast-action-error:hover {
+  background: rgba(255, 90, 90, 0.08);
+  border-color: rgba(255, 90, 90, 0.45);
+}
+
+.toast-close {
+  width: 22px;
+  height: 22px;
+  margin: -2px -2px 0 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.toast-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-0);
+}
+
+.toast-close svg {
+  width: 14px;
+  height: 14px;
+}
+
+.toast-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  opacity: 0.6;
+  animation: toast-prog linear forwards;
+}
+
+.toast-progress-success { composes: toast-progress; background: var(--ok); }
+.toast-progress-info    { composes: toast-progress; background: var(--text-2); }
+.toast-progress-warning { composes: toast-progress; background: var(--warn); }
+.toast-progress-error   { composes: toast-progress; background: var(--danger); }
+
+.toast:hover .toast-progress { animation-play-state: paused; }
+
+@keyframes toast-prog {
+  from { width: 100%; }
+  to   { width: 0%; }
+}

@@ -72,6 +72,19 @@ CSS additions: `.menu-pop` + `.menu-item` + `.menu-sep` + `.menu-label`, `.modal
 
 Files: `screens-lib.jsx` (revised — new `RowMenu` / `RenameDialog` / `ConfirmDeleteDialog` exports + new icons), `styles.css` (revised — popover / modal / toast / `.btn.danger` rules), plus rest unchanged.
 
+### handoff-5 — Notifications / Toasts (`vRKm5E2VLhSMOuEq_YzuZg`)
+
+Global toast notification system replacing handoff-4's local row-toast. App-wide stack anchored bottom-right that any module can call into imperatively.
+
+Covers:
+
+- **Imperative API** — `toast({ title, ... })` plus `toast.success` / `.info` / `.warning` / `.error` shortcuts. Also `toast.dismiss(id)` + `toast.clear()`. Returns an `id` per push. Module-level queue + subscribers Set — callable from any non-component code (event handlers, async callbacks, slices).
+- **ToastHost** — fixed-position stack at `right: 20px; bottom: 40px`, 360px wide. Renders the 3 newest entries with slide-in + slide-out keyframes. Auto-dismiss timer paused on hover. Manual close X. Optional action button (`{ label, onClick }`) with kind-tinted styling. Animated progress bar countdown.
+- **Four kinds** — `success` (green dot/progress), `info` (cyan), `warning` (amber), `error` (red). Each kind drives the dot color, progress bar color, and action button tint.
+- **Migration** — sessions-table's local `row-toast` sub-component is removed; rename / duplicate / export / show-in-folder / delete actions now fire global `toast.success` / `toast.error` instead. Mantine's `<Notifications />` mount + CSS import are dropped from `src/index.tsx` — replaced by the bespoke ToastHost.
+
+Files: `toasts.jsx` (new — `ToastsHost` + `useToasts` hook + the imperative `toast` facade), `styles.css` (revised — `.toast-host` + `.toast` + `.toast-dot` + `.toast-progress` + `.toast-action` + `.toast-close` rules; keyframes `toast-in` / `toast-out` / `toast-prog`), plus rest unchanged.
+
 ## How to consume
 
 1. Read the handoff's own `README.md` first — Claude Design ships consumption instructions.

@@ -8,8 +8,13 @@ import type { LibrarySort } from 'components/pages/library/utils';
 import preferencesReducer, { INITIAL_PREFERENCES } from 'state/preferences';
 import sessionsReducer from 'state/sessions';
 import type { Session, SessionSummary } from 'types/session';
+import { peekToasts, toast } from 'utils';
 
 import SessionsTable from '.';
+
+beforeEach(() => {
+  toast.clear();
+});
 
 const makeStore = (seedSessions: readonly Session[] = []) => configureStore({
   preloadedState: {
@@ -199,7 +204,7 @@ describe('pages/library/sessions-table', () => {
     await user.click(screen.getByTestId('sessions-table-rename-dialog-save'));
 
     expect(store.getState().sessions.sessions[0].meta.name).toBe('Renamed drive');
-    expect(screen.getByTestId('sessions-table-toast')).toHaveTextContent('Renamed');
+    expect(peekToasts()[0].title).toContain('Renamed');
   });
 
   it('menu Duplicate dispatches addSession with a (copy) suffix + shows a toast', async () => {
@@ -211,7 +216,7 @@ describe('pages/library/sessions-table', () => {
     const stored = store.getState().sessions.sessions;
     expect(stored).toHaveLength(2);
     expect(stored[1].meta.name).toContain('(copy)');
-    expect(screen.getByTestId('sessions-table-toast')).toHaveTextContent('Duplicated');
+    expect(peekToasts()[0].title).toContain('Duplicated');
   });
 
   it('menu Delete opens the confirmation dialog; confirm removes the session', async () => {
@@ -223,7 +228,7 @@ describe('pages/library/sessions-table', () => {
 
     await user.click(screen.getByTestId('sessions-table-delete-dialog-confirm'));
     expect(store.getState().sessions.sessions).toHaveLength(0);
-    expect(screen.getByTestId('sessions-table-toast')).toHaveTextContent('Deleted');
+    expect(peekToasts()[0].title).toContain('Deleted');
   });
 
   it('menu Open navigates to the session detail route', async () => {

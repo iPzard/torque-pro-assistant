@@ -23,6 +23,7 @@ import { windowControls } from 'utils';
 import CommandPalette from './command-palette';
 import { Icons } from './icons';
 import StatusBar from './status-bar';
+import ToastHost from './toast-host';
 import { isActive, pingFlask } from './utils';
 
 import styles from './index.module.scss';
@@ -375,6 +376,8 @@ function App() {
         </Routes>
 
         <StatusBar testId="app-status-bar" units={ units } />
+
+        <ToastHost testId="app-toast-host" />
       </div>
 
       <CommandPalette

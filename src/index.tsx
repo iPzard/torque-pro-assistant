@@ -4,7 +4,6 @@
  * Order matches the dependency direction: core → dates → notifications → dropzone.
  */
 import { createTheme, type MantineColorsTuple, MantineProvider } from '@mantine/core';
-import { Notifications } from '@mantine/notifications';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -15,7 +14,6 @@ import store from 'state/store';
 
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
-import '@mantine/notifications/styles.css';
 import '@mantine/dropzone/styles.css';
 import './index.scss';
 
@@ -65,7 +63,6 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <MantineProvider defaultColorScheme="dark" theme={ theme }>
-      <Notifications />
       <Provider store={ store }>
         <HashRouter>
           <App />

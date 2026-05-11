@@ -22,3 +22,5 @@ export type { ResolvedPid } from './resolve-pid-for-units';
 export { resolvePidForUnits } from './resolve-pid-for-units';
 export { windowControls } from './services';
 export { summarize } from './summarize';
+export type { ToastAction, ToastEntry, ToastKind, ToastOptions } from './toast';
+export { peekToasts, subscribeToToasts, default as toast } from './toast';

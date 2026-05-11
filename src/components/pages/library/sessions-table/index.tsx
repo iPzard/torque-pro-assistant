@@ -12,12 +12,11 @@ import { useAppDispatch } from 'state/hooks';
 import type { UnitsPreference } from 'state/preferences';
 import { addSession, removeSession, renameSession } from 'state/sessions';
 import type { Session, SessionMeta, SessionSummary } from 'types/session';
-import { convertDistance, convertSpeed, formatDuration } from 'utils';
+import { convertDistance, convertSpeed, formatDuration, toast } from 'utils';
 
 import DeleteDialog from './delete-dialog';
 import RenameDialog from './rename-dialog';
 import RowMenu from './row-menu';
-import RowToast, { type ToastKind } from './row-toast';
 
 import styles from './index.module.scss';
 
@@ -78,11 +77,6 @@ interface MenuAnchor {
   readonly y: number;
 }
 
-interface ToastState {
-  readonly kind: ToastKind;
-  readonly text: string;
-}
-
 /**
  * Library sessions table — matches the design handoff's 12-column
  * layout with a sparkline profile column, peak metric columns, and a
@@ -118,7 +112,6 @@ function SessionsTable({
   const [menuFor, setMenuFor] = useState<MenuAnchor | null>(null);
   const [renameFor, setRenameFor] = useState<Session | null>(null);
   const [deleteFor, setDeleteFor] = useState<Session | null>(null);
-  const [toast, setToast] = useState<ToastState | null>(null);
 
   const findSession = (id: string): Session | undefined =>
     rows.find((row) => row.session.meta.id === id)?.session;
@@ -131,7 +124,7 @@ function SessionsTable({
   const handleRenameSave = (id: string, nextName: string): void => {
     dispatch(renameSession({ id, name: nextName }));
     setRenameFor(null);
-    setToast({ kind: 'ok', text: `Renamed to “${ nextName }”` });
+    toast.success(`Renamed to “${ nextName }”`);
   };
 
   const handleDuplicate = (session: Session): void => {
@@ -146,26 +139,26 @@ function SessionsTable({
     };
     dispatch(addSession(copy));
     setMenuFor(null);
-    setToast({ kind: 'ok', text: `Duplicated as “${ copy.meta.name }”` });
+    toast.success(`Duplicated as “${ copy.meta.name }”`);
   };
 
   const handleExport = (session: Session): void => {
     setMenuFor(null);
     /** Real export wiring lands when Electron's `dialog.showSaveDialog`
      *  + `fs.writeFile` are exposed over the contextBridge. */
-    setToast({ kind: 'ok', text: `Exported ${ session.meta.fileName }` });
+    toast.success(`Exported ${ session.meta.fileName }`);
   };
 
   const handleShowInFolder = (session: Session): void => {
     setMenuFor(null);
     /** Pending Electron `shell.showItemInFolder` bridge. */
-    setToast({ kind: 'ok', text: `Revealing ${ session.meta.fileName } in Finder…` });
+    toast.success(`Revealing ${ session.meta.fileName } in Finder…`);
   };
 
   const handleDeleteConfirm = (meta: SessionMeta): void => {
     dispatch(removeSession(meta.id));
     setDeleteFor(null);
-    setToast({ kind: 'err', text: `Deleted “${ meta.name }”` });
+    toast.error(`Deleted “${ meta.name }”`);
   };
 
   return (
@@ -334,14 +327,6 @@ function SessionsTable({
         />
       ) }
 
-      { toast !== null && (
-        <RowToast
-          kind={ toast.kind }
-          onDismiss={ () => setToast(null) }
-          testId={ testId === undefined ? undefined : `${ testId }-toast` }
-          text={ toast.text }
-        />
-      ) }
     </>
   );
 }
