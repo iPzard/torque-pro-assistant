@@ -1,11 +1,26 @@
+import { configureStore } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import type { LibrarySort } from 'components/pages/library/utils';
+import preferencesReducer, { INITIAL_PREFERENCES } from 'state/preferences';
+import sessionsReducer from 'state/sessions';
 import type { Session, SessionSummary } from 'types/session';
 
 import SessionsTable from '.';
+
+const makeStore = (seedSessions: readonly Session[] = []) => configureStore({
+  preloadedState: {
+    preferences: INITIAL_PREFERENCES,
+    sessions:    { selectedId: null, sessions: seedSessions }
+  },
+  reducer: {
+    preferences: preferencesReducer,
+    sessions:    sessionsReducer
+  }
+});
 
 const makeSession = (overrides: Partial<Session['meta']> = {}): Session => ({
   data: [
@@ -59,27 +74,31 @@ function renderTable(
     selectedIds = new Set<string>(),
     sort = { key: 'startedAt' as const, order: 'desc' as const }
   } = options;
-  return render(
-    <MemoryRouter initialEntries={ ['/library'] }>
-      <Routes>
-        <Route
-          element={
-            <SessionsTable
-              onSelectionToggle={ onSelectionToggle }
-              onSortChange={ onSortChange }
-              rows={ rows }
-              selectedIds={ selectedIds }
-              sort={ sort }
-              testId="sessions-table"
-              units="imperial"
-            />
-          }
-          path="/library"
-        />
-        <Route element={ <div data-testid="session-route-sentinel" /> } path="/sessions/:id" />
-      </Routes>
-    </MemoryRouter>
+  const store = makeStore(rows.map((row) => row.session));
+  render(
+    <Provider store={ store }>
+      <MemoryRouter initialEntries={ ['/library'] }>
+        <Routes>
+          <Route
+            element={
+              <SessionsTable
+                onSelectionToggle={ onSelectionToggle }
+                onSortChange={ onSortChange }
+                rows={ rows }
+                selectedIds={ selectedIds }
+                sort={ sort }
+                testId="sessions-table"
+                units="imperial"
+              />
+            }
+            path="/library"
+          />
+          <Route element={ <div data-testid="session-route-sentinel" /> } path="/sessions/:id" />
+        </Routes>
+      </MemoryRouter>
+    </Provider>
   );
+  return store;
 }
 
 describe('pages/library/sessions-table', () => {
@@ -145,5 +164,73 @@ describe('pages/library/sessions-table', () => {
     );
     await user.click(screen.getByTestId('sessions-table-header-name'));
     expect(onSortChange).toHaveBeenCalledWith({ key: 'name', order: 'desc' });
+  });
+
+  it('clicking the row `…` button opens the action menu', async () => {
+    const user = userEvent.setup();
+    renderTable([makeRow('s_1')]);
+    await user.click(screen.getByTestId('sessions-table-more-s_1'));
+    expect(screen.getByTestId('sessions-table-menu')).toBeInTheDocument();
+    expect(screen.getByTestId('sessions-table-menu-open')).toBeInTheDocument();
+    expect(screen.getByTestId('sessions-table-menu-rename')).toBeInTheDocument();
+    expect(screen.getByTestId('sessions-table-menu-duplicate')).toBeInTheDocument();
+    expect(screen.getByTestId('sessions-table-menu-export')).toBeInTheDocument();
+    expect(screen.getByTestId('sessions-table-menu-show-in-folder')).toBeInTheDocument();
+    expect(screen.getByTestId('sessions-table-menu-delete')).toBeInTheDocument();
+  });
+
+  it('menu Rename opens the rename dialog', async () => {
+    const user = userEvent.setup();
+    renderTable([makeRow('s_1')]);
+    await user.click(screen.getByTestId('sessions-table-more-s_1'));
+    await user.click(screen.getByTestId('sessions-table-menu-rename'));
+    expect(screen.getByTestId('sessions-table-rename-dialog')).toBeInTheDocument();
+  });
+
+  it('rename dialog Save dispatches renameSession + shows a toast', async () => {
+    const user = userEvent.setup();
+    const store = renderTable([makeRow('s_1')]);
+    await user.click(screen.getByTestId('sessions-table-more-s_1'));
+    await user.click(screen.getByTestId('sessions-table-menu-rename'));
+
+    const input = screen.getByTestId('sessions-table-rename-dialog-input');
+    await user.clear(input);
+    await user.type(input, 'Renamed drive');
+    await user.click(screen.getByTestId('sessions-table-rename-dialog-save'));
+
+    expect(store.getState().sessions.sessions[0].meta.name).toBe('Renamed drive');
+    expect(screen.getByTestId('sessions-table-toast')).toHaveTextContent('Renamed');
+  });
+
+  it('menu Duplicate dispatches addSession with a (copy) suffix + shows a toast', async () => {
+    const user = userEvent.setup();
+    const store = renderTable([makeRow('s_1')]);
+    await user.click(screen.getByTestId('sessions-table-more-s_1'));
+    await user.click(screen.getByTestId('sessions-table-menu-duplicate'));
+
+    const stored = store.getState().sessions.sessions;
+    expect(stored).toHaveLength(2);
+    expect(stored[1].meta.name).toContain('(copy)');
+    expect(screen.getByTestId('sessions-table-toast')).toHaveTextContent('Duplicated');
+  });
+
+  it('menu Delete opens the confirmation dialog; confirm removes the session', async () => {
+    const user = userEvent.setup();
+    const store = renderTable([makeRow('s_1')]);
+    await user.click(screen.getByTestId('sessions-table-more-s_1'));
+    await user.click(screen.getByTestId('sessions-table-menu-delete'));
+    expect(screen.getByTestId('sessions-table-delete-dialog')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('sessions-table-delete-dialog-confirm'));
+    expect(store.getState().sessions.sessions).toHaveLength(0);
+    expect(screen.getByTestId('sessions-table-toast')).toHaveTextContent('Deleted');
+  });
+
+  it('menu Open navigates to the session detail route', async () => {
+    const user = userEvent.setup();
+    renderTable([makeRow('s_1')]);
+    await user.click(screen.getByTestId('sessions-table-more-s_1'));
+    await user.click(screen.getByTestId('sessions-table-menu-open'));
+    expect(screen.getByTestId('session-route-sentinel')).toBeInTheDocument();
   });
 });

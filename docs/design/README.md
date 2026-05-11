@@ -57,6 +57,21 @@ Bug fix captured in the chat: original Settings render was being intercepted by 
 
 Files: `screens-settings.jsx` (new), `app.jsx` (revised — Settings route hoisted above the first-run / no-vehicle gates), plus the handoff-2 set unchanged.
 
+### handoff-4 — Library row action menu (`fS5Elq996gIi43Zfdzzh2w`)
+
+Per-row `…` (more) button on the Library sessions table becomes a popover menu + two confirmation modals + a toast.
+
+Covers:
+
+- **RowMenu popover** — fixed-position with smart placement (flips above the anchor when overflowing the viewport bottom). Items: Open · Rename… · Duplicate (with `⌘D` kbd hint) · ─ · Export CSV · Show in folder (`⌥⌘R`) · ─ · Delete… (danger red). Header line shows the session name. Mouse-outside + Escape close.
+- **RenameDialog** — centered modal w/ pencil icon-circle, single text input pre-selected with the current name, max 80 chars + counter, Save / Cancel. Save disabled while empty or unchanged.
+- **ConfirmDeleteDialog** — destructive variant with red icon-circle + headline, read-only summary grid (File / Recorded / Duration / Size), Cancel + Delete buttons. Enter confirms.
+- **Row toast** — bottom-center pill that auto-dismisses after 3.2 s. Two kinds: ok (green check) + err (red trash). Fires after every action.
+
+CSS additions: `.menu-pop` + `.menu-item` + `.menu-sep` + `.menu-label`, `.modal-backdrop` + `.modal` + `.modal-h` + `.modal-body` + `.modal-foot` + `.icon-circle`, `.btn.danger`, `.row-toast` + `.row-toast.err`. Animations: `menuIn`, `mIn`, `bdIn`, `toastIn`.
+
+Files: `screens-lib.jsx` (revised — new `RowMenu` / `RenameDialog` / `ConfirmDeleteDialog` exports + new icons), `styles.css` (revised — popover / modal / toast / `.btn.danger` rules), plus rest unchanged.
+
 ## How to consume
 
 1. Read the handoff's own `README.md` first — Claude Design ships consumption instructions.

@@ -74,6 +74,18 @@ const sessionsSlice = createSlice({
         state.selectedId = null;
       }
     },
+    /** Renames the session with the given id. No-op when the id
+     *  isn't in the list. */
+    renameSession: (
+      state,
+      action: PayloadAction<{ readonly id: string; readonly name: string }>
+    ) => {
+      const { id, name } = action.payload;
+      const target = state.sessions.find((existing) => existing.meta.id === id);
+      if (target !== undefined) {
+        target.meta.name = name;
+      }
+    },
     /** Sets the current selection. No-op if the id isn't in the list. */
     selectSession: (state, action: PayloadAction<string>) => {
       const targetId = action.payload;
@@ -89,6 +101,7 @@ export const {
   addSession,
   clearSelection,
   removeSession,
+  renameSession,
   selectSession
 } = sessionsSlice.actions;
 

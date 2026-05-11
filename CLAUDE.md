@@ -84,6 +84,7 @@ Current handoffs:
 - **handoff-1** — populated app (Library w/ sessions, Session Dashboard tabs, Compare overlay, Import flow stages, vehicle hardcoded).
 - **handoff-2** — first-run + no-vehicle states (Welcome, FirstRunNoVehicle, NoVehicleScreen, adaptive sidebar/titlebar).
 - **handoff-3** — Settings page (six sections: Appearance, Units, Vehicles, Data, Network, About; multi-vehicle table, accent picker, Phase J upload URL).
+- **handoff-4** — Library row action menu (`…` popover + Rename modal + Delete confirmation + bottom-center toast).
 
 When the user supplies a new handoff URL, fetch it (`https://api.anthropic.com/v1/design/h/<id>` returns a gzip tarball), drop the contents at `docs/design/handoff-<N>/`, and add an index entry to `docs/design/README.md`. Cross-reference any superseded prior handoff. **Always read the handoff's `chats/chat1.md` first** — the chat transcript is where the user's brief lives; the HTML files are just the output.
 

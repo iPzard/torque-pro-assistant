@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Icons } from 'components/app/icons';
@@ -7,9 +8,16 @@ import type {
   LibrarySortKey,
   LibrarySortOrder
 } from 'components/pages/library/utils';
+import { useAppDispatch } from 'state/hooks';
 import type { UnitsPreference } from 'state/preferences';
-import type { Session, SessionSummary } from 'types/session';
+import { addSession, removeSession, renameSession } from 'state/sessions';
+import type { Session, SessionMeta, SessionSummary } from 'types/session';
 import { convertDistance, convertSpeed, formatDuration } from 'utils';
+
+import DeleteDialog from './delete-dialog';
+import RenameDialog from './rename-dialog';
+import RowMenu from './row-menu';
+import RowToast, { type ToastKind } from './row-toast';
 
 interface SessionsTableProps {
   readonly onSelectionToggle: (id: string) => void;
@@ -62,11 +70,28 @@ const vehicleLabel = (session: Session): string => {
   return parts.length === 0 ? '—' : parts.join(' ');
 };
 
+interface MenuAnchor {
+  readonly id: string;
+  readonly x: number;
+  readonly y: number;
+}
+
+interface ToastState {
+  readonly kind: ToastKind;
+  readonly text: string;
+}
+
 /**
  * Library sessions table — matches the design handoff's 12-column
  * layout with a sparkline profile column, peak metric columns, and a
  * row-action menu. Row click navigates to the matching detail page;
  * the leftmost checkbox toggles selection for the Compare flow.
+ *
+ * Per-row `…` button opens a `RowMenu` popover with Open / Rename /
+ * Duplicate / Export CSV / Show in folder / Delete entries (handoff-4).
+ * Rename + Delete each open a modal dialog; Duplicate / Export /
+ * Show-in-folder fire a confirmation toast (Export + Show are stubs
+ * pending the Electron `shell` wiring).
  *
  * Headers for the four sort columns (name / date / duration / size)
  * are click-to-sort; numeric columns derived from `summarize` are
@@ -85,121 +110,237 @@ function SessionsTable({
   testId,
   units
 }: SessionsTableProps) {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  const [menuFor, setMenuFor] = useState<MenuAnchor | null>(null);
+  const [renameFor, setRenameFor] = useState<Session | null>(null);
+  const [deleteFor, setDeleteFor] = useState<Session | null>(null);
+  const [toast, setToast] = useState<ToastState | null>(null);
+
+  const findSession = (id: string): Session | undefined =>
+    rows.find((row) => row.session.meta.id === id)?.session;
+
+  const handleOpen = (session: Session): void => {
+    setMenuFor(null);
+    navigate(`/sessions/${ session.meta.id }`);
+  };
+
+  const handleRenameSave = (id: string, nextName: string): void => {
+    dispatch(renameSession({ id, name: nextName }));
+    setRenameFor(null);
+    setToast({ kind: 'ok', text: `Renamed to “${ nextName }”` });
+  };
+
+  const handleDuplicate = (session: Session): void => {
+    const stamp = new Date().getTime();
+    const copy: Session = {
+      data: session.data,
+      meta: {
+        ...session.meta,
+        id:   `${ session.meta.id }-copy-${ stamp }`,
+        name: `${ session.meta.name } (copy)`
+      }
+    };
+    dispatch(addSession(copy));
+    setMenuFor(null);
+    setToast({ kind: 'ok', text: `Duplicated as “${ copy.meta.name }”` });
+  };
+
+  const handleExport = (session: Session): void => {
+    setMenuFor(null);
+    /** Real export wiring lands when Electron's `dialog.showSaveDialog`
+     *  + `fs.writeFile` are exposed over the contextBridge. */
+    setToast({ kind: 'ok', text: `Exported ${ session.meta.fileName }` });
+  };
+
+  const handleShowInFolder = (session: Session): void => {
+    setMenuFor(null);
+    /** Pending Electron `shell.showItemInFolder` bridge. */
+    setToast({ kind: 'ok', text: `Revealing ${ session.meta.fileName } in Finder…` });
+  };
+
+  const handleDeleteConfirm = (meta: SessionMeta): void => {
+    dispatch(removeSession(meta.id));
+    setDeleteFor(null);
+    setToast({ kind: 'err', text: `Deleted “${ meta.name }”` });
+  };
+
   return (
-    <table className="tbl" data-testid={ testId }>
-      <thead>
-        <tr>
-          { COLUMNS.map((column, index) => {
-            const columnKey = column.key;
-            const active = columnKey !== null && sort.key === columnKey;
-            const sortable = columnKey !== null;
-            const display = column.label + (active ? arrowFor(true, sort.order) : '');
-            const handleClick = columnKey === null
-              ? undefined
-              : (): void => onSortChange({
-                key:   columnKey,
-                order: active && sort.order === 'asc' ? 'desc' : 'asc'
-              });
-            return (
-              <th
-                key={ index }
-                className={ column.numeric === true ? 'num' : undefined }
-                data-testid={ testId === undefined || columnKey === null ? undefined : `${ testId }-header-${ columnKey }` }
-                onClick={ handleClick }
-                style={ {
-                  cursor: sortable ? 'pointer' : undefined,
-                  width:  column.width
-                } }
-              >
-                { display }
-              </th>
-            );
-          }) }
-        </tr>
-      </thead>
-      <tbody>
-        { rows.length === 0 && (
-          <tr data-testid={ testId === undefined ? undefined : `${ testId }-no-matches` }>
-            <td className="dim" colSpan={ COLUMNS.length } style={ { padding: '16px 12px' } }>
-              No sessions match the current filters.
-            </td>
-          </tr>
-        ) }
-        { rows.map(({ session, summary }) => {
-          const meta = session.meta;
-          const selected = selectedIds.has(meta.id);
-          const distance = convertDistance(summary.dist, units);
-          const speed = convertSpeed(summary.maxSpeed, units);
-          return (
-            <tr
-              key={ meta.id }
-              className={ selected ? 'sel' : undefined }
-              data-testid={ testId === undefined ? undefined : `${ testId }-row-${ meta.id }` }
-            >
-              <td>
-                <button
-                  aria-checked={ selected }
-                  aria-label={ selected ? 'Deselect session' : 'Select session' }
-                  className={ `checkbox${ selected ? ' on' : '' }` }
-                  data-testid={ testId === undefined ? undefined : `${ testId }-checkbox-${ meta.id }` }
-                  onClick={ () => onSelectionToggle(meta.id) }
-                  role="checkbox"
-                  style={ { padding: 0 } }
-                  type="button"
-                />
-              </td>
-              <td onClick={ () => navigate(`/sessions/${ meta.id }`) } style={ { cursor: 'pointer' } }>
-                <div style={ { display: 'flex', flexDirection: 'column', gap: 2 } }>
-                  <div style={ { color: 'var(--text-0)', fontWeight: 500 } }>{ meta.name }</div>
-                  <div className="dim mono" style={ { fontSize: 11 } }>{ meta.fileName }</div>
-                </div>
-              </td>
-              <td onClick={ () => navigate(`/sessions/${ meta.id }`) } style={ { cursor: 'pointer' } }>
-                <div style={ { display: 'flex', flexDirection: 'column', gap: 2 } }>
-                  <div>{ new Date(meta.startedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) }</div>
-                  <div className="dim mono" style={ { fontSize: 11 } }>
-                    { new Date(meta.startedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }
-                  </div>
-                </div>
-              </td>
-              <td className="mono">{ formatDuration(meta.duration) }</td>
-              <td className="num">
-                { distance.value.toFixed(1) } <span className="dim">{ distance.unit }</span>
-              </td>
-              <td className="num">
-                { speed.value.toFixed(0) } <span className="dim">{ speed.unit }</span>
-              </td>
-              <td className="num">{ Math.round(summary.peakHp) }</td>
-              <td className="num">{ summary.t0to60 === null ? '—' : `${ summary.t0to60.toFixed(1) }s` }</td>
-              <td>{ vehicleLabel(session) }</td>
-              <td className="num dim">{ formatFileSize(meta.fileSize) }</td>
-              <td>
-                <Sparkline
-                  color="var(--d-speed)"
-                  data={ session.data }
-                  dataKey="speed_mph"
-                  height={ 26 }
-                  testId={ testId === undefined ? undefined : `${ testId }-sparkline-${ meta.id }` }
-                  width={ 210 }
-                />
-              </td>
-              <td>
-                <button
-                  aria-label="More actions"
-                  className="btn ghost icon sm"
-                  data-testid={ testId === undefined ? undefined : `${ testId }-more-${ meta.id }` }
-                  type="button"
+    <>
+      <table className="tbl" data-testid={ testId }>
+        <thead>
+          <tr>
+            { COLUMNS.map((column, index) => {
+              const columnKey = column.key;
+              const active = columnKey !== null && sort.key === columnKey;
+              const sortable = columnKey !== null;
+              const display = column.label + (active ? arrowFor(true, sort.order) : '');
+              const handleClick = columnKey === null
+                ? undefined
+                : (): void => onSortChange({
+                  key:   columnKey,
+                  order: active && sort.order === 'asc' ? 'desc' : 'asc'
+                });
+              return (
+                <th
+                  key={ index }
+                  className={ column.numeric === true ? 'num' : undefined }
+                  data-testid={ testId === undefined || columnKey === null ? undefined : `${ testId }-header-${ columnKey }` }
+                  onClick={ handleClick }
+                  style={ {
+                    cursor: sortable ? 'pointer' : undefined,
+                    width:  column.width
+                  } }
                 >
-                  { Icons.more }
-                </button>
+                  { display }
+                </th>
+              );
+            }) }
+          </tr>
+        </thead>
+        <tbody>
+          { rows.length === 0 && (
+            <tr data-testid={ testId === undefined ? undefined : `${ testId }-no-matches` }>
+              <td className="dim" colSpan={ COLUMNS.length } style={ { padding: '16px 12px' } }>
+                No sessions match the current filters.
               </td>
             </tr>
-          );
-        }) }
-      </tbody>
-    </table>
+          ) }
+          { rows.map(({ session, summary }) => {
+            const meta = session.meta;
+            const selected = selectedIds.has(meta.id);
+            const distance = convertDistance(summary.dist, units);
+            const speed = convertSpeed(summary.maxSpeed, units);
+            const menuActive = menuFor?.id === meta.id;
+            return (
+              <tr
+                key={ meta.id }
+                className={ selected ? 'sel' : undefined }
+                data-testid={ testId === undefined ? undefined : `${ testId }-row-${ meta.id }` }
+              >
+                <td>
+                  <button
+                    aria-checked={ selected }
+                    aria-label={ selected ? 'Deselect session' : 'Select session' }
+                    className={ `checkbox${ selected ? ' on' : '' }` }
+                    data-testid={ testId === undefined ? undefined : `${ testId }-checkbox-${ meta.id }` }
+                    onClick={ () => onSelectionToggle(meta.id) }
+                    role="checkbox"
+                    style={ { padding: 0 } }
+                    type="button"
+                  />
+                </td>
+                <td onClick={ () => navigate(`/sessions/${ meta.id }`) } style={ { cursor: 'pointer' } }>
+                  <div style={ { display: 'flex', flexDirection: 'column', gap: 2 } }>
+                    <div style={ { color: 'var(--text-0)', fontWeight: 500 } }>{ meta.name }</div>
+                    <div className="dim mono" style={ { fontSize: 11 } }>{ meta.fileName }</div>
+                  </div>
+                </td>
+                <td onClick={ () => navigate(`/sessions/${ meta.id }`) } style={ { cursor: 'pointer' } }>
+                  <div style={ { display: 'flex', flexDirection: 'column', gap: 2 } }>
+                    <div>{ new Date(meta.startedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) }</div>
+                    <div className="dim mono" style={ { fontSize: 11 } }>
+                      { new Date(meta.startedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }
+                    </div>
+                  </div>
+                </td>
+                <td className="mono">{ formatDuration(meta.duration) }</td>
+                <td className="num">
+                  { distance.value.toFixed(1) } <span className="dim">{ distance.unit }</span>
+                </td>
+                <td className="num">
+                  { speed.value.toFixed(0) } <span className="dim">{ speed.unit }</span>
+                </td>
+                <td className="num">{ Math.round(summary.peakHp) }</td>
+                <td className="num">{ summary.t0to60 === null ? '—' : `${ summary.t0to60.toFixed(1) }s` }</td>
+                <td>{ vehicleLabel(session) }</td>
+                <td className="num dim">{ formatFileSize(meta.fileSize) }</td>
+                <td>
+                  <Sparkline
+                    color="var(--d-speed)"
+                    data={ session.data }
+                    dataKey="speed_mph"
+                    height={ 26 }
+                    testId={ testId === undefined ? undefined : `${ testId }-sparkline-${ meta.id }` }
+                    width={ 210 }
+                  />
+                </td>
+                <td>
+                  <button
+                    aria-expanded={ menuActive ? 'true' : 'false' }
+                    aria-haspopup="menu"
+                    aria-label="Row actions"
+                    className={ `btn ghost icon sm${ menuActive ? ' active' : '' }` }
+                    data-testid={ testId === undefined ? undefined : `${ testId }-more-${ meta.id }` }
+                    onClick={ (event) => {
+                      event.stopPropagation();
+                      const rect = event.currentTarget.getBoundingClientRect();
+                      setMenuFor({ id: meta.id, x: rect.right, y: rect.bottom + 4 });
+                    } }
+                    type="button"
+                  >
+                    { Icons.more }
+                  </button>
+                </td>
+              </tr>
+            );
+          }) }
+        </tbody>
+      </table>
+
+      { menuFor !== null && (() => {
+        const session = findSession(menuFor.id);
+        if (session === undefined) return null;
+        return (
+          <RowMenu
+            anchor={ { x: menuFor.x, y: menuFor.y } }
+            onClose={ () => setMenuFor(null) }
+            onDelete={ () => {
+              setDeleteFor(session);
+              setMenuFor(null);
+            } }
+            onDuplicate={ () => handleDuplicate(session) }
+            onExport={ () => handleExport(session) }
+            onOpen={ () => handleOpen(session) }
+            onRename={ () => {
+              setRenameFor(session);
+              setMenuFor(null);
+            } }
+            onShowInFolder={ () => handleShowInFolder(session) }
+            sessionName={ session.meta.name }
+            testId={ testId === undefined ? undefined : `${ testId }-menu` }
+          />
+        );
+      })() }
+
+      { renameFor !== null && (
+        <RenameDialog
+          meta={ renameFor.meta }
+          onCancel={ () => setRenameFor(null) }
+          onSave={ (nextName) => handleRenameSave(renameFor.meta.id, nextName) }
+          testId={ testId === undefined ? undefined : `${ testId }-rename-dialog` }
+        />
+      ) }
+
+      { deleteFor !== null && (
+        <DeleteDialog
+          meta={ deleteFor.meta }
+          onCancel={ () => setDeleteFor(null) }
+          onConfirm={ () => handleDeleteConfirm(deleteFor.meta) }
+          testId={ testId === undefined ? undefined : `${ testId }-delete-dialog` }
+        />
+      ) }
+
+      { toast !== null && (
+        <RowToast
+          kind={ toast.kind }
+          onDismiss={ () => setToast(null) }
+          testId={ testId === undefined ? undefined : `${ testId }-toast` }
+          text={ toast.text }
+        />
+      ) }
+    </>
   );
 }
 
