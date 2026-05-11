@@ -26,11 +26,10 @@ function CommandPalette({ onClose, opened, testId }: CommandPaletteProps) {
     >
       <Stack gap="sm">
         <Text c="dimmed" size="sm">
-          Command palette is on the roadmap — the shortcut works,
-          the search UX still owes itself to a follow-up.
+          A quick-search across pages, sessions, and PIDs is coming soon. The keyboard shortcut already works — the search itself is still on the way.
         </Text>
         <Text c="dimmed" size="xs">
-          Closes with Escape.
+          Press Escape to close.
         </Text>
       </Stack>
     </Modal>

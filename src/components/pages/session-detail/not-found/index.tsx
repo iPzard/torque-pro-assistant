@@ -42,12 +42,9 @@ function NotFound({ routeId, testId }: NotFoundProps) {
           The link points at a session that has been deleted, moved to another vehicle profile, or never existed on this machine. Sessions are stored locally — deep links don&apos;t survive a fresh install.
         </p>
         <div className={ styles.trace } data-testid={ testId === undefined ? undefined : `${ testId }-trace` }>
-          GET <span className={ styles['trace-path'] }>/sessions/{ routeId }</span>
-          { '  →  ' }
-          <span className={ styles['trace-status'] }>404</span>
-          <span className={ styles['trace-aside'] }>
-            no row in <span className={ styles['trace-db'] }>~/Library/TorqueProAssistant/sessions.db</span>
-          </span>
+          Session id{ ' ' }
+          <span className={ styles['trace-path'] }>{ routeId }</span>
+          <span className={ styles['trace-aside'] }>isn&apos;t in your library.</span>
         </div>
         <div className={ styles.actions }>
           <button

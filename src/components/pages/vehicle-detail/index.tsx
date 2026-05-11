@@ -253,12 +253,12 @@ function VehicleDetail() {
       {/* ── Specs ── */}
       <div className="section-title">Specifications</div>
       <Card
-        subtitle="Used by summarize() for 0–60, peak HP and torque estimates."
+        subtitle="Used to calibrate 0–60, peak horsepower and torque estimates from your session data."
         testId="vehicle-detail-specs"
         title="Vehicle specs"
       >
         <SettingRow
-          detail="Affects 0–60 modelling and dyno HP from acceleration."
+          detail="Affects 0–60 timing and horsepower estimates from acceleration."
           label="Curb weight"
         >
           { editing
@@ -278,7 +278,7 @@ function VehicleDetail() {
         </SettingRow>
 
         <SettingRow
-          detail="Used to convert wheel HP to crank HP and weight-shift modelling."
+          detail="Used to convert wheel horsepower to crank horsepower and to estimate weight transfer under acceleration."
           label="Drivetrain"
         >
           { editing
@@ -297,7 +297,7 @@ function VehicleDetail() {
         </SettingRow>
 
         <SettingRow
-          detail="Charts annotate this line on the RPM axis. Above redline, fuel-cut events are flagged."
+          detail="Marked on the RPM chart. Spikes past this line are flagged as fuel-cut events."
           label="Redline"
         >
           { editing
@@ -317,7 +317,7 @@ function VehicleDetail() {
         </SettingRow>
 
         <SettingRow
-          detail="Used with VE estimates for mass airflow when MAF PID is absent."
+          detail="Estimates airflow when your adapter doesn't expose a mass-airflow sensor reading."
           label="Displacement"
         >
           { editing
@@ -338,7 +338,7 @@ function VehicleDetail() {
         </SettingRow>
 
         <SettingRow
-          detail="Auto / manual changes shift-detection heuristics on the RPM trace."
+          detail="Tells the app how to recognize gear changes on the RPM trace."
           label="Transmission"
           last
         >
@@ -594,7 +594,7 @@ function VehicleDetail() {
             <button
               className="btn primary"
               data-testid="vehicle-detail-export-button"
-              onClick={ () => toast.info('.vprofile export is not wired yet') }
+              onClick={ () => toast.info('Vehicle profile export is coming soon') }
               type="button"
             >
               { Icons.download }<span>Export .vprofile</span>

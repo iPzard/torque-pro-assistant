@@ -30,8 +30,8 @@ describe('pages/session-detail/not-found', () => {
 
   it('embeds the routeId in the mono trace card', () => {
     renderNotFound('zzz_missing');
-    expect(screen.getByTestId('not-found-trace')).toHaveTextContent('/sessions/zzz_missing');
-    expect(screen.getByTestId('not-found-trace')).toHaveTextContent('404');
+    expect(screen.getByTestId('not-found-trace')).toHaveTextContent('zzz_missing');
+    expect(screen.getByTestId('not-found-trace')).toHaveTextContent('isn\'t in your library');
   });
 
   it('Back to Library navigates to /library', async () => {

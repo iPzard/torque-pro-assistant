@@ -14,7 +14,7 @@ describe('components/app/offline-banner', () => {
       />
     );
     expect(screen.getByTestId('banner')).toBeInTheDocument();
-    expect(screen.getByTestId('banner-text')).toHaveTextContent('Backend unreachable');
+    expect(screen.getByTestId('banner-text')).toHaveTextContent('Can\'t reach the local service');
     expect(screen.getByTestId('banner-meta')).toHaveTextContent('(3/10)');
   });
 

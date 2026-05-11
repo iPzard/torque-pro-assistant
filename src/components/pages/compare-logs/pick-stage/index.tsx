@@ -218,7 +218,7 @@ function PickStage({ colors, max, onPick, sessions, seededIds, testId, units }: 
               />
             </div>
             <div className={ styles['cap-note'] }>
-              Up to <span className="mono" style={ { color: 'var(--text-1)' } }>{ max }</span> sessions render without dropping frames on a 2019-era laptop. More than that and you&apos;ll want a filtered <span className="mono" style={ { color: 'var(--text-1)' } }>--max-rows</span> import.
+              Up to <span className="mono" style={ { color: 'var(--text-1)' } }>{ max }</span> sessions overlay smoothly on a modern laptop. Beyond that, lines start to crowd and the comparison gets hard to read.
             </div>
           </Card>
 

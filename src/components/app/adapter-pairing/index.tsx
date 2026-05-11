@@ -515,8 +515,8 @@ function PairStage({ failed, onBack, onCancel, onConfirm, onRetry, onToggleTrust
       { failed && (
         <div style={ { marginTop: 12 } }>
           <Alert
-            detail={ `btle_pair_request → 0x0E (Pairing Not Allowed)\npeer = ${ picked.mac }  agent = io.bluetooth.pair  timeout = 8000ms` }
-            subtitle="Adapter accepted the connection but refused the pairing key. The device may be paired to another phone or laptop — un-pair it there first."
+            detail={ `Adapter ${ picked.mac } · pairing key rejected after 8 seconds` }
+            subtitle="The adapter accepted the connection but refused the pairing key. It's probably already paired to another phone or laptop — un-pair it there first, then try again."
             testId={ testId === undefined ? undefined : `${ testId }-pair-failed` }
             title="Pairing failed"
             variant="danger"
@@ -643,11 +643,7 @@ function ProbeStage({ noProtocol, onBack, onCancel, onContinue, onRetry, probeLi
               </button>
             </>
           }
-          subtitle={
-            <>
-              The adapter paired fine and acknowledges <span className="mono" style={ { color: 'var(--text-1)' } }>ATZ</span>, but the ECU returned <span className="mono" style={ { color: 'var(--text-1)' } }>NO DATA</span> to <span className="mono" style={ { color: 'var(--text-1)' } }>0100</span>. Usually means the ignition is off, the OBD bus is in sleep mode, or this adapter doesn&apos;t speak this vehicle&apos;s protocol.
-            </>
-          }
+          subtitle="The adapter is connected and responsive, but your vehicle's computer isn't answering. Usually means the ignition is off, the car's OBD system has gone to sleep, or this adapter doesn't speak your vehicle's protocol."
           testId={ testId === undefined ? undefined : `${ testId }-no-protocol` }
           title="Connected, but the vehicle isn't responding"
           variant="warn"

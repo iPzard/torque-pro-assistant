@@ -32,7 +32,7 @@ function OfflineBanner({ attempts, onDismiss, onRetry, testId }: OfflineBannerPr
     <div className={ styles.banner } data-testid={ testId } role="status">
       <span className={ styles.pulse } data-testid={ testId === undefined ? undefined : `${ testId }-pulse` } />
       <span className={ styles.text } data-testid={ testId === undefined ? undefined : `${ testId }-text` }>
-        Backend unreachable
+        Can&apos;t reach the local service
       </span>
       <span className={ styles.meta } data-testid={ testId === undefined ? undefined : `${ testId }-meta` }>
         — retrying… ({ attempts }/{ MAX_ATTEMPTS }) · some live features paused
