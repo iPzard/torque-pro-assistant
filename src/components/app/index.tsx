@@ -27,7 +27,7 @@ import { Icons } from './icons';
 import OfflineBanner from './offline-banner';
 import StatusBar from './status-bar';
 import ToastHost from './toast-host';
-import { isActive, useBackendStatus } from './utils';
+import { isActive, useApplyPreferences, useBackendStatus } from './utils';
 
 import styles from './index.module.scss';
 
@@ -82,6 +82,7 @@ function App() {
   const sessions = useAppSelector((state) => selectAllSessions(state.sessions));
   const [paletteOpened, setPaletteOpened] = useState(false);
   const backendStatus = useBackendStatus();
+  useApplyPreferences();
   const bannerVisible = backendStatus.offline && !backendStatus.dismissed;
 
   /**

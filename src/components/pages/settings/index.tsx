@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Icons } from 'components/app/icons';
+import { ACCENT_SWATCHES } from 'components/app/utils';
 import { useAppDispatch, useAppSelector } from 'state/hooks';
 import {
   type BindAddressPreference,
@@ -115,15 +116,6 @@ function SettingRow({ children, detail, label, last = false, testId }: SettingRo
     </div>
   );
 }
-
-/** 5-swatch accent color picker — design-spec colors. */
-const ACCENT_SWATCHES: readonly { color: string; name: string }[] = [
-  { color: '#ffb020', name: 'Amber' },
-  { color: '#ff5a1f', name: 'Orange' },
-  { color: '#6fd3f7', name: 'Cyan' },
-  { color: '#34d399', name: 'Green' },
-  { color: '#c084fc', name: 'Violet' }
-];
 
 const THEME_OPTIONS: readonly SegmentedOption<ThemePreference>[] = [
   { label: 'Dark',  value: 'dark' },
@@ -260,17 +252,23 @@ function Settings() {
           >
             <div className="row" data-testid="settings-accent-swatches" style={ { gap: 8 } }>
               { ACCENT_SWATCHES.map((swatch) => {
-                const on = preferences.accentColor === swatch.color;
+                const on = preferences.accentColor === swatch.dark;
+                /** Render the swatch in whichever variant the active
+                 *  theme uses — so the picker previews the exact tone
+                 *  that will land on the rest of the UI. */
+                const preview = preferences.theme === 'light' ? swatch.light : swatch.dark;
                 return (
                   <button
-                    key={ swatch.color }
+                    key={ swatch.dark }
+                    aria-label={ `Accent color ${ swatch.name }` }
+                    aria-pressed={ on }
                     data-testid={ `settings-accent-${ swatch.name.toLowerCase() }` }
-                    onClick={ () => dispatch(setAccentColor(swatch.color)) }
+                    onClick={ () => dispatch(setAccentColor(swatch.dark)) }
                     style={ {
-                      background:   swatch.color,
+                      background:   preview,
                       border:       on ? '2px solid var(--text-0)' : '1px solid var(--border)',
                       borderRadius: 6,
-                      boxShadow:    on ? `0 0 0 3px ${ swatch.color }33` : 'none',
+                      boxShadow:    on ? `0 0 0 3px ${ preview }33` : 'none',
                       cursor:       'pointer',
                       height:       28,
                       padding:      0,

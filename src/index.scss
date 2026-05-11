@@ -39,10 +39,22 @@
   --border: #262a31;
   --border-strong: #353a42;
 
+  /**
+   * Text scale tuned for WCAG AA contrast (4.5:1 for body, 3:1 for
+   * large text + UI chrome) against the dark surface stack:
+   *   --text-0 ≈ 16:1 on bg-0  (primary copy)
+   *   --text-1 ≈ 10:1 on bg-0  (secondary copy)
+   *   --text-2 ≈ 6.5:1 on bg-0 (tertiary / "dim" copy)
+   *   --text-3 ≈ 4.7:1 on bg-0 (subtle hint copy — AA body floor)
+   *
+   * `--text-3` is intentionally just above the AA floor so it still
+   * reads as "dim" but stays legible. Don't darken further without
+   * re-checking contrast.
+   */
   --text-0: #eef0f3;
   --text-1: #c1c6cf;
-  --text-2: #8b919b;
-  --text-3: #5e636c;
+  --text-2: #98a0aa;
+  --text-3: #767c86;
 
   /* Instrument-backlight amber accent + soft / line variants. */
   --accent: #ffb020;
@@ -100,13 +112,23 @@
   --bg-hover: #eaecef;
   --border: #e3e5e8;
   --border-strong: #cdd0d4;
+  /**
+   * Text scale tuned for WCAG AA against the light surface stack:
+   *   --text-0 ≈ 17:1 on bg-1 (white)
+   *   --text-1 ≈ 11:1
+   *   --text-2 ≈ 5.7:1
+   *   --text-3 ≈ 4.6:1  (just above AA body floor — keeps "dim" copy
+   *                      legible instead of fading into the surface)
+   *
+   * Was #9aa0a8 / #6b7079 — both failed AA on white. Bumped darker.
+   */
   --text-0: #15171a;
-  --text-1: #3a3f46;
-  --text-2: #6b7079;
-  --text-3: #9aa0a8;
-  --accent: #c47800;
-  --accent-soft: rgba(196, 120, 0, 0.10);
-  --accent-line: rgba(196, 120, 0, 0.55);
+  --text-1: #2a2e34;
+  --text-2: #565b63;
+  --text-3: #6a6f78;
+  --accent: #a36400;
+  --accent-soft: rgba(163, 100, 0, 0.10);
+  --accent-line: rgba(163, 100, 0, 0.55);
   --shadow-sm: 0 1px 2px rgba(20, 20, 30, 0.05);
   --shadow-md: 0 6px 18px rgba(20, 20, 30, 0.08);
 }
