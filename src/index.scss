@@ -245,11 +245,19 @@ body {
   overflow: auto;
   background: var(--bg-0);
   position: relative;
-  padding-bottom: 24px;
+  /* Top + horizontal padding match the design's `.page` rule so every
+   * route gets the same breathing room — Library wraps its content in
+   * `.page` for semantics, but pages built around Mantine `Stack`s
+   * don't, and they'd otherwise butt up against the sidebar / right
+   * edge. The trailing 64px clears the 24px status bar plus a comfy
+   * gap. */
+  padding: 22px 28px 64px;
 }
 
 .page {
-  padding: 22px 28px 40px;
+  /* `.page` is now a semantic wrapper — padding lives at `.app-main`
+   * so non-`.page` screens (Compare, Settings, Session detail, Import)
+   * inherit the same margins without each page re-declaring them. */
   max-width: 100%;
 }
 
