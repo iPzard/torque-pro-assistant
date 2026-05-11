@@ -22,6 +22,7 @@ import Library from 'components/pages/library';
 import Settings from 'components/pages/settings';
 import { windowControls } from 'utils';
 
+import StatusBar from './status-bar';
 import { isActive, pingFlask } from './utils';
 
 import styles from './index.module.scss';
@@ -70,6 +71,7 @@ function App() {
 
   return (
     <AppShell
+      footer={ { height: 24 } }
       header={ { height: 44 } }
       navbar={ { breakpoint: 'sm', width: 220 } }
       padding="md"
@@ -170,6 +172,10 @@ function App() {
           <Route element={ <Settings /> } path="/settings" />
         </Routes>
       </AppShell.Main>
+
+      <AppShell.Footer data-testid="app-footer">
+        <StatusBar testId="app-status-bar" />
+      </AppShell.Footer>
     </AppShell>
   );
 }

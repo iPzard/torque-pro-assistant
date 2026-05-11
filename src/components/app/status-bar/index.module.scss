@@ -1,0 +1,15 @@
+/**
+ * Status bar — fixed-height monospace strip. Border-top separates it
+ * from the AppShell.Main body; Mantine's `AppShell.Footer` handles
+ * the bottom-anchored positioning.
+ */
+
+.bar {
+  background: var(--mantine-color-default);
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+.text {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 11px;
+}
