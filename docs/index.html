@@ -1,0 +1,120 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="./"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>torque-pro-assistant - v1.0.0</title><meta name="description" content="Documentation for torque-pro-assistant"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script><script async src="assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="index.html" class="title">torque-pro-assistant - v1.0.0</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>torque-pro-assistant - v1.0.0</h1></div><div class="tsd-panel tsd-typography"><h1 id="torque-pro-assistant" class="tsd-anchor-link">Torque Pro Assistant<a href="#torque-pro-assistant" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p><a href="https://github.com/iPzard/torque-pro-assistant/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/iPzard/torque-pro-assistant/ci.yml?branch=master&amp;style=for-the-badge&amp;label=CI" alt="CI"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-704cb6?style=for-the-badge" alt="License"></a></p>
+<blockquote>
+<p>Desktop log viewer for <a href="https://torque-bhp.com/">Torque Pro</a> OBD-II driving sessions. Drop in a CSV export, explore the data with charts, and compare historic trips side-by-side.</p>
+</blockquote>
+<!-- Animated first-run mockup. Replace with a real screen capture once we have one.
+![First-time user flow — Welcome → Add vehicle → Import → Library](media/first-run.svg)
+ -->
+<h2 id="🛠️-setup" class="tsd-anchor-link">🛠️ Setup<a href="#🛠️-setup" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<blockquote>
+<p>These setup steps are for <strong>developers</strong> working on the app. End users who install a packaged build (MSI / DMG / DEB) need none of this — the installer ships everything.</p>
+</blockquote>
+<h3 id="prerequisites" class="tsd-anchor-link">Prerequisites<a href="#prerequisites" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Recommended</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://nodejs.org/en/download/">Node.js</a></td>
+<td>20.x LTS</td>
+<td>Required ≥ 18.18 (or ≥ 20.9 LTS). ESLint 9 enforces this.</td>
+</tr>
+<tr>
+<td><a href="https://classic.yarnpkg.com/">Yarn 1</a></td>
+<td>1.22.x</td>
+<td><code>npm install</code> works too, but the lockfile + scripts are tested against Yarn 1.</td>
+</tr>
+<tr>
+<td><a href="https://www.python.org/downloads/">Python</a></td>
+<td>3.10 – 3.12</td>
+<td>Used for the Flask service in dev and bundled by PyInstaller for production.</td>
+</tr>
+<tr>
+<td><a href="https://pip.pypa.io/">pip</a></td>
+<td>bundled with Python</td>
+<td>Use <code>pip</code>, <code>pip3</code>, or <code>py -m pip</code> — whichever your install exposes.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Platform-specific (only when packaging installers):</strong></p>
+<ul>
+<li><strong>Windows MSI:</strong> <a href="https://github.com/wixtoolset/wix3/releases">WiX Toolset 3.x</a> on <code>PATH</code> (e.g., <code>C:\Program Files (x86)\WiX Toolset v3.14.1\bin</code>).</li>
+<li><strong>Linux DEB:</strong> <code>fakeroot</code> and <code>dpkg</code> on <code>PATH</code> (<code>sudo apt install fakeroot dpkg</code>).</li>
+<li><strong>macOS DMG:</strong> no extra tools needed for an unsigned build. Code signing requires an Apple Developer ID.</li>
+</ul>
+<h3 id="install-dependencies" class="tsd-anchor-link">Install dependencies<a href="#install-dependencies" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>Clone the repo and from the project root:</p>
+<p><strong>Python deps</strong> (Flask, flask-cors, PyInstaller, pytest):</p>
+<pre><code class="bash"><span class="hl-0">pip</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-3">-r</span><span class="hl-1"> </span><span class="hl-2">requirements.txt</span>
+</code><button type="button">Copy</button></pre>
+
+<p><strong>Node deps:</strong></p>
+<pre><code class="bash"><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">install</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<h2 id="⚙️-config" class="tsd-anchor-link">⚙️ Config<a href="#⚙️-config" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p><strong>Electron:</strong> <code>main.ts</code> and <code>preload.ts</code> live at the project root. They compile to <code>dist-electron/</code> via <code>tsc -p tsconfig.electron.json</code> (run automatically by <code>yarn start</code> and <code>yarn build</code>).</p>
+<p><strong>React:</strong> Renderer code lives in <code>./src/</code>. The renderer root is <code>./src/components/app/</code>, which hosts the Mantine <code>AppShell</code> and the platform-aware window chrome — frameless on Windows / Linux with custom min/max/close controls inside the header, <code>titleBarStyle: 'hiddenInset'</code> on macOS so the OS renders the real traffic lights.</p>
+<p><strong>UI:</strong> <a href="https://mantine.dev/">Mantine</a> (core, hooks, dates, notifications, dropzone). Theme is configured in the renderer entry point and defaults to dark mode.</p>
+<p><strong>Charts &amp; CSV:</strong> <a href="https://recharts.org/">Recharts</a> for plotting and <a href="https://www.papaparse.com/">Papa Parse</a> for parsing the Torque Pro CSV exports — both installed but not yet wired into features.</p>
+<p><strong>Python:</strong> Backend lives in <code>./app.py</code>. The renderer reaches it over <code>http://127.0.0.1:&lt;port&gt;</code> — <code>main.ts</code> picks a free port in 3001–3999 and hands it to the renderer via the contextBridge <code>electronAPI.getPort()</code>. A <code>/ping</code> route is wired as proof of life; real Torque-Pro-specific routes will be added as features land.</p>
+<br>
+<h2 id="📜-scripts" class="tsd-anchor-link">📜 Scripts<a href="#📜-scripts" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>The full list is in <code>package.json</code> under <code>scripts</code>. The everyday ones:</p>
+<table>
+<thead>
+<tr>
+<th>⚠️  PyInstaller is included in <code>requirements.txt</code>, so a separate install is no longer required. Installer metadata (name, version, manufacturer, description) is pulled from the matching fields in <code>package.json</code> automatically.</th>
+</tr>
+</thead>
+</table>
+<p><strong>Start developer mode</strong> (React dev server + Electron + Flask, with hot reload):</p>
+<pre><code class="bash"><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">start</span>
+</code><button type="button">Copy</button></pre>
+
+<p><strong>Package Windows: <sup><em>1</em></sup></strong></p>
+<pre><code class="bash"><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">build:package:windows</span>
+</code><button type="button">Copy</button></pre>
+
+<p><strong>Package macOS:</strong></p>
+<pre><code class="bash"><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">build:package:mac</span>
+</code><button type="button">Copy</button></pre>
+
+<p><strong>Package Linux:</strong></p>
+<pre><code class="bash"><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">build:package:linux</span>
+</code><button type="button">Copy</button></pre>
+
+<p><strong>Build documentation:</strong></p>
+<pre><code class="bash"><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">build:docs</span>
+</code><button type="button">Copy</button></pre>
+
+<p><em><sup>1</sup>Windows uses <a href="https://github.com/felixrieseberg/electron-wix-msi">electron-wix-msi</a>; install WiX Toolset and add it to your environment variables.</em>
+<br><br></p>
+<h2 id="✅-verify" class="tsd-anchor-link">✅ Verify<a href="#✅-verify" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Run before pushing — same chain CI runs.</p>
+<p><strong>Full chain (lint → typecheck → jest → pytest → React build):</strong></p>
+<pre><code class="bash"><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">verify</span>
+</code><button type="button">Copy</button></pre>
+
+<p><strong>Individual steps:</strong></p>
+<pre><code class="bash"><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">lint</span><span class="hl-1">        </span><span class="hl-4"># ESLint 9 flat config (eslint.config.ts)</span><br/><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">typecheck</span><span class="hl-1">   </span><span class="hl-4"># tsc --noEmit across renderer / electron / scripts tsconfigs</span><br/><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">test</span><span class="hl-1">        </span><span class="hl-4"># CRA jest runner</span><br/><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">test:python</span><span class="hl-1"> </span><span class="hl-4"># pytest against tests/test_app.py</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<h2 id="🐱👓-docs" class="tsd-anchor-link">🐱‍👓 Docs<a href="#🐱👓-docs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Code documentation, generated with <a href="https://typedoc.org/">TypeDoc</a>, is built into <code>./docs/</code> via <code>yarn run build:docs</code>.
+<br><br></p>
+<h2 id="🦟-bugs" class="tsd-anchor-link">🦟 Bugs<a href="#🦟-bugs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Bugs reported on the project's <a href="https://github.com/iPzard/torque-pro-assistant/issues">issues page</a> will be exterminated as quickly as possible, be sure to include steps to reproduce so they can be spotted easily.
+<br><br></p>
+<h2 id="🏷️-license" class="tsd-anchor-link">🏷️ License<a href="#🏷️-license" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>MIT © <a href="media/LICENSE">iPzard</a></p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#torque-pro-assistant"><span>Torque <wbr/>Pro <wbr/>Assistant</span></a><ul><li><a href="#🛠️-setup"><span>🛠️ <wbr/>Setup</span></a></li><li><ul><li><a href="#prerequisites"><span>Prerequisites</span></a></li><li><a href="#install-dependencies"><span>Install dependencies</span></a></li></ul></li><li><a href="#⚙️-config"><span>⚙️ <wbr/>Config</span></a></li><li><a href="#📜-scripts"><span>📜 <wbr/>Scripts</span></a></li><li><a href="#✅-verify"><span>✅ <wbr/>Verify</span></a></li><li><a href="#🐱👓-docs"><span>🐱‍👓 <wbr/>Docs</span></a></li><li><a href="#🦟-bugs"><span>🦟 <wbr/>Bugs</span></a></li><li><a href="#🏷️-license"><span>🏷️ <wbr/>License</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">torque-pro-assistant - v1.0.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer></footer><div class="overlay"></div></body></html>
