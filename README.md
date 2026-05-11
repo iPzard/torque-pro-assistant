@@ -5,8 +5,8 @@
 
 > Desktop log viewer for [Torque Pro](https://torque-bhp.com/) OBD-II driving sessions. Drop in a CSV export, explore the data with charts, and compare historic trips side-by-side.
 
-<!-- TODO: replace with a real screenshot once the UI lands -->
-![screenshot placeholder](https://via.placeholder.com/960x540?text=Torque+Pro+Assistant+%E2%80%94+screenshot+placeholder)
+<!-- Animated first-run mockup. Replace with a real screen capture once we have one. -->
+![First-time user flow — Welcome → Add vehicle → Import → Library](docs/screenshots/first-run.svg)
 
 ## 🛠️ Setup
 
