@@ -137,3 +137,10 @@ Sequenced feature plan to implement the design. Each item is roughly a commit-si
 31. CRA → Vite. Replace `react-scripts` and `scripts/build.ts`'s React adapter. PostCSS gains `postcss-preset-mantine` so Mantine's `em()` / `rem()` / responsive helpers work.
 32. React 18 → 19. Update peer deps; verify `react-redux`, `@testing-library/react`, Jest config.
 33. Mantine 7 → 9 (paired with the React 19 upgrade — Mantine 9 requires React 19).
+
+### J. Live capture (Torque Pro real-time web upload)
+34. Flask endpoint `/torque/upload` (HTTP GET) that accepts Torque Pro's [Realtime Web Upload](https://www.home-assistant.io/integrations/torque/) query-string format. Params: `k<hex>` PID values (`k0d` speed, `k1f` load, `kff1201` GPS-extended PIDs, …), `time` (epoch ms), `session`, `id`, `v`, `eml`. Skip `userUnit*` / `defaultUnit*` / `profile*` (except `profileName`). Buffer rows in-process keyed by `session`. Default Torque upload interval is ~2 s.
+35. Hex-PID → `SessionDataRow` field map. Extend `data/pids` (or sibling `data/torque-pid-codes`) with the standard Torque PID code list so the adapter can translate `k0d` → `speed_mph` / `speed_kph`. Community-maintained code lists are the source.
+36. Renderer subscribes to the live buffer via SSE (`/torque/stream`) or polling. New `state/liveSlice` tracks the in-flight session id + buffered rows; a "Live capture" page mirrors the Session detail layout but with auto-scrolling charts.
+37. Save-to-library on disconnect — when the upload stream stops for N seconds, freeze the buffered session, run it through the standard `buildSession` path, dispatch `addSession`. Discard button on the live page abandons the buffer without persisting.
+38. Network reachability: settings panel for the upload port + bind address (`0.0.0.0` for LAN), plus a copy-paste URL field showing what the user enters on the phone. Stretch: optional Bearer token check.
