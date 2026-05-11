@@ -1,9 +1,14 @@
-import { Stack } from '@mantine/core';
+import { SimpleGrid, Stack } from '@mantine/core';
 
 import type { Session, SessionSummary } from 'types/session';
 
+import AfrChart from './afr-chart';
+import BoostChart from './boost-chart';
+import EngineVitalsChart from './engine-vitals-chart';
 import MetricGrid from './metric-grid';
+import PowerTorqueChart from './power-torque-chart';
 import SpeedRpmChart from './speed-rpm-chart';
+import ThrottleLoadChart from './throttle-load-chart';
 
 interface OverviewProps {
   readonly session: Session;
@@ -12,15 +17,24 @@ interface OverviewProps {
 }
 
 /**
+ * Cross-chart cursor sync id for every chart inside Overview. Recharts
+ * routes hover events between sibling charts sharing the same id, so
+ * mousing over the Speed/RPM centerpiece also moves the cursor in
+ * Throttle, AFR, Boost, Engine Vitals, and Power & Torque.
+ */
+const OVERVIEW_SYNC_ID = 'session-overview';
+
+/**
  * Renders the contents of the Session Detail page's Overview tab.
- * Composes the eight-cell `MetricGrid` (peak / summary stats) above
- * the dual-axis Speed + RPM chart with brush. Subsequent overview
- * charts (Throttle/Load, AFR, Boost, Engine Vitals, Power & Torque,
- * MiniMap) land in the next pass.
+ * Composition:
+ *   1. `MetricGrid` — eight-cell summary tiles.
+ *   2. `SpeedRpmChart` — dual-axis centerpiece with brush.
+ *   3. 2-column grid of supporting charts: Throttle/Load, AFR,
+ *      Boost, Engine Vitals, Power & Torque.
+ *   4. (next) MiniMap with the route polyline.
  *
- * The shared `syncId` (`'session-overview'`) wires cross-chart cursor
- * sync for every chart inside Overview — Recharts handles the cursor
- * coordination when sibling charts on the page share an id.
+ * Every chart receives the shared `OVERVIEW_SYNC_ID` so the hover
+ * cursor moves in lockstep across the entire tab.
  *
  * @returns The Overview tab body React element.
  */
@@ -33,9 +47,36 @@ function Overview({ session, summary, testId }: OverviewProps) {
       />
       <SpeedRpmChart
         data={ session.data }
-        syncId="session-overview"
+        syncId={ OVERVIEW_SYNC_ID }
         testId={ testId === undefined ? undefined : `${ testId }-speed-rpm` }
       />
+      <SimpleGrid cols={ { base: 1, md: 2 } } spacing="md">
+        <ThrottleLoadChart
+          data={ session.data }
+          syncId={ OVERVIEW_SYNC_ID }
+          testId={ testId === undefined ? undefined : `${ testId }-throttle-load` }
+        />
+        <AfrChart
+          data={ session.data }
+          syncId={ OVERVIEW_SYNC_ID }
+          testId={ testId === undefined ? undefined : `${ testId }-afr` }
+        />
+        <BoostChart
+          data={ session.data }
+          syncId={ OVERVIEW_SYNC_ID }
+          testId={ testId === undefined ? undefined : `${ testId }-boost` }
+        />
+        <EngineVitalsChart
+          data={ session.data }
+          syncId={ OVERVIEW_SYNC_ID }
+          testId={ testId === undefined ? undefined : `${ testId }-engine-vitals` }
+        />
+        <PowerTorqueChart
+          data={ session.data }
+          syncId={ OVERVIEW_SYNC_ID }
+          testId={ testId === undefined ? undefined : `${ testId }-power-torque` }
+        />
+      </SimpleGrid>
     </Stack>
   );
 }

@@ -67,4 +67,29 @@ describe('pages/session-detail/overview', () => {
     renderOverview();
     expect(screen.getByTestId('overview-speed-rpm')).toBeInTheDocument();
   });
+
+  it('renders the throttle / load chart', () => {
+    renderOverview();
+    expect(screen.getByTestId('overview-throttle-load')).toBeInTheDocument();
+  });
+
+  it('renders the AFR chart', () => {
+    renderOverview();
+    expect(screen.getByTestId('overview-afr')).toBeInTheDocument();
+  });
+
+  it('renders the boost chart', () => {
+    renderOverview();
+    expect(screen.getByTestId('overview-boost')).toBeInTheDocument();
+  });
+
+  it('renders the engine vitals chart', () => {
+    renderOverview();
+    expect(screen.getByTestId('overview-engine-vitals')).toBeInTheDocument();
+  });
+
+  it('renders the power & torque chart', () => {
+    renderOverview();
+    expect(screen.getByTestId('overview-power-torque')).toBeInTheDocument();
+  });
 });
