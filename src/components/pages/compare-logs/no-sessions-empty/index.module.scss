@@ -1,0 +1,51 @@
+/**
+ * Zero-imported empty state for the Compare page — centered icon-art
+ * card, headline, copy, and a primary Import action. Scoped to this
+ * sub-component since no other page renders this layout.
+ */
+
+.empty {
+  text-align: center;
+  padding: 36px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.art {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.art svg {
+  width: 36px;
+  height: 36px;
+}
+
+.headline {
+  margin: 4px 0 6px;
+  font-size: 18px;
+  color: var(--text-0);
+}
+
+.copy {
+  margin: 0;
+  color: var(--text-2);
+  max-width: 440px;
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+.actions {
+  margin-top: 18px;
+  display: inline-flex;
+  gap: 8px;
+}

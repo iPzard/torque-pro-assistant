@@ -1,0 +1,350 @@
+/**
+ * Compare picker stage — two-column grid (session list + explainer
+ * sidecar) used when the user has sessions imported but fewer than
+ * two selected. Sub-component scope: nothing outside this folder uses
+ * these rules.
+ */
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.pick-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pick-header-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-0);
+}
+
+.pick-header-detail {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 3px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-left: auto;
+  min-width: 220px;
+}
+
+.search svg {
+  width: 13px;
+  height: 13px;
+  color: var(--text-3);
+}
+
+.search input {
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--text-0);
+  font-size: 12px;
+  padding: 4px 0;
+  flex: 1;
+  min-width: 0;
+  font-family: inherit;
+}
+
+.session-list {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-1);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.row:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.row-on {
+  composes: row;
+  background: var(--accent-soft);
+}
+
+.row:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.row-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.row-name-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-0);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-meta {
+  font-family: var(--font-mono);
+  color: var(--text-3);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.row-file {
+  font-family: var(--font-mono);
+  color: var(--text-3);
+  font-size: 11px;
+}
+
+.checkbox {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  background: var(--bg-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 14px;
+}
+
+.checkbox-on {
+  composes: checkbox;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.checkbox-on::after {
+  content: '\2713';
+  color: #1a1200;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex: 0 0 12px;
+}
+
+.swatch-empty {
+  composes: swatch;
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+}
+
+.no-match {
+  padding: 14px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-1);
+}
+
+.foot-detail {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.foot-detail-warn {
+  composes: foot-detail;
+  color: var(--warn);
+}
+
+/* ── Sidecar — explainer + picked previews ────────────────── */
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.explain {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feature {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.feature-icon {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.feature-title {
+  font-size: 13px;
+  color: var(--text-0);
+  font-weight: 500;
+}
+
+.feature-body {
+  color: var(--text-3);
+  font-size: 12px;
+  margin-top: 3px;
+  line-height: 1.55;
+}
+
+.cap-note {
+  color: var(--text-3);
+  font-size: 11px;
+  line-height: 1.55;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.side-empty-copy {
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.side-ghosts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.side-ghost {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg-2);
+}
+
+.side-ghost-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--bg-3);
+}
+
+.side-ghost-lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.side-ghost-lines > div {
+  height: 8px;
+  border-radius: 3px;
+  background: var(--bg-3);
+  width: 80%;
+}
+
+.picked-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.picked-row:last-of-type {
+  border-bottom: 0;
+}
+
+.picked-row-name {
+  font-size: 13px;
+  color: var(--text-0);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.picked-row-meta {
+  font-family: var(--font-mono);
+  color: var(--text-3);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.need-more {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(245, 158, 11, .08);
+  border: 1px solid rgba(245, 158, 11, .28);
+  border-radius: 8px;
+  color: var(--warn);
+  font-size: 12px;
+}
+
+.need-more svg {
+  width: 14px;
+  height: 14px;
+}
+
+.footer-note {
+  font-size: 11px;
+  text-align: center;
+  color: var(--text-3);
+  margin-top: 12px;
+}

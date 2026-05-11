@@ -124,16 +124,20 @@ function App() {
     ].filter((part) => part !== '').join(' ')
     : '';
 
-  /** Compare nav is disabled until two sessions exist — the route
-   *  itself works but a single session has nothing to compare with. */
-  const compareEnabled = sessions.length >= 2;
+  /**
+   * Compare nav is always navigable — when fewer than two sessions
+   * exist, the page renders the picker or the zero-imported empty
+   * state instead. Badge shows the count once at least two sessions
+   * are imported; an em-dash before then.
+   */
+  const compareReady = sessions.length >= 2;
 
   const navBadge = (item: NavItem): React.ReactNode => {
     if (item.path === '/library') {
       return <span className={ styles['nav-badge'] }>{ sessions.length }</span>;
     }
     if (item.path === '/compare') {
-      return <span className={ styles['nav-badge'] }>{ compareEnabled ? '' : '—' }</span>;
+      return <span className={ styles['nav-badge'] }>{ compareReady ? sessions.length : '—' }</span>;
     }
     return null;
   };
@@ -238,40 +242,20 @@ function App() {
           Workspace
         </div>
         { TOP_NAV.map((navItem) => {
-          const disabled = navItem.path === '/compare' && !compareEnabled;
           const className = navItemClass(isActive(location.pathname, navItem.path));
-          const inner = (
-            <>
+          return (
+            <Link
+              key={ navItem.path }
+              className={ className }
+              data-testid={ navItem.testId }
+              to={ navItem.path }
+            >
               <span className={ styles['nav-ico'] }>{ navItem.icon }</span>
               <span>{ navItem.label }</span>
               { navBadge(navItem) }
               { navItem.kbd !== undefined && <span className="kbd">{ navItem.kbd }</span> }
-            </>
+            </Link>
           );
-          return disabled
-            ? (
-              <button
-                key={ navItem.path }
-                className={ className }
-                data-testid={ navItem.testId }
-                disabled
-                style={ { cursor: 'not-allowed', opacity: 0.4 } }
-                title="Pick at least two sessions to compare"
-                type="button"
-              >
-                { inner }
-              </button>
-            )
-            : (
-              <Link
-                key={ navItem.path }
-                className={ className }
-                data-testid={ navItem.testId }
-                to={ navItem.path }
-              >
-                { inner }
-              </Link>
-            );
         }) }
 
         <div

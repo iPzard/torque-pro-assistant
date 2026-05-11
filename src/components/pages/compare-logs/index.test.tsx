@@ -71,26 +71,26 @@ describe('pages/compare-logs', () => {
     expect(screen.getByTestId('compare-logs-page-title')).toBeInTheDocument();
   });
 
-  it('renders the session selector + alignment toggle', () => {
+  it('renders the no-sessions empty when the library is empty', () => {
     renderCompareLogs();
-    expect(screen.getByTestId('compare-logs-session-selector')).toBeInTheDocument();
-    expect(screen.getByTestId('compare-logs-alignment-toggle')).toBeInTheDocument();
+    expect(screen.getByTestId('compare-logs-no-sessions')).toBeInTheDocument();
   });
 
-  it('renders the empty state when no sessions are selected', () => {
-    renderCompareLogs();
-    expect(screen.getByTestId('compare-logs-empty')).toBeInTheDocument();
+  it('renders the picker when sessions exist but none are selected', () => {
+    renderCompareLogs([makeSession('s_1', 'run-a')]);
+    expect(screen.getByTestId('compare-logs-picker')).toBeInTheDocument();
   });
 
-  it('seeds the selection from the `?ids=` URL param', () => {
+  it('renders the picker (with seeded pick) when one session is in the URL', () => {
     renderCompareLogs(
       [makeSession('s_1', 'run-a'), makeSession('s_2', 'run-b')],
-      '/compare?ids=s_1,s_2'
+      '/compare?ids=s_1'
     );
-    expect(screen.queryByTestId('compare-logs-empty')).not.toBeInTheDocument();
+    expect(screen.getByTestId('compare-logs-picker')).toBeInTheDocument();
+    expect(screen.getByTestId('compare-logs-picker-counter')).toHaveTextContent('1/4');
   });
 
-  it('renders the overlay charts when sessions are selected', () => {
+  it('renders the overlay charts when two or more sessions are selected', () => {
     renderCompareLogs(
       [makeSession('s_1', 'run-a'), makeSession('s_2', 'run-b')],
       '/compare?ids=s_1,s_2'
@@ -99,6 +99,14 @@ describe('pages/compare-logs', () => {
     expect(screen.getByTestId('compare-logs-overlay-rpm')).toBeInTheDocument();
     expect(screen.getByTestId('compare-logs-overlay-throttle')).toBeInTheDocument();
     expect(screen.getByTestId('compare-logs-overlay-boost_psi')).toBeInTheDocument();
+  });
+
+  it('renders the alignment toggle in the overlay view', () => {
+    renderCompareLogs(
+      [makeSession('s_1', 'run-a'), makeSession('s_2', 'run-b')],
+      '/compare?ids=s_1,s_2'
+    );
+    expect(screen.getByTestId('compare-logs-alignment-toggle')).toBeInTheDocument();
   });
 
   it('renders the summary table when sessions are selected', () => {
@@ -111,8 +119,8 @@ describe('pages/compare-logs', () => {
 
   it('silently drops URL ids that no longer exist in the store', () => {
     renderCompareLogs(
-      [makeSession('s_1', 'run-a')],
-      '/compare?ids=s_1,s_does_not_exist'
+      [makeSession('s_1', 'run-a'), makeSession('s_2', 'run-b')],
+      '/compare?ids=s_1,s_2,s_does_not_exist'
     );
     expect(screen.getByTestId('compare-logs-summary')).toBeInTheDocument();
   });

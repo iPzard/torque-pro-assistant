@@ -240,10 +240,11 @@ describe('components/app', () => {
     expect(screen.getByTestId('compare-logs-route-sentinel')).toBeInTheDocument();
   });
 
-  it('disables the Compare nav link when fewer than two sessions exist', () => {
+  it('Compare nav link stays navigable even with zero sessions (lands on picker / empty state)', async () => {
     renderApp();
-    const compareButton = screen.getByTestId('app-nav-link-compare');
-    expect(compareButton).toBeDisabled();
+    const user = userEvent.setup();
+    await user.click(screen.getByTestId('app-nav-link-compare'));
+    expect(screen.getByTestId('compare-logs-route-sentinel')).toBeInTheDocument();
   });
 
   it('fires pingFlask once on mount', () => {

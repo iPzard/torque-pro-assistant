@@ -121,6 +121,23 @@ CSS additions live in `adapter-pairing/index.module.scss`: `.backdrop` / `.modal
 
 Files: `adapter-pairing.jsx` (new — `AdapterPairingModal` + `AdapterPairingHost` + the `window.openAdapterPairing` global controller), `styles.css` (revised — `.pairing-*` + `.scan-*` + `.device-*` + `.rssi-bars` + `.probe-*` + `.done-*` + `.suggestion` rules; keyframes `apSpin` / `apBlink`), `screens-settings.jsx` (revised — Network section gets the OBD-II adapter card), `app.jsx` (revised — `NoVehicleScreen` pill becomes a clickable shortcut to the modal), plus rest unchanged.
 
+### handoff-8 — Compare empty / partial states (`FM_nfd2tfIwcaJeOrl3AAg`)
+
+Three keyed states for the `/compare` route, driven by session count + URL `?ids=` selection. The Compare nav link drops its "disabled until 2 sessions" gate — every state has a sensible visual now.
+
+Covers:
+
+- **Zero sessions imported** — `<NoSessionsEmpty>` takeover with a centered icon-art card, "Compare needs at least two sessions" headline, copy explaining the overlay, and a single primary `Import a session` action.
+- **Zero / one selected (sessions exist)** — `<PickStage>` two-column grid. Left: a `<Card>` carrying a search input + a scrollable session list with a checkbox + color-swatch per row, footer with detail copy + Clear + Compare buttons. Right: an explainer card (`Overlay charts` / `Aligned timelines` / `Side-by-side summary` features) + a `Picked` preview card. One-picked state surfaces a warn-tinted `Pick one more session` hint above the Compare button.
+- **Two or more selected** — existing overlay view, refactored into a separate `<OverlayView>` component so the picker stage + overlay stage have isolated hook orders.
+- **Selection cap** — max 4 picks; rows past the cap render disabled. Selection is local Set state; committing via the Compare button writes the URL `?ids=` param (`replace`, not push) so deep links round-trip.
+
+Sidebar Compare badge swaps from the prior em-dash + disabled state to a live count once two sessions exist; the link itself is always navigable.
+
+Architecture: `compare-logs/no-sessions-empty/` + `compare-logs/pick-stage/` as sub-components. CSS scoped per sub-component (`*-empty.module.scss` + `pick-stage.module.scss`). No new shared primitives.
+
+Files: `screens-dash.jsx` (revised — `CompareScreen` splits into a no-hooks shell + `CompareOverlay` for the full overlay; new `ComparePickScreen` + `CmpFeature` helpers), `styles.css` (revised — `.cmp-pick-grid` + `.cmp-search` + `.cmp-row` + `.cmp-pick-foot` + `.cmp-feature` + `.cmp-side-ghost` + `.cmp-picked-row` + `.cmp-need-more` + `.cmp-empty` rules), `app.jsx` (revised — Compare nav is always navigable; the route hands an `onImport` / `onPick` pair to `<CompareScreen>`), plus rest unchanged.
+
 ## How to consume
 
 1. Read the handoff's own `README.md` first — Claude Design ships consumption instructions.
