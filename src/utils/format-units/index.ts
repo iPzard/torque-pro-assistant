@@ -6,6 +6,41 @@ const MILES_TO_KM = 1.609344;
 /** psi → kPa conversion factor (1 psi = 6.894757 kPa). */
 const PSI_TO_KPA = 6.894757;
 
+/** A numeric value paired with its display unit. Used by both the
+ *  Metric primitive (separate value / unit slots) and the formatX
+ *  string helpers (which concatenate). */
+export interface UnitConverted {
+  readonly unit: string;
+  readonly value: number;
+}
+
+/** Convert a distance from miles to the active units mode. */
+export const convertDistance = (miles: number, units: UnitsPreference): UnitConverted =>
+  units === 'metric'
+    ? { unit: 'km', value: miles * MILES_TO_KM }
+    : { unit: 'mi', value: miles };
+
+/** Convert a speed from mph to the active units mode. */
+export const convertSpeed = (mph: number, units: UnitsPreference): UnitConverted =>
+  units === 'metric'
+    ? { unit: 'km/h', value: mph * MILES_TO_KM }
+    : { unit: 'mph',  value: mph };
+
+/** Convert a boost pressure from psi to the active units mode. */
+export const convertBoost = (psi: number, units: UnitsPreference): UnitConverted =>
+  units === 'metric'
+    ? { unit: 'kPa', value: psi * PSI_TO_KPA }
+    : { unit: 'psi', value: psi };
+
+/** Convert a temperature from °F to the active units mode. */
+export const convertTemperature = (
+  fahrenheit: number,
+  units: UnitsPreference
+): UnitConverted =>
+  units === 'metric'
+    ? { unit: '°C', value: (fahrenheit - 32) * (5 / 9) }
+    : { unit: '°F', value: fahrenheit };
+
 /**
  * Format a distance for display in the active units mode. Stored
  * values throughout the app are in miles (the dominant Torque Pro
@@ -13,8 +48,7 @@ const PSI_TO_KPA = 6.894757;
  *
  * @param miles    Distance in miles.
  * @param units    Active units preference.
- * @param decimals Decimals after the point. Defaults to `1` for the
- *   Library / Trip Stats use case.
+ * @param decimals Decimals after the point. Defaults to `1`.
  * @returns A pre-formatted distance string like `"124.6 mi"` or
  *   `"200.5 km"`.
  */
@@ -23,10 +57,8 @@ export const formatDistance = (
   units: UnitsPreference,
   decimals = 1
 ): string => {
-  if (units === 'metric') {
-    return `${ (miles * MILES_TO_KM).toFixed(decimals) } km`;
-  }
-  return `${ miles.toFixed(decimals) } mi`;
+  const converted = convertDistance(miles, units);
+  return `${ converted.value.toFixed(decimals) } ${ converted.unit }`;
 };
 
 /**
@@ -35,8 +67,7 @@ export const formatDistance = (
  *
  * @param mph      Speed in miles per hour.
  * @param units    Active units preference.
- * @param decimals Decimals after the point. Defaults to `0` for the
- *   summary-card display.
+ * @param decimals Decimals after the point. Defaults to `0`.
  * @returns A pre-formatted speed string like `"97 mph"` or `"156 km/h"`.
  */
 export const formatSpeed = (
@@ -44,10 +75,8 @@ export const formatSpeed = (
   units: UnitsPreference,
   decimals = 0
 ): string => {
-  if (units === 'metric') {
-    return `${ (mph * MILES_TO_KM).toFixed(decimals) } km/h`;
-  }
-  return `${ mph.toFixed(decimals) } mph`;
+  const converted = convertSpeed(mph, units);
+  return `${ converted.value.toFixed(decimals) } ${ converted.unit }`;
 };
 
 /**
@@ -65,10 +94,8 @@ export const formatBoost = (
   units: UnitsPreference,
   decimals = 1
 ): string => {
-  if (units === 'metric') {
-    return `${ (psi * PSI_TO_KPA).toFixed(decimals) } kPa`;
-  }
-  return `${ psi.toFixed(decimals) } psi`;
+  const converted = convertBoost(psi, units);
+  return `${ converted.value.toFixed(decimals) } ${ converted.unit }`;
 };
 
 /**
@@ -87,9 +114,6 @@ export const formatTemperature = (
   units: UnitsPreference,
   decimals = 0
 ): string => {
-  if (units === 'metric') {
-    const celsius = (fahrenheit - 32) * (5 / 9);
-    return `${ celsius.toFixed(decimals) } °C`;
-  }
-  return `${ fahrenheit.toFixed(decimals) } °F`;
+  const converted = convertTemperature(fahrenheit, units);
+  return `${ converted.value.toFixed(decimals) } ${ converted.unit }`;
 };

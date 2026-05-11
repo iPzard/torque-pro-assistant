@@ -1,6 +1,9 @@
 import { MantineProvider } from '@mantine/core';
+import { configureStore } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
 
+import preferencesReducer, { INITIAL_PREFERENCES, type PreferencesState } from 'state/preferences';
 import type { Session, SessionDataRow } from 'types/session';
 
 import SummaryTable from '.';
@@ -29,11 +32,18 @@ const makeSession = (id: string, name: string, maxSpeed: number): Session => ({
   }
 });
 
-function renderTable(sessions: readonly Session[]) {
+const makeStore = (preferences: PreferencesState = INITIAL_PREFERENCES) => configureStore({
+  preloadedState: { preferences },
+  reducer:        { preferences: preferencesReducer }
+});
+
+function renderTable(sessions: readonly Session[], preferences?: PreferencesState) {
   return render(
-    <MantineProvider>
-      <SummaryTable sessions={ sessions } testId="summary" />
-    </MantineProvider>
+    <Provider store={ makeStore(preferences) }>
+      <MantineProvider>
+        <SummaryTable sessions={ sessions } testId="summary" />
+      </MantineProvider>
+    </Provider>
   );
 }
 
@@ -59,7 +69,7 @@ describe('pages/compare-logs/summary-table', () => {
     expect(screen.getByTestId('summary-row-0-60')).toBeInTheDocument();
   });
 
-  it('renders the Δ column only when exactly two sessions are selected', () => {
+  it('omits the Δ column when only one session is selected', () => {
     renderTable([makeSession('s_1', 'run-a', 85)]);
     const row = screen.getByTestId('summary-row-max-speed');
     expect(row.children.length).toBe(2);
@@ -73,7 +83,7 @@ describe('pages/compare-logs/summary-table', () => {
     const row = screen.getByTestId('summary-row-max-speed');
     /** label + 2 session columns + Δ = 4. */
     expect(row.children.length).toBe(4);
-    expect(row).toHaveTextContent('+20');
+    expect(row).toHaveTextContent('+20 mph');
   });
 
   it('omits Δ when more than two sessions are selected', () => {
@@ -84,5 +94,14 @@ describe('pages/compare-logs/summary-table', () => {
     ]);
     const row = screen.getByTestId('summary-row-max-speed');
     expect(row.children.length).toBe(4);
+  });
+
+  it('swaps row units when preferences are set to metric', () => {
+    renderTable(
+      [makeSession('s_1', 'run-a', 60)],
+      { ...INITIAL_PREFERENCES, units: 'metric' }
+    );
+    const speedRow = screen.getByTestId('summary-row-max-speed');
+    expect(speedRow).toHaveTextContent('km/h');
   });
 });

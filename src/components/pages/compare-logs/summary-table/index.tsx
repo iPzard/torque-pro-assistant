@@ -1,70 +1,65 @@
 import { Table, Text } from '@mantine/core';
 
 import Card from 'components/primitives/card';
+import { useAppSelector } from 'state/hooks';
+import { selectUnits, type UnitsPreference } from 'state/preferences';
 import type { Session, SessionSummary } from 'types/session';
-import { formatDuration, summarize } from 'utils';
+import {
+  formatBoost,
+  formatDistance,
+  formatDuration,
+  formatSpeed,
+  formatTemperature,
+  summarize
+} from 'utils';
 
 interface SummaryTableProps {
   readonly sessions: readonly Session[];
   readonly testId?: string;
 }
 
-/** Row spec — one stat per row. Each row pulls a value out of a session's
- *  `SessionSummary` (or directly off `meta.duration` for the duration row)
- *  and formats it with the row's unit + precision. */
+/** Row spec — one stat per row. Each row's `format` returns the
+ *  pre-formatted display string for an absolute value; the renderer
+ *  builds the Δ string by routing the delta value back through the
+ *  same formatter and prepending the sign. */
 interface RowSpec {
-  /** Display label in the leftmost column. */
+  readonly format: (value: number, units: UnitsPreference) => string;
   readonly label: string;
-  /** Precision passed to `Number.prototype.toFixed`. */
-  readonly precision: number;
-  /** Unit appended after the value (with a leading space) — empty string
-   *  for the duration row, which formats independently. */
-  readonly unit: string;
-  /** Pluck the value out of a summary. Returns `null` for missing data
-   *  (e.g. session never reached 60 mph). */
+  /** Pluck the value out of a summary. Returns `null` for missing
+   *  data (e.g. session never reached 60 mph). */
   readonly value: (summary: SessionSummary) => number | null;
 }
 
 const ROWS: readonly RowSpec[] = [
-  { label: 'Distance',    precision: 1, unit: 'mi',    value: (summary) => summary.dist },
-  { label: 'Duration',    precision: 0, unit: '',      value: (summary) => summary.duration },
-  { label: 'Max Speed',   precision: 0, unit: 'mph',   value: (summary) => summary.maxSpeed },
-  { label: 'Peak HP',     precision: 0, unit: 'hp',    value: (summary) => summary.peakHp },
-  { label: 'Peak Torque', precision: 0, unit: 'lb·ft', value: (summary) => summary.peakTq },
-  { label: 'Max Boost',   precision: 1, unit: 'psi',   value: (summary) => summary.maxBoost },
-  { label: 'Max Coolant', precision: 0, unit: '°F',    value: (summary) => summary.maxCool },
-  { label: 'Avg MPG',     precision: 1, unit: 'mpg',   value: (summary) => summary.avgMpg },
-  { label: '0-30',        precision: 1, unit: 's',     value: (summary) => summary.t0to30 },
-  { label: '0-60',        precision: 1, unit: 's',     value: (summary) => summary.t0to60 }
+  { format: formatDistance,                                   label: 'Distance',    value: (summary) => summary.dist     },
+  { format: (value) => formatDuration(value),                 label: 'Duration',    value: (summary) => summary.duration },
+  { format: formatSpeed,                                      label: 'Max Speed',   value: (summary) => summary.maxSpeed },
+  { format: (value) => `${ value.toFixed(0) } hp`,            label: 'Peak HP',     value: (summary) => summary.peakHp   },
+  { format: (value) => `${ value.toFixed(0) } lb·ft`,         label: 'Peak Torque', value: (summary) => summary.peakTq   },
+  { format: formatBoost,                                      label: 'Max Boost',   value: (summary) => summary.maxBoost },
+  { format: formatTemperature,                                label: 'Max Coolant', value: (summary) => summary.maxCool  },
+  { format: (value) => `${ value.toFixed(1) } mpg`,           label: 'Avg MPG',     value: (summary) => summary.avgMpg   },
+  { format: (value) => `${ value.toFixed(1) } s`,             label: '0-30',        value: (summary) => summary.t0to30   },
+  { format: (value) => `${ value.toFixed(1) } s`,             label: '0-60',        value: (summary) => summary.t0to60   }
 ];
 
-/** Format one cell from a row spec + raw value. Pulls the duration row
- *  through `formatDuration` so the column reads `M:SS` instead of raw
- *  seconds; everything else gets `toFixed` + the unit. */
-const formatCell = (spec: RowSpec, value: number | null): string => {
-  if (value === null) return '—';
-  if (spec.label === 'Duration') return formatDuration(value);
-  return `${ value.toFixed(spec.precision) } ${ spec.unit }`.trim();
-};
-
-/** Build a delta string for the Δ column. Same precision + unit as the
- *  row; preserves the sign so a slower session reads as `-3.4 mph`. */
-const formatDelta = (spec: RowSpec, deltaValue: number | null): string => {
+/** Build the Δ cell text. Routes the absolute-value delta through the
+ *  row's formatter and tacks the sign on. Duration deltas show as
+ *  `+M:SS` / `-M:SS` for consistency with the rest of the column. */
+const formatDelta = (spec: RowSpec, deltaValue: number | null, units: UnitsPreference): string => {
   if (deltaValue === null) return '—';
-  if (spec.label === 'Duration') {
-    const sign = deltaValue >= 0 ? '+' : '-';
-    return `${ sign }${ formatDuration(Math.abs(deltaValue)) }`;
-  }
-  const formatted = deltaValue.toFixed(spec.precision);
-  const sign = deltaValue >= 0 ? '+' : '';
-  return `${ sign }${ formatted } ${ spec.unit }`.trim();
+  const absoluteText = spec.format(Math.abs(deltaValue), units);
+  const sign = deltaValue >= 0 ? '+' : '-';
+  return `${ sign }${ absoluteText }`;
 };
 
 /**
  * Side-by-side summary table for the Compare page. Renders one column
- * per session, with the rows pulled from each session's `SessionSummary`.
+ * per session, with rows pulled from each session's `SessionSummary`.
  * When exactly two sessions are overlaid, a final Δ column shows the
- * difference (second minus first) with a leading sign.
+ * difference (second minus first) with a leading sign. Unit-aware
+ * rows (Distance, Max Speed, Max Boost, Max Coolant) swap formatters
+ * to match the user's `units` preference.
  *
  * Empty session list renders a hint nudging the user toward the
  * selector above the table.
@@ -72,6 +67,8 @@ const formatDelta = (spec: RowSpec, deltaValue: number | null): string => {
  * @returns A card containing the summary table.
  */
 function SummaryTable({ sessions, testId }: SummaryTableProps) {
+  const units = useAppSelector((state) => selectUnits(state.preferences));
+
   if (sessions.length === 0) {
     return (
       <Card subtitle="summary stats per session" testId={ testId } title="Comparison">
@@ -122,12 +119,10 @@ function SummaryTable({ sessions, testId }: SummaryTableProps) {
                   <Table.Td>{ spec.label }</Table.Td>
                   { values.map((value, columnIndex) => (
                     <Table.Td key={ sessions[columnIndex].meta.id }>
-                      { formatCell(spec, value) }
+                      { value === null ? '—' : spec.format(value, units) }
                     </Table.Td>
                   )) }
-                  { showDelta && (
-                    <Table.Td>{ formatDelta(spec, delta) }</Table.Td>
-                  ) }
+                  { showDelta && <Table.Td>{ formatDelta(spec, delta, units) }</Table.Td> }
                 </Table.Tr>
               );
             }) }

@@ -1,9 +1,17 @@
 import { MantineProvider } from '@mantine/core';
+import { configureStore } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
 
+import preferencesReducer, { INITIAL_PREFERENCES } from 'state/preferences';
 import type { Session, SessionDataRow, SessionSummary } from 'types/session';
 
 import Overview from '.';
+
+const makeStore = () => configureStore({
+  preloadedState: { preferences: INITIAL_PREFERENCES },
+  reducer:        { preferences: preferencesReducer }
+});
 
 const makeRow = (tSeconds: number): SessionDataRow => ({
   rpm:       1500,
@@ -42,13 +50,15 @@ const makeSummary = (): SessionSummary => ({
 
 function renderOverview() {
   return render(
-    <MantineProvider>
-      <Overview
-        session={ makeSession() }
-        summary={ makeSummary() }
-        testId="overview"
-      />
-    </MantineProvider>
+    <Provider store={ makeStore() }>
+      <MantineProvider>
+        <Overview
+          session={ makeSession() }
+          summary={ makeSummary() }
+          testId="overview"
+        />
+      </MantineProvider>
+    </Provider>
   );
 }
 

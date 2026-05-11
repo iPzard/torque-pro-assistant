@@ -6,7 +6,12 @@
 export type { ColumnDetection, ParsedCsv } from './csv';
 export { parseCsv } from './csv';
 export { formatDuration } from './format-duration';
+export type { UnitConverted } from './format-units';
 export {
+  convertBoost,
+  convertDistance,
+  convertSpeed,
+  convertTemperature,
   formatBoost,
   formatDistance,
   formatSpeed,

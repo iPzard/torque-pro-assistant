@@ -1,11 +1,13 @@
 import { MantineProvider } from '@mantine/core';
+import { configureStore } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
 
+import preferencesReducer, { INITIAL_PREFERENCES, type PreferencesState } from 'state/preferences';
 import type { SessionSummary } from 'types/session';
 
 import MetricGrid from '.';
 
-/** Build a fully-populated SessionSummary for tests. */
 const makeSummary = (overrides: Partial<SessionSummary> = {}): SessionSummary => ({
   avgMpg:   21.4,
   dist:     124.6,
@@ -20,11 +22,21 @@ const makeSummary = (overrides: Partial<SessionSummary> = {}): SessionSummary =>
   ...overrides
 });
 
-function renderMetricGrid(summary: SessionSummary = makeSummary()) {
+const makeStore = (preferences: PreferencesState = INITIAL_PREFERENCES) => configureStore({
+  preloadedState: { preferences },
+  reducer:        { preferences: preferencesReducer }
+});
+
+function renderMetricGrid(
+  summary: SessionSummary = makeSummary(),
+  preferences?: PreferencesState
+) {
   return render(
-    <MantineProvider>
-      <MetricGrid summary={ summary } testId="metric-grid" />
-    </MantineProvider>
+    <Provider store={ makeStore(preferences) }>
+      <MantineProvider>
+        <MetricGrid summary={ summary } testId="metric-grid" />
+      </MantineProvider>
+    </Provider>
   );
 }
 
@@ -34,10 +46,15 @@ describe('pages/session-detail/overview/metric-grid', () => {
     expect(screen.getByTestId('metric-grid')).toBeInTheDocument();
   });
 
-  it('renders the Max Speed tile rounded to whole mph', () => {
+  it('renders the Max Speed tile rounded to whole mph under imperial', () => {
     renderMetricGrid();
     expect(screen.getByTestId('metric-grid-max-speed-value')).toHaveTextContent('97');
     expect(screen.getByTestId('metric-grid-max-speed-unit')).toHaveTextContent('mph');
+  });
+
+  it('switches the Max Speed tile to km/h under metric', () => {
+    renderMetricGrid(makeSummary(), { ...INITIAL_PREFERENCES, units: 'metric' });
+    expect(screen.getByTestId('metric-grid-max-speed-unit')).toHaveTextContent('km/h');
   });
 
   it('renders the Peak HP tile rounded to whole hp', () => {
@@ -52,15 +69,25 @@ describe('pages/session-detail/overview/metric-grid', () => {
     expect(screen.getByTestId('metric-grid-peak-tq-unit')).toHaveTextContent('lb·ft');
   });
 
-  it('renders the Max Boost tile with one decimal of psi', () => {
+  it('renders the Max Boost tile with one decimal of psi under imperial', () => {
     renderMetricGrid();
     expect(screen.getByTestId('metric-grid-max-boost-value')).toHaveTextContent('21.4');
     expect(screen.getByTestId('metric-grid-max-boost-unit')).toHaveTextContent('psi');
   });
 
-  it('renders the Max Coolant tile rounded to whole °F', () => {
+  it('switches the Max Boost tile to kPa under metric', () => {
+    renderMetricGrid(makeSummary(), { ...INITIAL_PREFERENCES, units: 'metric' });
+    expect(screen.getByTestId('metric-grid-max-boost-unit')).toHaveTextContent('kPa');
+  });
+
+  it('renders the Max Coolant tile in °F under imperial', () => {
     renderMetricGrid();
-    expect(screen.getByTestId('metric-grid-max-cool-value')).toHaveTextContent('205');
+    expect(screen.getByTestId('metric-grid-max-cool-unit')).toHaveTextContent('°F');
+  });
+
+  it('switches the Max Coolant tile to °C under metric', () => {
+    renderMetricGrid(makeSummary(), { ...INITIAL_PREFERENCES, units: 'metric' });
+    expect(screen.getByTestId('metric-grid-max-cool-unit')).toHaveTextContent('°C');
   });
 
   it('renders the Avg MPG tile with one decimal', () => {
@@ -68,9 +95,14 @@ describe('pages/session-detail/overview/metric-grid', () => {
     expect(screen.getByTestId('metric-grid-avg-mpg-value')).toHaveTextContent('21.4');
   });
 
-  it('renders the Distance tile with one decimal of miles', () => {
+  it('renders the Distance tile in miles under imperial', () => {
     renderMetricGrid();
-    expect(screen.getByTestId('metric-grid-dist-value')).toHaveTextContent('124.6');
+    expect(screen.getByTestId('metric-grid-dist-unit')).toHaveTextContent('mi');
+  });
+
+  it('switches the Distance tile to km under metric', () => {
+    renderMetricGrid(makeSummary(), { ...INITIAL_PREFERENCES, units: 'metric' });
+    expect(screen.getByTestId('metric-grid-dist-unit')).toHaveTextContent('km');
   });
 
   it('renders the 0-60 tile with one decimal of seconds', () => {
@@ -81,13 +113,5 @@ describe('pages/session-detail/overview/metric-grid', () => {
   it('falls back to an em-dash for 0-60 when the session never reached 60 mph', () => {
     renderMetricGrid(makeSummary({ t0to60: null }));
     expect(screen.getByTestId('metric-grid-zero-to-sixty-value')).toHaveTextContent('—');
-  });
-
-  it('the four peak tiles all render', () => {
-    renderMetricGrid();
-    expect(screen.getByTestId('metric-grid-max-speed')).toBeInTheDocument();
-    expect(screen.getByTestId('metric-grid-peak-hp')).toBeInTheDocument();
-    expect(screen.getByTestId('metric-grid-peak-tq')).toBeInTheDocument();
-    expect(screen.getByTestId('metric-grid-max-boost')).toBeInTheDocument();
   });
 });

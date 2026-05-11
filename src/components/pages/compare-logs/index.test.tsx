@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 
+import preferencesReducer, { INITIAL_PREFERENCES } from 'state/preferences';
 import sessionsReducer from 'state/sessions';
 import type { Session, SessionDataRow } from 'types/session';
 
@@ -34,8 +35,14 @@ const makeSession = (id: string, name: string): Session => ({
 });
 
 const makeStore = (sessions: readonly Session[]) => configureStore({
-  preloadedState: { sessions: { selectedId: null, sessions } },
-  reducer:        { sessions: sessionsReducer }
+  preloadedState: {
+    preferences: INITIAL_PREFERENCES,
+    sessions:    { selectedId: null, sessions }
+  },
+  reducer: {
+    preferences: preferencesReducer,
+    sessions:    sessionsReducer
+  }
 });
 
 function renderCompareLogs(
