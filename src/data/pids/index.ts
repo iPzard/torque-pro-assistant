@@ -92,7 +92,8 @@ export const PID_CATEGORIES: readonly PidCategory[] = [
       { color: '#ff6f3c', key: 'kw',             label: 'Engine kW (at wheels)',      range: [0, 240], unit: 'kW' },
       { altUnit: { metric: { key: 'tq_nm', unit: 'Nm' } }, color: '#61dafb', key: 'tq_lbft', label: 'Torque', range: [0, 360], unit: 'lb·ft' },
       { color: '#61dafb', key: 'tq_actual_pct',  label: 'Actual engine % torque',     range: [0, 100], unit: '%' },
-      { color: '#9ca3af', key: 'tq_demand_pct',  label: 'Driver demand % torque',     range: [0, 100], unit: '%' }
+      { color: '#9ca3af', key: 'tq_demand_pct',  label: 'Driver demand % torque',     range: [0, 100], unit: '%' },
+      { color: '#cbd5e1', key: 'tq_reference_nm', label: 'Engine reference torque',   range: [0, 700], unit: 'Nm' }
     ]
   },
   {
@@ -103,51 +104,71 @@ export const PID_CATEGORIES: readonly PidCategory[] = [
       { altUnit: { metric: { key: 'oil_c', unit: '°C' } },     color: '#fb7185', key: 'oil_f',     label: 'Oil Temp',     range: [60, 240], unit: '°F' },
       { altUnit: { metric: { key: 'trans_c', unit: '°C' } },   color: '#f472b6', key: 'trans_f',   label: 'Transmission Temp', range: [60, 230], unit: '°F' },
       { altUnit: { metric: { key: 'iat_c', unit: '°C' } },     color: '#a3e635', key: 'iat_f',     label: 'Intake Air Temp',   range: [40, 140], unit: '°F' },
-      { color: '#a78bfa', key: 'voltage', label: 'Voltage (Control Module)', range: [11, 15], unit: 'V' },
-      { color: '#22d3ee', key: 'timing',  label: 'Timing Advance',           range: [-10, 40], unit: '°' }
+      { altUnit: { metric: { key: 'ambient_c', unit: '°C' } }, color: '#fed7aa', key: 'ambient_f', label: 'Ambient Air Temp', range: [-20, 120], unit: '°F' },
+      { altUnit: { metric: { key: 'cact_c', unit: '°C' } },    color: '#fb7185', key: 'cact_f',    label: 'Charge Air Cooler Temp', range: [60, 250], unit: '°F' },
+      { color: '#a78bfa', key: 'voltage',      label: 'Voltage (Control Module)', range: [11, 15], unit: 'V' },
+      { color: '#c4b5fd', key: 'voltage_obd',  label: 'Voltage (OBD Adapter)',    range: [11, 15], unit: 'V' },
+      { color: '#22d3ee', key: 'timing',       label: 'Timing Advance',           range: [-10, 40], unit: '°' }
     ]
   },
   {
     id: 'throttle',
     label: 'Throttle / Load',
     pids: [
-      { color: '#c084fc', key: 'throttle', label: 'Throttle Position (Manifold)', range: [0, 100], unit: '%' },
-      { color: '#e879f9', key: 'pedal',    label: 'Accelerator Pedal',            range: [0, 100], unit: '%' },
-      { color: '#34d399', key: 'load',     label: 'Engine Load',                  range: [0, 100], unit: '%' },
-      { color: '#22c55e', key: 'load_abs', label: 'Engine Load (Absolute)',       range: [0, 100], unit: '%' },
-      { color: '#84cc16', key: 've',       label: 'Volumetric Efficiency',        range: [0, 120], unit: '%' }
+      { color: '#c084fc', key: 'throttle',       label: 'Throttle Position (Manifold)', range: [0, 100], unit: '%' },
+      { color: '#a78bfa', key: 'throttle_rel',   label: 'Throttle Position (Relative)', range: [0, 100], unit: '%' },
+      { color: '#ddd6fe', key: 'throttle_b_abs', label: 'Throttle Position B (Absolute)', range: [0, 100], unit: '%' },
+      { color: '#e879f9', key: 'pedal',          label: 'Accelerator Pedal',            range: [0, 100], unit: '%' },
+      { color: '#34d399', key: 'load',           label: 'Engine Load',                  range: [0, 100], unit: '%' },
+      { color: '#22c55e', key: 'load_abs',       label: 'Engine Load (Absolute)',       range: [0, 100], unit: '%' },
+      { color: '#84cc16', key: 've',             label: 'Volumetric Efficiency',        range: [0, 120], unit: '%' }
     ]
   },
   {
     id: 'airfuel',
     label: 'Air & Fuel',
     pids: [
-      { color: '#94a3b8', key: 'afr_cmd',      label: 'AFR — Commanded',       range: [10, 16], unit: ':1' },
-      { color: '#ffd166', key: 'afr_meas',     label: 'AFR — Measured',        range: [10, 16], unit: ':1' },
-      { color: '#facc15', key: 'lambda',       label: 'Equivalence Ratio (lambda)', range: [0.7, 1.2], unit: 'λ' },
-      { altUnit: { metric: { key: 'boost_kpa', unit: 'kPa' } }, color: '#f87171', key: 'boost_psi', label: 'Turbo Boost / Vacuum', range: [-10, 20], unit: 'psi' },
-      { color: '#fb923c', key: 'maf',          label: 'Mass Air Flow Rate',    range: [0, 90], unit: 'g/s' },
-      { color: '#fbbf24', key: 'manifold_kpa', label: 'Intake Manifold Pressure', range: [20, 200], unit: 'kPa' },
-      { color: '#fde047', key: 'fuel_rate',    label: 'Fuel Rate',             range: [0, 24], unit: 'L/h' },
-      { color: '#fed7aa', key: 'fuel_pressure', label: 'Fuel Pressure',        range: [40, 80], unit: 'psi' }
+      { color: '#94a3b8', key: 'afr_cmd',            label: 'AFR — Commanded',       range: [10, 16], unit: ':1' },
+      { color: '#ffd166', key: 'afr_meas',           label: 'AFR — Measured',        range: [10, 16], unit: ':1' },
+      { color: '#facc15', key: 'lambda',             label: 'Equivalence Ratio (lambda)', range: [0.7, 1.2], unit: 'λ' },
+      { altUnit: { metric: { key: 'boost_kpa', unit: 'kPa' } }, color: '#f87171', key: 'boost_psi', label: 'Turbo Boost / Vacuum', range: [-10, 25], unit: 'psi' },
+      { color: '#fca5a5', key: 'boost_cmd_a_psi',    label: 'Boost Pressure Commanded A', range: [0, 25], unit: 'psi' },
+      { color: '#fda4af', key: 'boost_cmd_b_psi',    label: 'Boost Pressure Commanded B', range: [0, 25], unit: 'psi' },
+      { color: '#fecaca', key: 'boost_sensor_a_psi', label: 'Boost Pressure Sensor A',    range: [0, 25], unit: 'psi' },
+      { color: '#fed7aa', key: 'boost_sensor_b_psi', label: 'Boost Pressure Sensor B',    range: [0, 25], unit: 'psi' },
+      { color: '#fb923c', key: 'maf',                label: 'Mass Air Flow Rate',    range: [0, 90], unit: 'g/s' },
+      { color: '#fdba74', key: 'maf_sensor_a',       label: 'Mass Air Flow Sensor A', range: [0, 90], unit: 'g/s' },
+      { color: '#fed7aa', key: 'maf_sensor_b',       label: 'Mass Air Flow Sensor B', range: [0, 90], unit: 'g/s' },
+      { color: '#fbbf24', key: 'manifold_kpa',       label: 'Intake Manifold Pressure', range: [20, 200], unit: 'kPa' },
+      { color: '#f59e0b', key: 'manifold_psi',       label: 'Intake Manifold Pressure', range: [0, 30], unit: 'psi' },
+      { color: '#fde68a', key: 'manifold_abs_a_psi', label: 'Intake Manifold Abs Pressure A', range: [0, 30], unit: 'psi' },
+      { color: '#fef3c7', key: 'manifold_abs_b_psi', label: 'Intake Manifold Abs Pressure B', range: [0, 30], unit: 'psi' },
+      { color: '#fde047', key: 'fuel_rate',          label: 'Fuel Rate',             range: [0, 24], unit: 'L/h' },
+      { color: '#fef08a', key: 'fuel_flow_gpm',      label: 'Fuel Flow Rate',        range: [0, 1.5], unit: 'gal/min' },
+      { color: '#fed7aa', key: 'fuel_pressure',      label: 'Fuel Pressure',         range: [40, 80], unit: 'psi' },
+      { color: '#fdba74', key: 'fuel_rail_abs',      label: 'Fuel Rail Pressure',    range: [1500, 3500], unit: 'psi' },
+      { color: '#fed7aa', key: 'fuel_rail_rel',      label: 'Fuel Rail Pressure (rel. to manifold)', range: [0, 1000], unit: 'psi' },
+      { color: '#fef3c7', key: 'fuel_level_pct',     label: 'Fuel Level',            range: [0, 100], unit: '%' }
     ]
   },
   {
     id: 'econ',
     label: 'Economy',
     pids: [
-      { color: '#4ade80', key: 'mpg', label: 'MPG', range: [0, 50],   unit: 'mpg' },
-      { color: '#86efac', key: 'co2', label: 'CO₂', range: [80, 420], unit: 'g/km' }
+      { color: '#4ade80', key: 'mpg',     label: 'MPG (instant)',       range: [0, 50],   unit: 'mpg' },
+      { color: '#86efac', key: 'co2',     label: 'CO₂ (instant)',       range: [80, 420], unit: 'g/km' },
+      { color: '#bbf7d0', key: 'co2_avg', label: 'CO₂ (session avg)',   range: [80, 1200], unit: 'g/km' }
     ]
   },
   {
     id: 'gps',
     label: 'GPS / Motion',
     pids: [
-      { color: '#67e8f9', key: 'altitude', label: 'Altitude',           range: [350, 500], unit: 'm' },
-      { color: '#a5b4fc', key: 'bearing',  label: 'Bearing',            range: [0, 360],   unit: '°' },
-      { color: '#fda4af', key: 'gcal',     label: 'G (calibrated)',     range: [0, 1.2],   unit: 'g' },
-      { color: '#cbd5e1', key: 'hdop',     label: 'HDOP',               range: [0, 3],     unit: '' }
+      { color: '#67e8f9', key: 'altitude',      label: 'Altitude',           range: [0, 4000],  unit: 'm' },
+      { color: '#a5b4fc', key: 'bearing',       label: 'Bearing',            range: [0, 360],   unit: '°' },
+      { color: '#fda4af', key: 'gcal',          label: 'G (calibrated)',     range: [0, 1.5],   unit: 'g' },
+      { color: '#fecdd3', key: 'accel_total_g', label: 'Acceleration (total)', range: [0, 1.5], unit: 'g' },
+      { color: '#cbd5e1', key: 'hdop',          label: 'HDOP',               range: [0, 3],     unit: '' }
     ]
   }
 ];
