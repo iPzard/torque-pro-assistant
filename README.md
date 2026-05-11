@@ -1,7 +1,7 @@
 # Torque Pro Assistant
 
 [![CI](https://img.shields.io/github/actions/workflow/status/iPzard/torque-pro-assistant/ci.yml?branch=master&style=for-the-badge&label=CI)](https://github.com/iPzard/torque-pro-assistant/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/license-MIT-704cb6?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-c47a08?style=for-the-badge)](LICENSE)
 
 > Desktop log viewer for [Torque Pro](https://torque-bhp.com/) OBD-II driving sessions. Drop in a CSV export, explore the data with charts, and compare historic trips side-by-side.
 
