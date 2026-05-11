@@ -15,7 +15,7 @@ import Library from 'components/pages/library';
 import SessionDetail from 'components/pages/session-detail';
 import Settings from 'components/pages/settings';
 import { useAppSelector } from 'state/hooks';
-import { selectUnits } from 'state/preferences';
+import { selectPreferences, selectUnits } from 'state/preferences';
 import { selectAllSessions } from 'state/sessions';
 import { windowControls } from 'utils';
 
@@ -26,19 +26,31 @@ import { isActive, pingFlask } from './utils';
 
 import styles from './index.module.scss';
 
+interface NavItem {
+  readonly icon: React.ReactNode;
+  readonly kbd?: string;
+  readonly label: string;
+  readonly path: string;
+  readonly testId: string;
+}
+
 /**
  * Top sidebar entries — "Workspace" group. Adding a route is a one-edit
  * change here plus a matching <Route> below.
  */
-const TOP_NAV = [
-  { icon: Icons.library, kbd: undefined,    label: 'Library', path: '/library', testId: 'app-nav-link-library' },
-  { icon: Icons.compare, kbd: undefined,    label: 'Compare', path: '/compare', testId: 'app-nav-link-compare' },
-  { icon: Icons.importArrow, kbd: '⌘O', label: 'Import',  path: '/import',  testId: 'app-nav-link-import' }
-] as const;
+const TOP_NAV: readonly NavItem[] = [
+  { icon: Icons.library,     label: 'Library', path: '/library', testId: 'app-nav-link-library' },
+  { icon: Icons.compare,     label: 'Compare', path: '/compare', testId: 'app-nav-link-compare' },
+  { icon: Icons.importArrow, kbd: '⌘O',        label: 'Import',  path: '/import',  testId: 'app-nav-link-import' }
+];
 
 /**
  * Root shell of the renderer. Matches the design handoff's `app-shell`
  * grid (220px sidebar, 44px titlebar, padded main, 24px status bar).
+ *
+ * Adapts to first-run state — when sessions / vehicle aren't yet set,
+ * the sidebar nav items show badges / disabled states / dashed
+ * "Select vehicle…" affordance per the design's brand-new layout.
  *
  * Branches the window-chrome on platform — macOS lets the OS draw
  * traffic lights via `titleBarStyle: 'hiddenInset'` (configured in
@@ -61,6 +73,7 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const units = useAppSelector((state) => selectUnits(state.preferences));
+  const preferences = useAppSelector((state) => selectPreferences(state.preferences));
   const sessions = useAppSelector((state) => selectAllSessions(state.sessions));
   const [paletteOpened, setPaletteOpened] = useState(false);
 
@@ -99,6 +112,30 @@ function App() {
     .sort((sessionA, sessionB) => sessionB.meta.startedAt.localeCompare(sessionA.meta.startedAt))
     .slice(0, 4);
 
+  const vehicleConfigured = preferences.vehicleDefaults.make !== ''
+    || preferences.vehicleDefaults.model !== '';
+  const vehicleLabel = vehicleConfigured
+    ? [
+      preferences.vehicleDefaults.year === 0 ? '' : String(preferences.vehicleDefaults.year),
+      preferences.vehicleDefaults.make,
+      preferences.vehicleDefaults.model
+    ].filter((part) => part !== '').join(' ')
+    : '';
+
+  /** Compare nav is disabled until two sessions exist — the route
+   *  itself works but a single session has nothing to compare with. */
+  const compareEnabled = sessions.length >= 2;
+
+  const navBadge = (item: NavItem): React.ReactNode => {
+    if (item.path === '/library') {
+      return <span className="badge">{ sessions.length }</span>;
+    }
+    if (item.path === '/compare') {
+      return <span className="badge">{ compareEnabled ? '' : '—' }</span>;
+    }
+    return null;
+  };
+
   return (
     <div className="app-shell" data-testid="app-shell">
       {/* ── Titlebar ── */}
@@ -109,15 +146,22 @@ function App() {
         </span>
         <span className="dim mono" data-testid="app-version" style={ { fontSize: 11, marginLeft: 6 } }>v0.4.2</span>
         <div className="tb-spacer" />
-        <span className="pill" data-testid="app-connection-pill">
-          <i className="dot ok" />
-          Connected
+        { vehicleConfigured
+          ? (
+            <span className="pill" data-testid="app-connection-pill">
+              <i className="dot ok" />
+              Connected · { vehicleLabel }
+            </span>
+          )
+          : (
+            <span className="pill warn" data-testid="app-connection-pill">
+              <i className="dot" />
+              No vehicle selected
+            </span>
+          ) }
+        <span className="pill mono" data-testid="app-rows-indexed">
+          { totalRows.toLocaleString() } rows{ totalRows === 0 ? '' : ' indexed' }
         </span>
-        { totalRows > 0 && (
-          <span className="pill mono" data-testid="app-rows-indexed">
-            { totalRows.toLocaleString() } rows indexed
-          </span>
-        ) }
         <span className="kbd" data-testid="app-command-hint">{ '⌘K' }</span>
 
         { !isMac && (
@@ -159,49 +203,120 @@ function App() {
       {/* ── Sidebar ── */}
       <nav className="app-nav" data-testid="app-navbar">
         <div className="nav-group-label" data-testid="app-nav-workspace-label">Workspace</div>
-        { TOP_NAV.map((navItem) => (
-          <Link
-            key={ navItem.path }
-            className={ `nav-item${ isActive(location.pathname, navItem.path) ? ' active' : '' }` }
-            data-testid={ navItem.testId }
-            to={ navItem.path }
-          >
-            <span className="ico">{ navItem.icon }</span>
-            <span>{ navItem.label }</span>
-            { navItem.kbd !== undefined && <span className="kbd">{ navItem.kbd }</span> }
-          </Link>
-        )) }
-
-        { recentSessions.length > 0 && (
-          <>
-            <div className="nav-group-label" data-testid="app-nav-recent-label">Recent sessions</div>
-            { recentSessions.map((session) => (
-              <Link
-                key={ session.meta.id }
-                className={ `nav-item${ location.pathname === `/sessions/${ session.meta.id }` ? ' active' : '' }` }
-                data-testid={ `app-nav-recent-${ session.meta.id }` }
-                to={ `/sessions/${ session.meta.id }` }
+        { TOP_NAV.map((navItem) => {
+          const disabled = navItem.path === '/compare' && !compareEnabled;
+          const className = `nav-item${ isActive(location.pathname, navItem.path) ? ' active' : '' }`;
+          const inner = (
+            <>
+              <span className="ico">{ navItem.icon }</span>
+              <span>{ navItem.label }</span>
+              { navBadge(navItem) }
+              { navItem.kbd !== undefined && <span className="kbd">{ navItem.kbd }</span> }
+            </>
+          );
+          return disabled
+            ? (
+              <button
+                key={ navItem.path }
+                className={ className }
+                data-testid={ navItem.testId }
+                disabled
+                style={ { cursor: 'not-allowed', opacity: 0.4 } }
+                type="button"
               >
-                <span className="ico dim">{ Icons.session }</span>
-                <span style={ { flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }>
-                  { session.meta.name }
-                </span>
-                <span className="badge mono">
-                  { new Date(session.meta.startedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'numeric' }) }
-                </span>
+                { inner }
+              </button>
+            )
+            : (
+              <Link
+                key={ navItem.path }
+                className={ className }
+                data-testid={ navItem.testId }
+                to={ navItem.path }
+              >
+                { inner }
               </Link>
-            )) }
-          </>
-        ) }
+            );
+        }) }
+
+        <div className="nav-group-label" data-testid="app-nav-recent-label">Recent sessions</div>
+        { recentSessions.length === 0
+          ? (
+            <div
+              className="dim"
+              data-testid="app-nav-recent-empty"
+              style={ {
+                fontSize:   11,
+                fontStyle:  'italic',
+                lineHeight: 1.5,
+                padding:    '6px 12px 4px'
+              } }
+            >
+              No sessions yet.{ ' ' }
+              <Link data-testid="app-nav-recent-empty-import" style={ { color: 'var(--text-1)' } } to="/import">
+                Import one
+              </Link>
+              { ' ' }to get started.
+            </div>
+          )
+          : recentSessions.map((session) => (
+            <Link
+              key={ session.meta.id }
+              className={ `nav-item${ location.pathname === `/sessions/${ session.meta.id }` ? ' active' : '' }` }
+              data-testid={ `app-nav-recent-${ session.meta.id }` }
+              to={ `/sessions/${ session.meta.id }` }
+            >
+              <span className="ico dim">{ Icons.session }</span>
+              <span style={ { flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }>
+                { session.meta.name }
+              </span>
+              <span className="badge mono">
+                { new Date(session.meta.startedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'numeric' }) }
+              </span>
+            </Link>
+          )) }
 
         <div style={ { flex: 1 } } />
 
         <div className="nav-group-label">Vehicle</div>
-        <div className="nav-item" data-testid="app-nav-vehicle">
-          <span className="ico" style={ { color: 'var(--accent)' } }>{ Icons.vehicle }</span>
-          <span style={ { flex: 1, fontSize: 12 } }>2019 Mercedes-Benz AMG GT 53</span>
-          { Icons.chevDown }
-        </div>
+        { vehicleConfigured
+          ? (
+            <Link
+              className="nav-item"
+              data-testid="app-nav-vehicle"
+              to="/settings"
+            >
+              <span className="ico" style={ { color: 'var(--accent)' } }>{ Icons.vehicle }</span>
+              <span style={ { flex: 1, fontSize: 12 } }>{ vehicleLabel }</span>
+              { Icons.chevDown }
+            </Link>
+          )
+          : (
+            <Link
+              className="nav-item"
+              data-testid="app-nav-vehicle-empty"
+              to="/settings"
+            >
+              <span
+                className="ico"
+                style={ {
+                  alignItems:     'center',
+                  border:         '1px dashed var(--border-strong)',
+                  borderRadius:   50,
+                  color:          'var(--text-3)',
+                  display:        'inline-flex',
+                  height:         18,
+                  justifyContent: 'center',
+                  width:          18
+                } }
+              >
+                { Icons.plus }
+              </span>
+              <span style={ { color: 'var(--text-2)', flex: 1, fontSize: 12, fontStyle: 'italic' } }>
+                Select vehicle…
+              </span>
+            </Link>
+          ) }
 
         <Link
           className={ `nav-item${ isActive(location.pathname, '/settings') ? ' active' : '' }` }

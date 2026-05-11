@@ -1,11 +1,14 @@
 import { MantineProvider } from '@mantine/core';
+import { configureStore } from '@reduxjs/toolkit';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 
-import store from 'state/store';
+import preferencesReducer, { INITIAL_PREFERENCES, type PreferencesState } from 'state/preferences';
+import sessionsReducer from 'state/sessions';
 import type { ElectronAPI } from 'types/electron-api';
+import type { Session } from 'types/session';
 
 /**
  * Each page is mocked with a sentinel marker so App's routing can be asserted
@@ -46,6 +49,40 @@ jest.mock('./utils', () => ({
 import App from '.';
 import { pingFlask } from './utils';
 
+/** Build a session shell — most App tests don't care about contents,
+ *  only the count for badge / Compare-enabled gating. */
+const makeSession = (id: string): Session => ({
+  data: [{ rpm: 1500, speed_mph: 30, t: 0, ts: 1000 }],
+  meta: {
+    duration:  1,
+    fileName:  `${ id }.csv`,
+    fileSize:  1024,
+    gpsStart:  { lat: 0, lon: 0 },
+    id,
+    name:      id,
+    notes:     '',
+    startedAt: '2024-10-28T13:50:51.000Z',
+    vehicle:   { make: '', model: '', vin: '', year: 0 }
+  }
+});
+
+/** Build a fresh store per test so sessions / preferences slices stay
+ *  isolated. The real `state/store` carries localStorage hydration
+ *  side effects we don't want bleeding across tests. */
+const makeTestStore = (
+  sessions: readonly Session[] = [],
+  preferences: PreferencesState = INITIAL_PREFERENCES
+) => configureStore({
+  preloadedState: {
+    preferences,
+    sessions: { selectedId: null, sessions }
+  },
+  reducer: {
+    preferences: preferencesReducer,
+    sessions:    sessionsReducer
+  }
+});
+
 /**
  * Build a stub ElectronAPI bridge. Each test installs one before rendering
  * so window.electronAPI.platform / .minimize / .maximize / .quit are
@@ -63,11 +100,16 @@ function makeApi(overrides: Partial<ElectronAPI> = {}): ElectronAPI {
   };
 }
 
-function renderApp(api: ElectronAPI = makeApi(), initialPath = '/') {
+function renderApp(
+  api: ElectronAPI = makeApi(),
+  initialPath = '/',
+  sessions: readonly Session[] = [],
+  preferences: PreferencesState = INITIAL_PREFERENCES
+) {
   window.electronAPI = api;
   return render(
     <MantineProvider>
-      <Provider store={ store }>
+      <Provider store={ makeTestStore(sessions, preferences) }>
         <MemoryRouter initialEntries={ [initialPath] }>
           <App />
         </MemoryRouter>
@@ -121,6 +163,44 @@ describe('components/app', () => {
     expect(screen.getByTestId('app-nav-link-settings')).toBeInTheDocument();
   });
 
+  it('shows the "No vehicle selected" pill when preferences carry no vehicle', () => {
+    renderApp();
+    expect(screen.getByTestId('app-connection-pill')).toHaveTextContent('No vehicle selected');
+  });
+
+  it('shows the connected pill with vehicle when preferences are populated', () => {
+    renderApp(makeApi(), '/', [], {
+      ...INITIAL_PREFERENCES,
+      vehicleDefaults: { make: 'Ford', model: 'Mustang', year: 2018 }
+    });
+    expect(screen.getByTestId('app-connection-pill')).toHaveTextContent('Connected · 2018 Ford Mustang');
+  });
+
+  it('shows the dashed "Select vehicle…" sidebar entry when no vehicle is configured', () => {
+    renderApp();
+    expect(screen.getByTestId('app-nav-vehicle-empty')).toBeInTheDocument();
+  });
+
+  it('shows the solid vehicle sidebar entry when a vehicle is configured', () => {
+    renderApp(makeApi(), '/', [], {
+      ...INITIAL_PREFERENCES,
+      vehicleDefaults: { make: 'Ford', model: 'Mustang', year: 2018 }
+    });
+    expect(screen.getByTestId('app-nav-vehicle')).toBeInTheDocument();
+  });
+
+  it('shows the empty Recent sessions message when no sessions exist', () => {
+    renderApp();
+    expect(screen.getByTestId('app-nav-recent-empty')).toBeInTheDocument();
+  });
+
+  it('renders a Recent sessions link per session (up to four)', () => {
+    renderApp(makeApi(), '/', [makeSession('s_1'), makeSession('s_2')]);
+    expect(screen.getByTestId('app-nav-recent-s_1')).toBeInTheDocument();
+    expect(screen.getByTestId('app-nav-recent-s_2')).toBeInTheDocument();
+    expect(screen.queryByTestId('app-nav-recent-empty')).not.toBeInTheDocument();
+  });
+
   it('on Windows the renderer draws min/max/close window controls', () => {
     renderApp(makeApi({ platform: 'win32' }));
     expect(screen.getByTestId('app-window-controls')).toBeInTheDocument();
@@ -152,11 +232,17 @@ describe('components/app', () => {
     expect(electronApi.quit).toHaveBeenCalledTimes(1);
   });
 
-  it('clicking the Compare nav link navigates to the Compare Logs route', async () => {
-    renderApp();
+  it('clicking the Compare nav link navigates to the Compare Logs route when two+ sessions exist', async () => {
+    renderApp(makeApi(), '/', [makeSession('s_1'), makeSession('s_2')]);
     const user = userEvent.setup();
     await user.click(screen.getByTestId('app-nav-link-compare'));
     expect(screen.getByTestId('compare-logs-route-sentinel')).toBeInTheDocument();
+  });
+
+  it('disables the Compare nav link when fewer than two sessions exist', () => {
+    renderApp();
+    const compareButton = screen.getByTestId('app-nav-link-compare');
+    expect(compareButton).toBeDisabled();
   });
 
   it('fires pingFlask once on mount', () => {

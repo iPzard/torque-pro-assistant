@@ -57,14 +57,14 @@ function renderLibrary(sessions: readonly Session[] = []) {
 }
 
 describe('pages/library', () => {
-  it('renders the page heading', () => {
+  it('renders the Welcome screen when no sessions are imported', () => {
     renderLibrary();
-    expect(screen.getByTestId('library-page-title')).toBeInTheDocument();
+    expect(screen.getByTestId('welcome-page')).toBeInTheDocument();
   });
 
-  it('shows the empty-state copy when no sessions are imported', () => {
+  it('omits the page heading when in the Welcome takeover', () => {
     renderLibrary();
-    expect(screen.getByTestId('library-empty-state')).toBeInTheDocument();
+    expect(screen.queryByTestId('library-page-title')).not.toBeInTheDocument();
   });
 
   it('omits the sessions table when no sessions are imported', () => {
@@ -72,14 +72,19 @@ describe('pages/library', () => {
     expect(screen.queryByTestId('library-sessions-table')).not.toBeInTheDocument();
   });
 
-  it('Import CSV button is present', () => {
-    renderLibrary();
+  it('renders the page heading once at least one session is imported', () => {
+    renderLibrary([makeSession('s_1_drive', 'drive')]);
+    expect(screen.getByTestId('library-page-title')).toBeInTheDocument();
+  });
+
+  it('Import CSV button is present once sessions exist', () => {
+    renderLibrary([makeSession('s_1_drive', 'drive')]);
     expect(screen.getByTestId('library-import-button')).toBeInTheDocument();
   });
 
   it('clicking Import CSV navigates to /import', async () => {
     const user = userEvent.setup();
-    renderLibrary();
+    renderLibrary([makeSession('s_1_drive', 'drive')]);
     await user.click(screen.getByTestId('library-import-button'));
     expect(screen.getByTestId('import-route-sentinel')).toBeInTheDocument();
   });
@@ -99,9 +104,9 @@ describe('pages/library', () => {
     expect(screen.getByTestId('library-recent')).toBeInTheDocument();
   });
 
-  it('hides the empty-state copy once sessions are present', () => {
+  it('hides the Welcome screen once sessions are present', () => {
     renderLibrary([makeSession('s_1_drive', 'drive')]);
-    expect(screen.queryByTestId('library-empty-state')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('welcome-page')).not.toBeInTheDocument();
   });
 
   it('renders a checkbox on each row that toggles selection', async () => {
