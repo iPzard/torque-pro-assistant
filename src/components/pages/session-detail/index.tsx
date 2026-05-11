@@ -7,6 +7,7 @@ import { selectSessionById } from 'state/sessions';
 import { formatDuration, summarize } from 'utils';
 
 import Overview from './overview';
+import RawData from './raw-data';
 
 /**
  * Renders the Session Detail screen — `/sessions/:id`. Resolves the URL
@@ -134,9 +135,7 @@ function SessionDetail() {
           </Text>
         </Tabs.Panel>
         <Tabs.Panel data-testid="session-detail-panel-raw" pt="md" value="raw">
-          <Text c="dimmed" size="sm">
-            Raw Data — paginated row table; hover drives the shared cursor.
-          </Text>
+          <RawData data={ session.data } testId="session-detail-raw-data" />
         </Tabs.Panel>
       </Tabs>
     </Stack>
